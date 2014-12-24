@@ -1,0 +1,16 @@
+[
+    {"Type":"Hustler","Turns":5,"MinPay":100,"MaxPay":110,"Walk":15,"MinSell":50,"MaxSell":75},
+    {"Type":"Just","Turns":4,"MinPay":100,"MaxPay":125,"Walk":5,"MinSell":33,"MaxSell":50},
+    {"Type":"Weasel","Turns":3,"MinPay":95,"MaxPay":105,"Walk":15,"MinSell":55,"MaxSell":80},
+    {"Type":"Sucker","Turns":5,"MinPay":100,"MaxPay":150,"Walk":20,"MinSell":25,"MaxSell":50},
+    {"Type":"Dickerer","Turns":5,"MinPay":100,"MaxPay":115,"Walk":25,"MinSell":40,"MaxSell":60},
+    {"Type":"Rook","Turns":3,"MinPay":98,"MaxPay":120,"Walk":5,"MinSell":45,"MaxSell":70},
+    {"Type":"Straight Shooter","Turns":4,"MinPay":100,"MaxPay":130,"Walk":10,"MinSell":33,"MaxSell":66},
+    {"Type":"Wealthy","Turns":3,"MinPay":125,"MaxPay":150,"Walk":25,"MinSell":45,"MaxSell":70},
+    {"Type":"Poor","Turns":3,"MinPay":90,"MaxPay":105,"Walk":5,"MinSell":50,"MaxSell":75},
+    {"Type":"Bull Marketer","Turns":4,"MinPay":100,"MaxPay":120,"Walk":25,"MinSell":40,"MaxSell":60},
+    {"Type":"Bear Marketer","Turns":4,"MinPay":95,"MaxPay":105,"Walk":15,"MinSell":60,"MaxSell":80},
+    {"Type":"Cheapskate","Turns":3,"MinPay":100,"MaxPay":105,"Walk":10,"MinSell":45,"MaxSell":60},
+    {"Type":"Hipster","Turns":5,"MinPay":115,"MaxPay":150,"Walk":20,"MinSell":30,"MaxSell":60},
+    {"Type":"Naive","Turns":4,"MinPay":120,"MaxPay":150,"Walk":25,"MinSell":33,"MaxSell":75}
+]
