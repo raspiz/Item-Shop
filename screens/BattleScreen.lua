@@ -865,7 +865,6 @@ function scene:MakeLabels(myScene)
     ---------------------    
 
     -- hide all the affliction images. can comment these all out to make sure they are in correct positions
-    --[[
     pcCrampImg.isVisible = false
     pcCrippleImg.isVisible = false
     pcMindBreakImg.isVisible = false
@@ -897,8 +896,7 @@ function scene:MakeLabels(myScene)
     npcPetPoisonImg.isVisible = false
     npcPetBlindImg.isVisible = false
     npcPetSilenceImg.isVisible = false
-    npcPetLullImg.isVisible = false  
-    --]]
+    npcPetLullImg.isVisible = false
 end
 
 function scene:MakeButtons(myScene)
