@@ -48,6 +48,7 @@ local nextTurnDmg = {}
 -- second is either damage taken or ticks left on ailment
 
 -- venom from orig, will refer as poison here
+-- todo remove these variables. they will be included in each set of stat tables instead
 local dotPoison = {} -- bool for whether poisoned or not
 local dotPoisonDmg = {} -- actual damage inflicted
 
@@ -173,7 +174,7 @@ local npcPetLullImg
  
 -- stuff for scrollview
 local scrollView
-local visibleScroll = 200 -- the visible area of the scrollview
+local visibleScroll = 100 -- the visible area of the scrollview
 local scrollRectWidth = 400
 local scrollArea
 local scrollY = 10 -- this will allow the first item added to be in the right position
@@ -216,6 +217,7 @@ function scene:LoadToons()
     
     -- npc misc stats
     npcStats["name"] = GLOB.npcs[1]["Name"]
+    npcStats["type"] = GLOB.npcs[1]["Type"]
     npcStats["level"] = GLOB.npcs[1]["Level"]
     npcStats["currentHp"] = npcStats["hp"]
     npcStats["currentAp"] = npcStats["ap"]    
@@ -244,6 +246,7 @@ function scene:LoadToons()
     pcStats["fire"] = 0
 
     pcStats["name"] = "Jack"
+    pcStats["type"] = "pc"
     pcStats["level"] = 1
     pcStats["currentHp"] = pcStats["hp"]
     pcStats["currentAp"] = pcStats["ap"]    
@@ -449,7 +452,31 @@ function scene:StartTurn(attacker, defender)
     
 end
 
+-- tick down various conditions or abilities, apply damage if applicable
 function scene:Ticks(condition, attacker)
+    
+    local toonName = attacker["name"]
+    local toonType = attacker["type"] -- this will either be pc, npc, pcPet, or npcPet
+    
+    if condition == "Poison" and attacker["dotPoison"] then
+        
+    elseif condition == "Cramped" and attacker["debuffCramp"] then
+        
+    elseif condition == "Crippled" and attacker["debuffCripple"] then
+        
+    elseif condition == "Mind Broken" and attacker["debuffMindBreak"] then
+        
+    elseif condition == "Deluded" and attacker["debuffDelude"] then
+        
+    elseif condition == "Silenced" and attacker["debuffSilence"] then
+        
+    elseif condition == "Blinded" and attacker["debuffBlind"] then
+        
+    elseif condition == "Mirror Mania" and attacker["petMirrorMania"] then -- todo make sure this is working correctly
+    
+    elseif condition == "Lulled" and attacker["debuffLull"] then
+        
+    end
     
 end
 
@@ -535,8 +562,8 @@ function scene:BattleLogAdd(logText)
     scrollView:setScrollHeight(newScrollHeight)  
     
     -- once the visible area of the scroller is filled, new events will be added to the bottom and will give appearance of scrolling up
-    if newScrollHeight >= 200 then
-        scrollView:scrollToPosition {x = 0,y = - newScrollHeight + 200,time = 400} -- had to set the y position to negative to get this to work right
+    if newScrollHeight >= visibleScroll then
+        scrollView:scrollToPosition {x = 0,y = - newScrollHeight + visibleScroll,time = 400} -- had to set the y position to negative to get this to work right
     end    
 end
 
@@ -903,68 +930,83 @@ function scene:MakeButtons(myScene)
     ---------------------
     -- BEGIN BUTTONS --
     ---------------------
+    local buttonGroupOne = display.newContainer(display.contentWidth * 2, 40) -- container for main set of buttons. still don't know why width has to be doubled on containers?
+    buttonGroupOne.x = 0
+    buttonGroupOne.y = 360
     
     -- options for the attack button
+    local buttonWidth = 100 -- factors in stroke
+    local strokeWidth = 4
+    local buttonXLoc = (buttonWidth + strokeWidth) / 2 + 37 -- this should center everything
+    
     local options = {
         label = "Attack",
         emboss = false,
         shape = "roundedRect",
-        x = 100,
-        y = 300,
+        x = buttonXLoc,
+        y = 0,
         width = 100,
-        height = 50,
+        height = 30,
         cornerRadius = 2,
         fillColor = { default={ 1, 0, 0, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
         strokeColor = { default={ 1, 0.4, 0, 1 }, over={ 0.8, 0.8, 1, 1 } },
         strokeWidth = 4,
         labelColor = { default={ 0, 0, 0, 1 }, over={ 0, 0, 0, 1 } },
+        font = native.systemFont,
+        fontSize = 14,
         onRelease = self.AttackClick               
     }
 
     attackButton = widget.newButton(options) 
     
     -- options for ability
+    buttonXLoc = buttonXLoc + 125
     options["label"] = "Ability"
-    options["x"] = 225
+    options["x"] = buttonXLoc
     options["onRelease"] = nil
     
     abilityButton = widget.newButton(options)
     
     -- item button
+    buttonXLoc = buttonXLoc + 125
     options["label"] = "Item"
-    options["x"] = 350
+    options["x"] = buttonXLoc
 
     
     itemButton = widget.newButton(options)
     
     -- meditate button
+    buttonXLoc = buttonXLoc + 125
     options["label"] = "Meditate"
-    options["x"] = 475
+    options["x"] = buttonXLoc
 
     
     meditateButton = widget.newButton(options)     
     
     -- run button
+    buttonXLoc = buttonXLoc + 125
     options["label"] = "Run"
-    options["x"] = 600
+    options["x"] = buttonXLoc
 
     
     runButton = widget.newButton(options)      
     
     -- end turn button
+    buttonXLoc = buttonXLoc + 125
     options["label"] = "End Turn"
-    options["x"] = 725
+    options["x"] = buttonXLoc
     options["onRelease"] = self.EndTurnClick  
     
     endTurnButton = widget.newButton(options)      
     
     -- add controls to group 
-    myScene:insert(attackButton)
-    myScene:insert(abilityButton)
-    myScene:insert(itemButton)
-    myScene:insert(meditateButton)
-    myScene:insert(runButton)
-    myScene:insert(endTurnButton)    
+    buttonGroupOne:insert(attackButton)
+    buttonGroupOne:insert(abilityButton)
+    buttonGroupOne:insert(itemButton)
+    buttonGroupOne:insert(meditateButton)
+    buttonGroupOne:insert(runButton)
+    buttonGroupOne:insert(endTurnButton) 
+    myScene:insert(buttonGroupOne)
     ---------------------
     -- END BUTTONS --
     ---------------------       
@@ -1004,7 +1046,7 @@ function scene:MakeScroller(myScene)
     scrollView = widget.newScrollView
     {
         left = 200,
-        top = 10,
+        top = 225,
         width = 400,
         height = visibleScroll,
         scrollWidth = scrollRectWidth, -- width of scrollable area
@@ -1017,7 +1059,7 @@ function scene:MakeScroller(myScene)
         friction = 0
     }
     
-    scrollArea = display.newContainer(800, 0)--scrollRectWidth * 2, 100) -- had to double rectWidth here for some reason?
+    scrollArea = display.newContainer(800, 0) -- had to double rectWidth here for some reason?
 
     scrollView:insert(scrollArea)
     myScene:insert(scrollView)
