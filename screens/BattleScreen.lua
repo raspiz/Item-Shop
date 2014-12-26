@@ -49,6 +49,7 @@ local nextTurnDmg = {}
 
 -- venom from orig, will refer as poison here
 -- todo remove these variables. they will be included in each set of stat tables instead
+-----------------------------delete these
 local dotPoison = {} -- bool for whether poisoned or not
 local dotPoisonDmg = {} -- actual damage inflicted
 
@@ -85,6 +86,7 @@ local tickStatusSilence = {}
 -- mirror mania
 local petMirrorMania = {}
 local tickPetMirrorMania = {}
+-------------end delete these
 
 -- various variables for battle
 local pcInit
@@ -127,6 +129,20 @@ local itemButton
 local meditateButton
 local runButton
 local endTurnButton
+local abil1Button
+local abil2Button
+local abil3Button
+local abil4Button
+local abil5Button
+local abil6Button
+local abil7Button
+local abil8Button
+local abil9Button
+local abil10Button
+local abil11Button
+local abil12Button
+local buttonGroupTwo
+local buttonGroupThree
  
 -- labels 
 local pcHPLabel
@@ -137,6 +153,8 @@ local npcHPLabel
 local npcAPLabel 
 local npcPetHPLabel
 local npcPetAPLabel  
+local pcPetStatGroup
+local npcPetStatGroup
 
 -- affliction images
 local pcCrampImg
@@ -244,6 +262,19 @@ function scene:LoadToons()
     pcStats["disease"] = 1.5
     pcStats["earth"] = 2
     pcStats["fire"] = 0
+    
+    pcStats["abil1"] = 1
+    pcStats["abil2"] = 4
+    pcStats["abil3"] = 7
+    pcStats["abil4"] = 8
+    pcStats["abil5"] = 12
+    pcStats["abil6"] = 16
+    pcStats["abil7"] = 20
+    pcStats["abil8"] = 22
+    pcStats["abil9"] = 24
+    pcStats["abil10"] = 26
+    pcStats["abil11"] = 28
+    pcStats["abil12"] = 30
 
     pcStats["name"] = "Jack"
     pcStats["type"] = "pc"
@@ -273,7 +304,7 @@ end
 
 -- attack function. can be called by players and npcs as well as their pets
 function scene:Attack(atkName, defName, atkStat, defStat, defTable)
-    scene:CheckSilenceBlind("blind") -- if the person attacking is blinded and fails check, the following if statement code will not execute
+    scene:CheckSilenceBlind("statusBlind") -- if the person attacking is blinded and fails check, the following if statement code will not execute
     
     if not turnLost then
         local roll = utilities:RNG(6)        
@@ -337,54 +368,56 @@ function scene:CheckSilenceBlind(affliction)
 end
 
 function scene:EndTurnClick()
-    --todo finish this up. since each outcome will output some text and then start turn, just set the values in each if statement and execute at end of function
-    
-    -- decide who's turn is next
+    -- decide who's turn is next and who the defender is
     if (pcTurn and not pcTurnPet) then
         if (pcPetMelee or pcPetMagic) then
             pcTurnPet = true
-            -- output some text
+            scene:BattleLogAdd(pcPetStats["name"].."'s turn.")
+            
             if npcPetMelee then
-                --StartTurn()
+                scene:StartTurn(pcPetStats, npcPetStats)
             else
-                --StartTurn()
+                scene:StartTurn(pcPetStats, npcStats)
             end
         else
             pcTurn = false
-            --output some text
+            scene:BattleLogAdd(npcStats["name"].."'s turn.")
             scene:StartTurn(npcStats, pcStats)
         end        
     elseif pcTurnPet then
         pcTurn = false
         pcTurnPet = false
-        --output some text
+        scene:BattleLogAdd(npcStats["name"].."'s turn.")
+        
         if pcPetMelee then
-            --StartTurn()
+            scene:StartTurn(npcStats, pcPetStats)
         else
-            --StartTurn()
+            scene:StartTurn(npcStats, pcStats)
         end
     elseif (not pcTurn and not pcTurnPet) then
         if (npcPetMelee or npcPetMagic) then
             npcTurnPet = true
-            --output some text
+            scene:BattleLogAdd(npcPetStats["name"].."'s turn.")
+            
             if pcPetMelee then
-                --StartTurn()
+                scene:StartTurn(npcPetStats, pcPetStats)
             else
-                --StartTurn()
+                scene:StartTurn(npcPetStats, pcStats)
             end
         else
             pcTurn = true
-            --output some text
+            scene:BattleLogAdd(pcStats["name"].."'s turn.")
             scene:StartTurn(pcStats, npcStats)
         end
     else -- pc turn
         pcTurn = true
         npcTurnPet = false
-        --output some text
+        scene:BattleLogAdd(pcStats["name"].."'s turn.")
+        
         if npcPetMelee then
-            --StartTurn()
+            scene:StartTurn(pcStats, npcPetStats)
         else
-            --StartTurn()
+            scene:StartTurn(pcStats, npcStats)
         end
     end
 end
@@ -395,15 +428,21 @@ function scene:EndTurn()
     scene:Die()
     
     -- update hp/ap labels for all
-    -- todo figure out how to deal with pets here
     pcHPLabel.text = "HP: "..pcStats["currentHp"].."/"..pcStats["hp"]
     pcAPLabel.text = "AP: "..pcStats["currentAp"].."/"..pcStats["ap"]
-    --pcPetHPLabel.text = "HP: "..pcPetStats["currentHp"].."/"..pcPetStats["hp"]
-    --pcPetAPLabel.text = "AP: "..pcPetStats["currentAp"].."/"..pcPetStats["ap"] 
+    
+    if pcPetMelee or pcPetMagic then
+        pcPetHPLabel.text = "HP: "..pcPetStats["currentHp"].."/"..pcPetStats["hp"]
+        pcPetAPLabel.text = "AP: "..pcPetStats["currentAp"].."/"..pcPetStats["ap"] 
+    end    
+
     npcHPLabel.text = "HP: "..npcStats["currentHp"].."/"..npcStats["hp"]
     npcAPLabel.text = "AP: "..npcStats["currentAp"].."/"..npcStats["ap"]
-    --npcPetHPLabel.text = "HP: "..npcPetStats["currentHp"].."/"..npcPetStats["hp"]
-    --npcPetAPLabel.text = "AP: "..npcPetStats["currentAp"].."/"..npcPetStats["ap"]    
+    
+    if npcPetMelee or pcPetMagic then    
+        npcPetHPLabel.text = "HP: "..npcPetStats["currentHp"].."/"..npcPetStats["hp"]
+        npcPetAPLabel.text = "AP: "..npcPetStats["currentAp"].."/"..npcPetStats["ap"]    
+    end
     
     -- todo find a better way to deal with this. using images might be ok, then just disable them ex: attackButton:setEnabled(false)
     attackButton.isVisible = false
@@ -412,71 +451,240 @@ function scene:EndTurn()
     meditateButton.isVisible = false
     runButton.isVisible = false
 
+    --todo hide abil buttons here
+
     -- todo add anything else that needs changed here
     
 end
 
 --check ticks, call on ai after player finishes turn, check to see if a player is dead
+-- tables are passed in for attacker (whomever's turn it is) and defender (defender is pc or npc or melee pet)
 function scene:StartTurn(attacker, defender)
     
-    --scene:Ticks("poison", attacker)
+    scene:Ticks("Poison", attacker) -- tick poison first since it may kill attacker and doesn't go away. turnLost will be set to true if attacker dies
     
-    if not turnLost then
-        -- tick non damaging afflictions
-        
-        
+    if not turnLost then -- tick non damaging afflictions, status effects, and mirror mania
+       scene:Ticks("Cramped", attacker)
+       scene:Ticks("Crippled", attacker)
+       scene:Ticks("Mind Broken", attacker)
+       scene:Ticks("Deluded", attacker)
+       scene:Ticks("Silenced", attacker)
+       scene:Ticks("Blinded", attacker)
+       scene:Ticks("Mirror Mania", attacker)
+       scene:Ticks("Lulled", attacker)
     end
     
     if not turnLost then
-        -- tick multi turn moves
-    end
+        scene:TickMultiTurnMoves()
+    end    
     
-    -- start AI routine
     if not turnLost and not pcTurn then
-        scene:AI(attacker, defender)
+        scene:AI(attacker, defender)-- start AI routine
+        endTurnButton:setLabel("End NPC Turn")
     elseif not turnLost and pcTurn then
         if pcTurnPet then
-            -- set up controls for pet's turn
+            endTurnButton:setLabel("End Player Pet Turn")            
         else
-            -- set up controls for player's turn
-            attackButton.isVisible = true
-            abilityButton.isVisible = true
-            itemButton.isVisible = true
-            meditateButton.isVisible = true
-            runButton.isVisible = true
+            endTurnButton:setLabel("End Player Turn")            
         end
+        
+        -- enable controls
+        attackButton.isVisible = true
+        abilityButton.isVisible = true
+        itemButton.isVisible = true
+        meditateButton.isVisible = true
+        runButton.isVisible = true      
+        
+        scene:SetAbilButtonLabels(attacker) -- map ability names to buttons
     else
         turnLost = false
         scene:EndTurn()
-    end
-    
+    end    
 end
 
 -- tick down various conditions or abilities, apply damage if applicable
+-- this is called before a turn starts and an action can be taken
 function scene:Ticks(condition, attacker)
     
     local toonName = attacker["name"]
     local toonType = attacker["type"] -- this will either be pc, npc, pcPet, or npcPet
     
     if condition == "Poison" and attacker["dotPoison"] then
+        attacker["currentHp"] = attacker["currentHp"] - attacker["dotPoisonDmg"]
         
+        if attacker["currentHp"] < 1 then
+            attacker["currentHp"] = 0
+        end        
+
+        if toonType == "pc" then
+            pcHPLabel.text = "HP: "..attacker["currentHp"].."/"..attacker["hp"]    
+        elseif toonType == "pcPet" then
+            pcPetHPLabel.text = "HP: "..attacker["currentHp"].."/"..attacker["hp"] 
+        elseif toonType == "npc" then
+            npcHPLabel.text = "HP: "..attacker["currentHp"].."/"..attacker["hp"] 
+        elseif toonType == "npcPet" then
+            npcPetHPLabel.text = "HP: "..attacker["currentHp"].."/"..attacker["hp"] 
+        end
+        
+        scene:BattleLogAdd(toonName.." has taken "..attacker["dotPoisonDmg"].." damage from "..condition..".") 
+        
+        if attacker["currentHp"] < 1 then
+            turnLost = true
+        end       
     elseif condition == "Cramped" and attacker["debuffCramp"] then
-        
+        if attacker["tickDebuffCramp"] ~= 3 then
+            attacker["tickDebuffCramp"] = attacker["tickDebuffCramp"] + 1
+        else
+            attacker["tickDebuffCramp"] = 0
+            attacker["debuffCramp"] = false            
+            attacker["str"] = attacker["baseStr"]
+            
+            if toonType == "pc" then
+                pcCrampImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetCrampImg.isVisible = false
+            elseif toonType == "npc" then
+                npcCrampImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetCrampImg.isVisible = false
+            end       
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end
     elseif condition == "Crippled" and attacker["debuffCripple"] then
-        
+        if attacker["tickDebuffCripple"] ~= 3 then
+            attacker["tickDebuffCripple"] = attacker["tickDebuffCripple"] + 1
+        else
+            attacker["tickDebuffCripple"] = 0
+            attacker["debuffCripple"] = false            
+            attacker["def"] = attacker["baseDef"]
+            
+            if toonType == "pc" then
+                pcCrippleImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetCrippleImg.isVisible = false
+            elseif toonType == "npc" then
+                npcCrippleImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetCrippleImg.isVisible = false
+            end       
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end        
     elseif condition == "Mind Broken" and attacker["debuffMindBreak"] then
-        
+        if attacker["tickDebuffMindBreak"] ~= 3 then
+            attacker["tickDebuffMindBreak"] = attacker["tickDebuffMindBreak"] + 1
+        else
+            attacker["tickDebuffMindBreak"] = 0
+            attacker["debuffMindBreak"] = false            
+            attacker["int"] = attacker["baseInt"]
+            
+            if toonType == "pc" then
+                pcMindBreakImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetMindBreakImg.isVisible = false
+            elseif toonType == "npc" then
+                npcMindBreakImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetMindBreakImg.isVisible = false
+            end       
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end             
     elseif condition == "Deluded" and attacker["debuffDelude"] then
-        
-    elseif condition == "Silenced" and attacker["debuffSilence"] then
-        
-    elseif condition == "Blinded" and attacker["debuffBlind"] then
-        
+        if attacker["tickDebuffDelude"] ~= 3 then
+            attacker["tickDebuffDelude"] = attacker["tickDebuffDelude"] + 1
+        else
+            attacker["tickDebuffDelude"] = 0
+            attacker["debuffDelude"] = false            
+            attacker["will"] = attacker["baseWill"]
+            
+            if toonType == "pc" then
+                pcDeludeImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetDeludeImg.isVisible = false
+            elseif toonType == "npc" then
+                npcDeludeImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetDeludeImg.isVisible = false
+            end       
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end             
+    elseif condition == "Silenced" and attacker["statusSilence"] then
+        if attacker["tickStatusSilence"] ~= 3 then
+            attacker["tickStatusSilence"] = attacker["tickStatusSilence"] + 1
+        else
+            attacker["tickStatusSilence"] = 0
+            attacker["statusSilence"] = false
+            
+            if toonType == "pc" then
+                pcSilenceImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetSilenceImg.isVisible = false
+            elseif toonType == "npc" then
+                npcSilenceImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetSilenceImg.isVisible = false
+            end       
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end             
+    elseif condition == "Blinded" and attacker["statusBlind"] then
+        if attacker["tickStatusBlind"] ~= 3 then
+            attacker["tickStatusBlind"] = attacker["tickStatusBlind"] + 1
+        else
+            attacker["tickStatusBlind"] = 0
+            attacker["statusBlind"] = false
+            
+            if toonType == "pc" then
+                pcBlindImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetBlindImg.isVisible = false
+            elseif toonType == "npc" then
+                npcBlindImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetBlindImg.isVisible = false
+            end       
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end                     
     elseif condition == "Mirror Mania" and attacker["petMirrorMania"] then -- todo make sure this is working correctly
-    
-    elseif condition == "Lulled" and attacker["debuffLull"] then
+        if attacker["tickPetMirroMania"] ~= 3 then
+            attacker["tickPetMirroMania"] = attacker["tickPetMirroMania"] + 1
+        else
+            attacker["tickPetMirroMania"] = 0
+            attacker["petMirrorMania"] = false
+            
+            scene:ClearStats(toonType)
+            
+            scene:BattleLogAdd(toonName.."'s "..condition.." has ended.")
+        end               
+    elseif condition == "Lulled" and attacker["statusLull"] then
+        local roll = utilities:RNG(3)
         
+        if roll ~= 3 then
+            scene:BattleLogAdd(toonName.." is still "..condition..".")
+            turnLost = true
+        else
+            attacker["statusLull"] = false
+            
+            if toonType == "pc" then
+                pcLullImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetLullImg.isVisible = false
+            elseif toonType == "npc" then
+                npcLullImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetLullImg.isVisible = false
+            end       
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end             
     end
+end
+
+function scene:TickMultiTurnMoves()
     
 end
 
@@ -493,7 +701,7 @@ function scene:Die()
         pcPetStats = nil
         pcPetMelee = false
         pcPetMagic = false
-        -- todo need to clear out or hide any other variable associated with pet (ticks, stats, labels, etc)
+        ClearStats("pc")
     end
     
     if npcStats["currentHp"] < 1 then
@@ -506,7 +714,7 @@ function scene:Die()
         npcPetStats = nil
         npcPetMelee = false
         npcPetMagic = false
-        -- todo need to clear out or hide any other variable associated with pet (ticks, stats, labels, etc)
+        ClearStats("npc")
     end    
     
 end
@@ -514,6 +722,49 @@ end
 function scene:AI(attacker, defender)
     --todo add rest of stuff. for now just attack and return control to player
     scene:Attack(npcStats["name"], pcStats["name"], npcStats["str"], pcStats["def"], pcStats)
+end
+
+-- nil out tables for a pc or npc pet and hide their stat labels
+-- passed in string will determine if clearing pc or npc pet
+-- called when a pet dies or turns run out(mirror mania)
+function ClearStats(owner)
+    if owner == "pc" then
+        pcPetStats = nil
+        pcPetMelee = false
+        pcPetMagic = false
+        
+        pcPetCrampImg.isVisible = false
+        pcPetCrippleImg.isVisible = false
+        pcPetMindBreakImg.isVisible = false
+        pcPetDeludeImg.isVisible = false
+        pcPetPoisonImg.isVisible = false
+        pcPetBlindImg.isVisible = false
+        pcPetSilenceImg.isVisible = false
+        pcPetLullImg.isVisible = false    
+        pcPetStatGroup.isVisible = false
+        
+        pcPetNameLabel.text = ""
+        pcPetHPLabel.text = "0/0"
+        pcPetAPLabel.text = "0/0"        
+    elseif owner == "npc" then
+        npcPetStats = nil
+        npcPetMelee = false
+        npcPetMagic = false
+        
+        npcPetCrampImg.isVisible = false
+        npcPetCrippleImg.isVisible = false
+        npcPetMindBreakImg.isVisible = false
+        npcPetDeludeImg.isVisible = false
+        npcPetPoisonImg.isVisible = false
+        npcPetBlindImg.isVisible = false
+        npcPetSilenceImg.isVisible = false
+        npcPetLullImg.isVisible = false    
+        npcPetStatGroup.isVisible = false
+        
+        npcPetNameLabel.text = ""
+        npcPetHPLabel.text = "0/0"
+        npcPetAPLabel.text = "0/0"            
+    end
 end
 
 -- set some initial conditions for battle
@@ -524,11 +775,15 @@ function scene:Initialize()
     npcPetMagic = false
     turnLost = false
     
+    pcPetStatGroup.isVisible = false
+    npcPetStatGroup.isVisible = false
+    
     -- todo add initiative roll here
     pcTurn = true
     pcTurnPet = false
     npcTurnPet = false    
-    
+    endTurnButton:setLabel("End Player Turn") 
+    scene:SetAbilButtonLabels(pcStats) -- map ability names to buttons
 end
 
 -- add a battle event to the scroller log
@@ -551,8 +806,7 @@ function scene:BattleLogAdd(logText)
     }  
     
     scrollY = scrollY + textHeight
-
-    --logOptions["text"] = "Nothing "..scrollY        
+      
     local itemLabel = display.newText(logOptions)
     itemLabel:setFillColor(1,1,1) 
 
@@ -565,6 +819,80 @@ function scene:BattleLogAdd(logText)
     if newScrollHeight >= visibleScroll then
         scrollView:scrollToPosition {x = 0,y = - newScrollHeight + visibleScroll,time = 400} -- had to set the y position to negative to get this to work right
     end    
+end
+
+function scene:SetAbilButtonLabels(attacker)   
+    if attacker["abil1"] then
+        abil1Button:setLabel(GLOB.abilities[attacker["abil1"]]["Name"])
+    else
+        abil1Button:setLabel("Unknown")
+    end
+    
+    if attacker["abil2"] then
+        abil2Button:setLabel(GLOB.abilities[attacker["abil2"]]["Name"])
+    else
+        abil2Button:setLabel("Unknown")
+    end
+
+    if attacker["abil3"] then
+        abil3Button:setLabel(GLOB.abilities[attacker["abil3"]]["Name"])
+    else
+        abil3Button:setLabel("Unknown")
+    end
+    
+    if attacker["abil4"] then
+        abil4Button:setLabel(GLOB.abilities[attacker["abil4"]]["Name"])
+    else
+        abil4Button:setLabel("Unknown")
+    end
+    
+    if attacker["abil5"] then
+        abil5Button:setLabel(GLOB.abilities[attacker["abil5"]]["Name"])
+    else
+        abil5Button:setLabel("Unknown")
+    end
+    
+    if attacker["abil6"] then
+        abil6Button:setLabel(GLOB.abilities[attacker["abil6"]]["Name"])
+    else
+        abil6Button:setLabel("Unknown")
+    end
+    
+    if attacker["abil7"] then
+        abil7Button:setLabel(GLOB.abilities[attacker["abil7"]]["Name"])
+    else
+        abil7Button:setLabel("Unknown")
+    end
+    
+    if attacker["abil8"] then
+        abil8Button:setLabel(GLOB.abilities[attacker["abil8"]]["Name"])
+    else
+        abil8Button:setLabel("Unknown")
+    end
+    
+    if attacker["abil9"] then
+        abil9Button:setLabel(GLOB.abilities[attacker["abil9"]]["Name"])
+    else
+        abil9Button:setLabel("Unknown")
+    end
+    
+    if attacker["abil10"] then
+        abil10Button:setLabel(GLOB.abilities[attacker["abil10"]]["Name"])
+    else
+        abil10Button:setLabel("Unknown")
+    end
+    
+    if attacker["abil11"] then
+        abil11Button:setLabel(GLOB.abilities[attacker["abil11"]]["Name"])
+    else
+        abil11Button:setLabel("Unknown")
+    end
+    
+    if attacker["abil12"] then
+        abil12Button:setLabel(GLOB.abilities[attacker["abil12"]]["Name"])
+    else
+        abil12Button:setLabel("Unknown")
+    end  
 end
 
 function scene:MakeLabels(myScene)
@@ -662,7 +990,7 @@ function scene:MakeLabels(myScene)
     -- PC PET LABELS
     ------------------
     local pcPetStartingY = 15      
-    local pcPetStatGroup = display.newContainer(300, 200) -- container for player stats on screen. could change to a regular group if there is a problem with the container
+    pcPetStatGroup = display.newContainer(300, 200) -- container for player stats on screen. could change to a regular group if there is a problem with the container
     pcPetStatGroup.x = 50
     pcPetStatGroup.y = 100
     
@@ -811,7 +1139,7 @@ function scene:MakeLabels(myScene)
     -- NPC PET LABELS
     ------------------
     local npcPetStartingY = 15
-    local npcPetStatGroup = display.newContainer(300, 200) -- container for player stats on screen. could change to a regular group if there is a problem with the container
+    npcPetStatGroup = display.newContainer(300, 200) -- container for player stats on screen. could change to a regular group if there is a problem with the container
     npcPetStatGroup.x = GLOB.width - 100
     npcPetStatGroup.y = 100
     
@@ -937,13 +1265,14 @@ function scene:MakeButtons(myScene)
     -- options for the attack button
     local buttonWidth = 100 -- factors in stroke
     local strokeWidth = 4
-    local buttonXLoc = (buttonWidth + strokeWidth) / 2 + 37 -- this should center everything
+    local buttonOrigLoc = (buttonWidth + strokeWidth) / 2 + 37 -- this should center everything
+    local buttonXLoc = buttonOrigLoc
     
     local options = {
         label = "Attack",
         emboss = false,
         shape = "roundedRect",
-        x = buttonXLoc,
+        x = buttonOrigLoc,
         y = 0,
         width = 100,
         height = 30,
@@ -963,41 +1292,105 @@ function scene:MakeButtons(myScene)
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Ability"
     options["x"] = buttonXLoc
-    options["onRelease"] = nil
-    
+    options["onRelease"] = nil    
     abilityButton = widget.newButton(options)
     
     -- item button
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Item"
-    options["x"] = buttonXLoc
-
-    
+    options["x"] = buttonXLoc    
     itemButton = widget.newButton(options)
     
     -- meditate button
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Meditate"
-    options["x"] = buttonXLoc
-
-    
+    options["x"] = buttonXLoc    
     meditateButton = widget.newButton(options)     
     
     -- run button
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Run"
-    options["x"] = buttonXLoc
-
-    
+    options["x"] = buttonXLoc    
     runButton = widget.newButton(options)      
     
     -- end turn button
     buttonXLoc = buttonXLoc + 125
     options["label"] = "End Turn"
     options["x"] = buttonXLoc
-    options["onRelease"] = self.EndTurnClick  
+    options["onRelease"] = self.EndTurnClick      
+    endTurnButton = widget.newButton(options) 
     
-    endTurnButton = widget.newButton(options)      
+    -- abilities group 1 and buttons
+    buttonGroupTwo = display.newContainer(display.contentWidth * 2, 40) -- container for main set of buttons. still don't know why width has to be doubled on containers?
+    buttonGroupTwo.x = 0
+    buttonGroupTwo.y = 400  
+    
+    buttonXLoc = buttonOrigLoc
+    options["label"] = "Abil1"
+    options["x"] = buttonXLoc
+    options["onRelease"] = nil
+    abil1Button = widget.newButton(options)
+    
+    buttonXLoc = buttonXLoc + 125
+    options["label"] = "Abil2"
+    options["x"] = buttonXLoc    
+    abil2Button = widget.newButton(options)    
+    
+    buttonXLoc = buttonXLoc + 125
+    options["label"] = "Abil3"
+    options["x"] = buttonXLoc    
+    abil3Button = widget.newButton(options)  
+    
+    buttonXLoc = buttonXLoc + 125
+    options["label"] = "Abil4"
+    options["x"] = buttonXLoc    
+    abil4Button = widget.newButton(options)  
+    
+    buttonXLoc = buttonXLoc + 125
+    options["label"] = "Abil5"
+    options["x"] = buttonXLoc    
+    abil5Button = widget.newButton(options)  
+    
+    buttonXLoc = buttonXLoc + 125
+    options["label"] = "Abil6"
+    options["x"] = buttonXLoc    
+    abil6Button = widget.newButton(options)      
+    
+    -- abilities group 2 and buttons
+    buttonGroupThree = display.newContainer(display.contentWidth * 2, 40) -- container for main set of buttons. still don't know why width has to be doubled on containers?
+    buttonGroupThree.x = 0
+    buttonGroupThree.y = 440  
+    
+    buttonXLoc = buttonOrigLoc
+    options["label"] = "Abil7"
+    options["x"] = buttonXLoc
+    options["onRelease"] = nil
+    abil7Button = widget.newButton(options)
+    
+    buttonXLoc = buttonXLoc + 125
+    options["label"] = "Abil8"
+    options["x"] = buttonXLoc    
+    abil8Button = widget.newButton(options)    
+    
+    buttonXLoc = buttonXLoc + 125
+    options["label"] = "Abil9"
+    options["x"] = buttonXLoc    
+    abil9Button = widget.newButton(options)  
+    
+    buttonXLoc = buttonXLoc + 125
+    options["label"] = "Abil10"
+    options["x"] = buttonXLoc    
+    abil10Button = widget.newButton(options)  
+    
+    buttonXLoc = buttonXLoc + 125
+    options["label"] = "Abil11"
+    options["x"] = buttonXLoc    
+    abil11Button = widget.newButton(options)  
+    
+    buttonXLoc = buttonXLoc + 125
+    options["label"] = "Abil12"
+    options["x"] = buttonXLoc    
+    abil12Button = widget.newButton(options)      
     
     -- add controls to group 
     buttonGroupOne:insert(attackButton)
@@ -1006,7 +1399,21 @@ function scene:MakeButtons(myScene)
     buttonGroupOne:insert(meditateButton)
     buttonGroupOne:insert(runButton)
     buttonGroupOne:insert(endTurnButton) 
+    buttonGroupTwo:insert(abil1Button)
+    buttonGroupTwo:insert(abil2Button)
+    buttonGroupTwo:insert(abil3Button)
+    buttonGroupTwo:insert(abil4Button)
+    buttonGroupTwo:insert(abil5Button)
+    buttonGroupTwo:insert(abil6Button)
+    buttonGroupThree:insert(abil7Button)
+    buttonGroupThree:insert(abil8Button)
+    buttonGroupThree:insert(abil9Button)
+    buttonGroupThree:insert(abil10Button)
+    buttonGroupThree:insert(abil11Button)
+    buttonGroupThree:insert(abil12Button)    
     myScene:insert(buttonGroupOne)
+    myScene:insert(buttonGroupTwo)
+    myScene:insert(buttonGroupThree)
     ---------------------
     -- END BUTTONS --
     ---------------------       
@@ -1074,19 +1481,18 @@ function scene:create(event)
     -- Initialize the scene here.
     -- Example: add display objects to "sceneGroup", add touch listeners, etc.    
 
+    -- load the pc and npc. need to do this before creating labels
     scene:LoadToons()
-    scene:Initialize()    
-
+    
     ---------------------
-    --  BEGIN CONTROLS --
+    --  MAKE CONTROLS --
     ---------------------
     scene:MakeLabels(sceneGroup)
     scene:MakeButtons(sceneGroup)
-    scene:MakeScroller(sceneGroup)    
-    
-    ---------------------
-    --  END CONTROLS --
-    ---------------------
+    scene:MakeScroller(sceneGroup)  
+
+    -- set up some initial conditions
+    scene:Initialize()   
 end
 
 function scene:show(event)
