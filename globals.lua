@@ -40,10 +40,20 @@ jsonStr = utilities:loadFile("data/leveling.json", system.ResourceDirectory)
 globals.levels = json.decode(jsonStr)
 
 -- todo: might want to separate loading of tables of shop data and rpg. could make separate glob files
+---------------
+-- RPG TABLES
+---------------
 -- table for npcs
 jsonStr = utilities:loadFile("data/npcs.json", system.ResourceDirectory)
 globals.npcs = json.decode(jsonStr)
 
+-- table for ability names
+jsonStr = utilities:loadFile("data/abilities.json", system.ResourceDirectory)
+globals.abilities = json.decode(jsonStr)
+
+---------------
+-- END RPG TABLES
+---------------
 
 -- the first items in this list are indexed by the turns remaining. the last ones are called based on player's offer
 globals.mood = {    
