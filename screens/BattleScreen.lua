@@ -26,6 +26,14 @@ local pcPetStats = {}
 local npcStats = {}
 local npcPetStats = {}
 
+
+-- contains damage and matchups for multi turn abilities
+-- subscript 0-pcVnpc, 1-pcVnpcpet, 2-pcpetVnpc, 3-pcpetVnpcpet, 4-npcVpc, 5-npcVpcpet, 6-npcpetVpc, 7-npcpetVpcpet                
+-- might want to change this
+local nextTurnDmg = {}
+
+-----------------------------delete these
+
 -- tables for abilities. numeric index of table represent ability slots (max 12). 
 -- data stored in each index is the numeric value of ability
 local pcAbilities = {}
@@ -39,17 +47,13 @@ local delayedReactionReady = {}
 local unleashReady = {}
 local finalCountdownReady = {}
 
--- contains damage and matchups for multi turn abilities
--- subscript 0-pcVnpc, 1-pcVnpcpet, 2-pcpetVnpc, 3-pcpetVnpcpet, 4-npcVpc, 5-npcVpcpet, 6-npcpetVpc, 7-npcpetVpcpet                
--- might want to change this
-local nextTurnDmg = {}
 
 -- the next tables are status ailments. the first table is a bool for whether they are afflicted
 -- second is either damage taken or ticks left on ailment
 
 -- venom from orig, will refer as poison here
 -- todo remove these variables. they will be included in each set of stat tables instead
------------------------------delete these
+
 local dotPoison = {} -- bool for whether poisoned or not
 local dotPoisonDmg = {} -- actual damage inflicted
 
@@ -86,13 +90,13 @@ local tickStatusSilence = {}
 -- mirror mania
 local petMirrorMania = {}
 local tickPetMirrorMania = {}
+
+
 -------------end delete these
 
 -- various variables for battle
 local pcInit
 local npcInit
-local roll
-local attack
 local doubleAttack -- might not need
 local turnLost -- bool value
 
@@ -289,33 +293,41 @@ end
 function scene:AttackClick()
     if pcTurnPet then
         if npcPetMelee then
-            scene:Attack(pcPetStats["name"], npcPetStats["name"], pcPetStats["str"], npcPetStats["def"], npcPetStats)
+            scene:Attack(pcPetStats, npcPetStats)
         else
-            scene:Attack(pcPetStats["name"], npcStats["name"], pcPetStats["str"], npcStats["def"], npcStats)
+            scene:Attack(pcPetStats, npcStats)
         end
     else -- player's turn
         if npcPetMelee then
-            scene:Attack(pcStats["name"], npcPetStats["name"], pcStats["str"], npcPetStats["def"], npcPetStats)
+            scene:Attack(pcStats, npcPetStats)
         else
-            scene:Attack(pcStats["name"], npcStats["name"], pcStats["str"], npcStats["def"], npcStats)
+            scene:Attack(pcStats, npcStats)
         end
     end
 end
 
+-- called when meditate button is pressed to determine who is attacking (pc or pcPet). Meditate function is called from here
+function scene:MeditateClick()
+    if pcTurnPet then
+        scene:Meditate(pcPetStats)
+    else
+        scene:Meditate(pcStats)
+    end
+end
 -- attack function. can be called by players and npcs as well as their pets
-function scene:Attack(atkName, defName, atkStat, defStat, defTable)
+function scene:Attack(attacker, defender)
     scene:CheckSilenceBlind("statusBlind") -- if the person attacking is blinded and fails check, the following if statement code will not execute
     
     if not turnLost then
         local roll = utilities:RNG(6)        
         
-        local attack = atkStat + roll - defStat
+        local attack = attacker["str"] + roll - defender["def"]
         
         if attack > 0 then
-            defTable["currentHp"] = defTable["currentHp"] - attack
-            scene:BattleLogAdd(atkName.." makes an Attack, doing "..attack.." damage to "..defName..".")
+            defender["currentHp"] = defender["currentHp"] - attack
+            scene:BattleLogAdd(attacker["name"].." makes an Attack, doing "..attack.." damage to "..defender["name"]..".")
         else            
-            scene:BattleLogAdd(atkName.." Attacks "..defName.." but does no damage.")
+            scene:BattleLogAdd(attacker["name"].." Attacks "..defender["name"].." but does no damage.")
         end
     end
     
@@ -324,8 +336,35 @@ function scene:Attack(atkName, defName, atkStat, defStat, defTable)
     
 end
 
+-- meditate function. can be called by players and npcs as well as their pets
+function scene:Meditate(attacker)
+    scene:CheckSilenceBlind("statusSilence")
+    
+    if not turnLost then
+        local roll = 0
+        
+        if attacker["level"] < 11 then -- restore 1-3 or 1-6 ap based on level
+            roll = utilities:RNG(3)
+        else
+            roll = utilities:RNG(6)
+        end
+        
+        attacker["currentAp"] = attacker["currentAp"] + roll
+        
+        if attacker["currentAp"] > attacker["ap"] then
+            attacker["currentAp"] = attacker["ap"]
+        end
+        
+        scene:BattleLogAdd(attacker["name"].." Meditates, recovering "..roll.." AP.")
+    end
+    
+    turnLost = false
+    scene:EndTurn()
+end
+
 -- check for silence or blind. a string value will be passed in to check the table value in the character's stats
 -- determine whose turn it is and if they are afflicted. if so, roll and see if they are prevented from acting
+-- pass in a string of either "statusBlind" or "statusSilence"
 function scene:CheckSilenceBlind(affliction)
     local afflicted = false
     local outputName = ""
@@ -352,9 +391,9 @@ function scene:CheckSilenceBlind(affliction)
         local roll = utilities:RNG(3)
         local affText = ""
         
-        if affliction == "blind" then
+        if affliction == "statusBlind" then
             affText = "blinded"
-        else
+        elseif affliction == "statusSilence" then
             affText = "silenced"
         end
         
@@ -701,7 +740,7 @@ function scene:Die()
         pcPetStats = nil
         pcPetMelee = false
         pcPetMagic = false
-        ClearStats("pc")
+        scene:ClearStats("pc")
     end
     
     if npcStats["currentHp"] < 1 then
@@ -714,14 +753,14 @@ function scene:Die()
         npcPetStats = nil
         npcPetMelee = false
         npcPetMagic = false
-        ClearStats("npc")
+        scene:ClearStats("npc")
     end    
     
 end
 
 function scene:AI(attacker, defender)
     --todo add rest of stuff. for now just attack and return control to player
-    scene:Attack(npcStats["name"], pcStats["name"], npcStats["str"], pcStats["def"], pcStats)
+    scene:Attack(attacker, defender)
 end
 
 -- nil out tables for a pc or npc pet and hide their stat labels
@@ -1305,12 +1344,14 @@ function scene:MakeButtons(myScene)
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Meditate"
     options["x"] = buttonXLoc    
+    options["onRelease"] = self.MeditateClick     
     meditateButton = widget.newButton(options)     
     
     -- run button
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Run"
-    options["x"] = buttonXLoc    
+    options["x"] = buttonXLoc 
+    options["onRelease"] = nil 
     runButton = widget.newButton(options)      
     
     -- end turn button
