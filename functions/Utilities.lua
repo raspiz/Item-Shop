@@ -35,7 +35,8 @@ function utilities:RNG(high, low) -- can pass in 0, 1, or 2 numbers
 end 
  
 --------------------------------------------------- 
- -- round a number up if it's decimial place is .5 or above, else round down   
+ -- round a number up if it's decimial place is .5 or above, else round down 
+ -- NOTE: may not work correctly for negative numbers
 function utilities:Round(number) 
     local wholeNum = math.floor(number)
     local decNum = number - wholeNum
