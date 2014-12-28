@@ -65,7 +65,7 @@ abil7Button,abil8Button,abil9Button,abil10Button,abil11Button,abil12Button
 local buttonGroupTwo,buttonGroupThree
  
 -- labels 
-local pcHPLabel,pcAPLabel,pcPetHPLabel,pcPetAPLabel,npcHPLabel,npcAPLabel,npcPetHPLabel,npcPetAPLabel,pcPetStatGroup,npcPetStatGroup
+local pcHPLabel,pcAPLabel,pcPetHPLabel,pcPetAPLabel,pcPetNameLabel,npcHPLabel,npcAPLabel,npcPetHPLabel,npcPetAPLabel,npcPetNameLabel,pcPetStatGroup,npcPetStatGroup
 
 -- affliction images
 local pcCrampImg,pcCrippleImg,pcMindBreakImg,pcDeludeImg,pcPoisonImg,pcBlindImg,pcSilenceImg,pcLullImg,
@@ -76,7 +76,7 @@ npcPetCrampImg,npcPetCrippleImg,npcPetMindBreakImg,npcPetDeludeImg,npcPetPoisonI
 -- stuff for scrollview
 local scrollView
 local visibleScroll = 100 -- the visible area of the scrollview
-local scrollRectWidth = 400
+local scrollRectWidth = 725
 local scrollArea
 local scrollY = 10 -- this will allow the first item added to be in the right position
 local newScrollHeight = 0
@@ -167,7 +167,7 @@ function scene:LoadToons()
     pcStats["abil3"] = 7
     pcStats["abil4"] = 8
     pcStats["abil5"] = 12
-    pcStats["abil6"] = 16
+    pcStats["abil6"] = 27
     pcStats["abil7"] = nil
     pcStats["abil8"] = nil
     pcStats["abil9"] = nil
@@ -225,7 +225,7 @@ function scene:Attack(attacker, defender)
         
         if attack > 0 then
             defender["currentHp"] = defender["currentHp"] - attack
-            scene:BattleLogAdd(attacker["name"].." makes an Attack, doing "..attack.." damage to "..defender["name"]..".")
+            scene:BattleLogAdd(attacker["name"].." makes an Attack, doing "..attack.." damage to "..defender["name"]..".")        
         else            
             scene:BattleLogAdd(attacker["name"].." Attacks "..defender["name"].." but does no damage.")
         end
@@ -261,6 +261,8 @@ function scene:Meditate(attacker)
     turnLost = false
     scene:EndTurn()
 end
+
+
 
 -- check for silence or blind. a string value will be passed in to check the table value in the character's stats
 -- determine whose turn it is and if they are afflicted. if so, roll and see if they are prevented from acting
@@ -1167,7 +1169,7 @@ function scene:UndeadMinion(attacker, pet)
     scene:CheckSilenceBlind("statusSilence")
     
     if not turnLost then        
-        local roll = utilities:RNG(2)
+        local roll = utilities:RNG(2)   
         
         if roll == 2 then
             pet["baseHp"] = (attacker["level"] + attacker["level"] - 1) * 3
@@ -1290,6 +1292,132 @@ function scene:AssistedSuicide(attacker, defender)
     scene:EndTurn()    
 end
 
+function scene:AbilityOneClick()
+    if not pcTurnPet and pcStats["currentAp"] == 0 then
+        scene:BattleLogAdd("You are out of AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
+        scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil1"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil1"])
+    end    
+end
+
+function scene:AbilityTwoClick()
+    if not pcTurnPet and pcStats["currentAp"] == 0 then
+        scene:BattleLogAdd("You are out of AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
+        scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil2"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil2"])
+    end    
+end
+
+function scene:AbilityThreeClick()
+    if not pcTurnPet and pcStats["currentAp"] == 0 then
+        scene:BattleLogAdd("You are out of AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
+        scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil3"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil3"])
+    end    
+end
+
+function scene:AbilityFourClick()
+    if not pcTurnPet and pcStats["currentAp"] == 0 then
+        scene:BattleLogAdd("You are out of AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
+        scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil4"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil4"])
+    end    
+end
+
+function scene:AbilityFiveClick()
+    if not pcTurnPet and pcStats["currentAp"] == 0 then
+        scene:BattleLogAdd("You are out of AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
+        scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil5"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil5"])
+    end    
+end
+
+function scene:AbilitySixClick()
+    if not pcTurnPet and pcStats["currentAp"] == 0 then
+        scene:BattleLogAdd("You are out of AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
+        scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil6"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil6"])
+    end    
+end
+
+-- called by ability buttons to perform the ability. afflictions and pets will be checked to make sure they can be used.
+-- all other abilities will just be executed
+function scene:UseAbilityClick(ability)
+    if ability == 9 then -- venom
+        scene:StatusAilmentCheck(ability, "dotPoison", "Poisoned")
+    elseif ability == 15 then   -- cramp
+        scene:StatusAilmentCheck(ability, "debuffCramp", "Cramped")
+    elseif ability == 16 then   -- cripple
+        scene:StatusAilmentCheck(ability, "debuffCripple", "Crippled")
+    elseif ability == 17 then   -- mind break
+        scene:StatusAilmentCheck(ability, "debuffMindBreak", "Mind Broken")
+    elseif ability == 18 then   -- delude
+        scene:StatusAilmentCheck(ability, "debuffDelude", "Deluded")
+    elseif ability == 25 then   -- silence
+        scene:StatusAilmentCheck(ability, "statusSilence", "Silenced")
+    elseif ability == 26 then   -- mirror mania
+        scene:PetOutCheck(ability)
+    elseif ability == 27 then   -- undead minion
+        scene:PetOutCheck(ability)
+    elseif ability == 28 then   -- lull
+        scene:StatusAilmentCheck(ability, "statusLull", "Lulled")
+    elseif ability == 30 then   -- blind
+        scene:StatusAilmentCheck(ability, "statusBlind", "Blinded")
+    else -- ability isn't an affliction or pet
+        scene:ExecuteAbility(ability)
+    end
+end
+
+-- make sure player isn't trying to debuff or poison if they are already active when trying to use ability
+function scene:StatusAilmentCheck(ability, affliction, afflictionText)
+    if npcPetMelee then
+        if npcPetStats[affliction] then
+            scene:BattleLogAdd(npcPetStats["name"].." is already "..affliction..".")
+        else
+            scene:ExecuteAbility(ability)
+        end
+    else
+        if npcStats[affliction] then
+            scene:BattleLogAdd(npcStats["name"].." is already "..affliction..".")
+        else
+            scene:ExecuteAbility(ability)
+        end        
+    end
+end
+
+-- make sure player isn't trying to call a pet if one is out already
+function scene:PetOutCheck(ability)
+    if pcPetMelee or pcPetMagic then
+        scene:BattleLogAdd("There is already a pet in the battle.")
+    else
+        scene:ExecuteAbility(ability)
+    end
+end
+
 -- calls individual ability functions based on the passed in index number
 -- parameters will be passed into the ability based on whose turn it is and who is active in battle
 -- this function will be called from the ability buttons by the player or by the ai function
@@ -1305,7 +1433,7 @@ function scene:ExecuteAbility(abilIndex)
     if pcTurn then
         if pcTurnPet then -- pc pet turn
             attacker = pcPetStats
-            pet = nil
+            pet = {}
             if npcPetMelee then -- attack npc pet
                 defender = npcPetStats
                 matchup = "pcPetVnpcPet"
@@ -1327,7 +1455,7 @@ function scene:ExecuteAbility(abilIndex)
     else
         if npcTurnPet then -- npc pet turn
             attacker = npcPetStats
-            pet = nil
+            pet = {}
             if pcPetMelee then -- attack pc pet
                 defender = pcPetStats
                 matchup = "npcPetVpcPet"
@@ -1497,7 +1625,8 @@ function scene:EndTurn()
     abilityButton.isVisible = false
     itemButton.isVisible = false
     meditateButton.isVisible = false
-    runButton.isVisible = false    
+    runButton.isVisible = false  
+    endTurnButton.isVisible = true
             
     -- hide abil buttons     
     showAbilities = false
@@ -1514,10 +1643,7 @@ function scene:EndTurn()
     abil11Button.isVisible = false
     abil12Button.isVisible = false
 
-    
-
-    -- todo add anything else that needs changed here
-    
+    -- todo add anything else that needs changed here    
 end
 
 --check ticks, call on ai after player finishes turn, check to see if a player is dead
@@ -1833,7 +1959,7 @@ function scene:Die()
     
     if pcPetMelee and pcPetStats["currentHp"] < 1 then
         scene:BattleLogAdd(pcPetStats["name"].." has died.")
-        pcPetStats = nil
+        pcPetStats = {}
         pcPetMelee = false
         pcPetMagic = false
         scene:ClearStats("pc")
@@ -1846,7 +1972,7 @@ function scene:Die()
     
     if npcPetMelee and npcPetStats["currentHp"] < 1 then
         scene:BattleLogAdd(npcPetStats["name"].." has died.")
-        npcPetStats = nil
+        npcPetStats = {}
         npcPetMelee = false
         npcPetMagic = false
         scene:ClearStats("npc")
@@ -1862,9 +1988,9 @@ end
 -- nil out tables for a pc or npc pet and hide their stat labels
 -- passed in string will determine if clearing pc or npc pet
 -- called when a pet dies or turns run out(mirror mania)
-function ClearStats(owner)
+function scene:ClearStats(owner)
     if owner == "pc" then
-        pcPetStats = nil
+        pcPetStats = {}
         pcPetMelee = false
         pcPetMagic = false
         
@@ -1882,7 +2008,7 @@ function ClearStats(owner)
         pcPetHPLabel.text = "0/0"
         pcPetAPLabel.text = "0/0"        
     elseif owner == "npc" then
-        npcPetStats = nil
+        npcPetStats = {}
         npcPetMelee = false
         npcPetMagic = false
         
@@ -1932,37 +2058,56 @@ end
 
 -- add a battle event to the scroller log
 function scene:BattleLogAdd(logText)
+    -- multiline text will be split and looped through, adding a max number of characters each line until completion
     
-    --todo: deal with text that will be multiline. could bump up scrollY's increase if text is too long for a line
+    local strMaxLen = 120
+    local textWidth = scrollRectWidth
+    local textHeight = 20    
+    local outputDone = false
+    local charCount = 0
     
-    local textWidth = 600 -- had this at 400 but bumped it up to 600 to fill entire container?
-    local textHeight = 20
-    
-    local logOptions = {
-        text = logText,
-        x = textWidth/2,
-        y = scrollY,
-        width = textWidth,
-        height = textHeight,
-        font = native.systemFont,
-        fontSize = 14,
-        align = "left"    
-    }  
-    
-    scrollY = scrollY + textHeight
-      
-    local itemLabel = display.newText(logOptions)
-    itemLabel:setFillColor(1,1,1) 
+    while not outputDone do
+        local multiLine = ""
+        charCount = string.len(logText)
 
-    newScrollHeight = newScrollHeight + textHeight 
-    scrollArea:insert(itemLabel)
-    scrollArea.height = newScrollHeight * 2
-    scrollView:setScrollHeight(newScrollHeight)  
+        if charCount > strMaxLen then            
+            multiLine = string.sub(logText, strMaxLen + 1)
+            logText = string.sub(logText, 0, strMaxLen)
+        end    
+
+       local logOptions = {
+            text = logText,
+            x = textWidth/2 + 5,
+            y = scrollY,
+            width = textWidth,
+            height = textHeight,
+            font = native.systemFont,
+            fontSize = 14,
+            align = "left"    
+        }  
+
+        scrollY = scrollY + textHeight
+
+        local itemLabel = display.newText(logOptions)
+        itemLabel:setFillColor(1,1,1) 
+
+        newScrollHeight = newScrollHeight + textHeight 
+        scrollArea:insert(itemLabel)
+        scrollArea.height = newScrollHeight * 2
+        scrollView:setScrollHeight(newScrollHeight)  
+        
+        if charCount > strMaxLen then
+            logText = "     "..multiLine
+        else
+            outputDone = true
+        end    
+    end
     
     -- once the visible area of the scroller is filled, new events will be added to the bottom and will give appearance of scrolling up
     if newScrollHeight >= visibleScroll then
         scrollView:scrollToPosition {x = 0,y = - newScrollHeight + visibleScroll,time = 400} -- had to set the y position to negative to get this to work right
-    end    
+    end      
+    
 end
 
 -- functionality to press/depress abilities button and hide ability buttons
@@ -2017,10 +2162,7 @@ end
 function scene:SetAbilButtons(attacker)   
     if attacker["abil1"] then
         abil1Button:setLabel(GLOB.abilities[attacker["abil1"]]["Name"])
-        --abil1Button.onRelease = print("hello")--scene:Meditate(attacker)
         abil1Button.isVisible = true
-        --abil1Button.onRelease = self.MeditateClick
-        --abil1Button.onRelease = print("hello")
     else
         abil1Button.isVisible = false
     end
@@ -2210,7 +2352,7 @@ function scene:MakeLabels(myScene)
     textOptions["y"] = pcPetStartingY    
     textOptions["text"] = "PC Pet Name"
 
-    local pcPetNameLabel = display.newText(textOptions)
+    pcPetNameLabel = display.newText(textOptions)
     --pcNameLabel:setFillColor(0,0,0)    
     
     -- HP label
@@ -2359,7 +2501,7 @@ function scene:MakeLabels(myScene)
     textOptions["y"] = npcPetStartingY    
     textOptions["text"] = "NPC Pet Name"
 
-    local npcPetNameLabel = display.newText(textOptions)
+    npcPetNameLabel = display.newText(textOptions)
     --pcNameLabel:setFillColor(0,0,0)    
     
     -- HP label
@@ -2541,33 +2683,37 @@ function scene:MakeButtons(myScene)
     buttonXLoc = buttonOrigLoc
     options["label"] = "Abil1"
     options["x"] = buttonXLoc
-    options["onRelease"] = self.MeditateClick -- todo start here
+    options["onRelease"] = self.AbilityOneClick
     abil1Button = widget.newButton(options)
     
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Abil2"
     options["x"] = buttonXLoc    
-    options["onRelease"] = nil
+    options["onRelease"] = self.AbilityTwoClick
     abil2Button = widget.newButton(options)    
     
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Abil3"
-    options["x"] = buttonXLoc    
+    options["x"] = buttonXLoc 
+    options["onRelease"] = self.AbilityThreeClick
     abil3Button = widget.newButton(options)  
     
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Abil4"
-    options["x"] = buttonXLoc    
+    options["x"] = buttonXLoc   
+    options["onRelease"] = self.AbilityFourClick
     abil4Button = widget.newButton(options)  
     
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Abil5"
-    options["x"] = buttonXLoc    
+    options["x"] = buttonXLoc   
+    options["onRelease"] = self.AbilityFiveClick
     abil5Button = widget.newButton(options)  
     
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Abil6"
     options["x"] = buttonXLoc    
+    options["onRelease"] = self.AbilitySixClick
     abil6Button = widget.newButton(options)      
     
     -- abilities group 2 and buttons
@@ -2679,9 +2825,9 @@ function scene:MakeScroller(myScene)
 
     scrollView = widget.newScrollView
     {
-        left = 200,
+        left = 37.5,
         top = 225,
-        width = 400,
+        width = scrollRectWidth,
         height = visibleScroll,
         scrollWidth = scrollRectWidth, -- width of scrollable area
         scrollHeight = newScrollHeight, -- height of scrollable area
@@ -2693,7 +2839,7 @@ function scene:MakeScroller(myScene)
         friction = 0
     }
     
-    scrollArea = display.newContainer(800, 0) -- had to double rectWidth here for some reason?
+    scrollArea = display.newContainer(scrollRectWidth * 2, 0) -- had to double rectWidth here for some reason?
 
     scrollView:insert(scrollArea)
     myScene:insert(scrollView)
