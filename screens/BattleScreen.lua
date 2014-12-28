@@ -15,9 +15,7 @@ local scene = composer.newScene()
 --  BEGIN FORWARD VARIABLE DECLARATIONS --
 ---------------------    
 
--- todo. should these be pulled in from JSON? figure out how to store the data
 -- tables for player stats
--- todo consider whether to do these as numeric or associative. do we need to store both base and boosted stats?
 local pcStats = {}
 local pcPetStats = {}
 
@@ -25,94 +23,28 @@ local pcPetStats = {}
 local npcStats = {}
 local npcPetStats = {}
 
-
 -- contains damage and matchups for multi turn abilities
--- subscript 0-pcVnpc, 1-pcVnpcpet, 2-pcpetVnpc, 3-pcpetVnpcpet, 4-npcVpc, 5-npcVpcpet, 6-npcpetVpc, 7-npcpetVpcpet                
--- might want to change this
+-- the index will be a string defined in scene:Initialize(). the value stored will be damage to inflict.
+-- a value is set if it is not 0. for 1 hit kills or 0 damage to be inflicted, the value is set to -1
 local nextTurnDmg = {}
 
------------------------------delete these
+-- some flags used by the game
+local turnLost = false -- bool value
 
--- tables for abilities. numeric index of table represent ability slots (max 12). 
--- data stored in each index is the numeric value of ability
-local pcAbilities = {}
-local pcPetAbilities = {}
-local npcAbilities = {}
-local npcPetAbilities = {}
+-- bools to keep track of pets that are out. pc and npc can only have one type of pet at a time
+local pcPetMelee = false
+local npcPetMelee = false
+local pcPetMagic = false
+local npcPetMagic = false
 
--- tables for various conditions. this may need changed
--- original version used these as bool values with each index representing pc, pc pet, npc, npc pet
-local delayedReactionReady = {}
-local unleashReady = {}
-local finalCountdownReady = {}
+-- flags to determine who is on the offensive. if these are all false it is npc's turn
+-- initial starting character will be determined in scene:Initialize()
+local pcTurn = false
+local pcTurnPet = false
+local npcTurnPet = false
 
-
--- the next tables are status ailments. the first table is a bool for whether they are afflicted
--- second is either damage taken or ticks left on ailment
-
--- venom from orig, will refer as poison here
--- todo remove these variables. they will be included in each set of stat tables instead
-
-local dotPoison = {} -- bool for whether poisoned or not
-local dotPoisonDmg = {} -- actual damage inflicted
-
--- cramp
-local debuffCramp = {} -- bool
-local tickDebuffCramp = {}
-
--- cripple
-local debuffCripple = {}
-local tickDebuffCripple = {}
-
--- mind break
-local debuffMindBreak = {}
-local tickDebuffMindBreak = {}
-
--- delude
-local debuffDelude = {}
-local tickDebuffDelude = {}
-
--- final countdown
-local tickFinalCountdown = {}
-
--- blind
-local statusBlind = {}
-local tickStatusBlind = {}
-
--- lull
-local statusLull = {}
-
--- silence
-local statusSilence = {}
-local tickStatusSilence = {}
-
--- mirror mania
-local petMirrorMania = {}
-local tickPetMirrorMania = {}
-
-
--------------end delete these
-
--- various variables for battle
-local pcInit
-local npcInit
-local turnLost -- bool value
-
--- some string values. todo see if these can be deleted
-local abilName
-local encounter
-
--- bools to keep track of pets that are out
-local pcPetMelee
-local npcPetMelee
-local pcPetMagic
-local npcPetMagic
-
--- more bools
--- i must have it set up so that if these are all false it is npc's turn?
-local pcTurn
-local pcTurnPet
-local npcTurnPet
+-- flag to determine if abilities button is pressed or depressed (show/hide abilities)
+local showAbilities = false
 
 -- todo some item variables were here in orig. need a new way to deal with those
 -- probably pull up inv screen from shop and disable what doesn't need to be shown
@@ -125,72 +57,21 @@ local npcTurnPet
 ---------------------   
  
 -- buttons
-local attackButton
-local abilityButton
-local itemButton
-local meditateButton
-local runButton
-local endTurnButton
-local abil1Button
-local abil2Button
-local abil3Button
-local abil4Button
-local abil5Button
-local abil6Button
-local abil7Button
-local abil8Button
-local abil9Button
-local abil10Button
-local abil11Button
-local abil12Button
-local buttonGroupTwo
-local buttonGroupThree
+local attackButton,abilityButton,itemButton,meditateButton,runButton,endTurnButton,
+abil1Button,abil2Button,abil3Button,abil4Button,abil5Button,abil6Button,
+abil7Button,abil8Button,abil9Button,abil10Button,abil11Button,abil12Button
+
+-- button groups (ability buttons)
+local buttonGroupTwo,buttonGroupThree
  
 -- labels 
-local pcHPLabel
-local pcAPLabel 
-local pcPetHPLabel
-local pcPetAPLabel 
-local npcHPLabel
-local npcAPLabel 
-local npcPetHPLabel
-local npcPetAPLabel  
-local pcPetStatGroup
-local npcPetStatGroup
+local pcHPLabel,pcAPLabel,pcPetHPLabel,pcPetAPLabel,npcHPLabel,npcAPLabel,npcPetHPLabel,npcPetAPLabel,pcPetStatGroup,npcPetStatGroup
 
 -- affliction images
-local pcCrampImg
-local pcCrippleImg
-local pcMindBreakImg
-local pcDeludeImg
-local pcPoisonImg
-local pcBlindImg
-local pcSilenceImg
-local pcLullImg
-local pcPetCrampImg
-local pcPetCrippleImg
-local pcPetMindBreakImg
-local pcPetDeludeImg
-local pcPetPoisonImg
-local pcPetBlindImg
-local pcPetSilenceImg
-local pcPetLullImg
-local npcCrampImg
-local npcCrippleImg
-local npcMindBreakImg
-local npcDeludeImg
-local npcPoisonImg
-local npcBlindImg
-local npcSilenceImg
-local npcLullImg
-local npcPetCrampImg
-local npcPetCrippleImg
-local npcPetMindBreakImg
-local npcPetDeludeImg
-local npcPetPoisonImg
-local npcPetBlindImg
-local npcPetSilenceImg
-local npcPetLullImg
+local pcCrampImg,pcCrippleImg,pcMindBreakImg,pcDeludeImg,pcPoisonImg,pcBlindImg,pcSilenceImg,pcLullImg,
+pcPetCrampImg,pcPetCrippleImg,pcPetMindBreakImg,pcPetDeludeImg,pcPetPoisonImg,pcPetBlindImg,pcPetSilenceImg,pcPetLullImg,
+npcCrampImg,npcCrippleImg,npcMindBreakImg,npcDeludeImg,npcPoisonImg,npcBlindImg,npcSilenceImg,npcLullImg,
+npcPetCrampImg,npcPetCrippleImg,npcPetMindBreakImg,npcPetDeludeImg,npcPetPoisonImg,npcPetBlindImg,npcPetSilenceImg,npcPetLullImg
  
 -- stuff for scrollview
 local scrollView
@@ -205,6 +86,7 @@ local newScrollHeight = 0
 function scene:LoadToons()
 
     -- todo: explicitely set all dots, debuffs and their damage to default values so they are safe to use in comparison operators
+    -- it should be ok to not do this but needs tested
 
     -- pick an enemy and load in their stats. something could be passed in to pick a specific one or could just pick a random
     -- todo could add a field to npc excel table for enemy type: dot, boss, special, etc.
@@ -234,6 +116,21 @@ function scene:LoadToons()
     npcStats["disease"] = GLOB.npcs[1]["Disease"]
     npcStats["earth"] = GLOB.npcs[1]["Earth"]
     npcStats["fire"] = GLOB.npcs[1]["Fire"]
+    
+    --todo load these in from json
+    -- npc abilities
+    npcStats["abil1"] = 1
+    npcStats["abil2"] = 4
+    npcStats["abil3"] = 7
+    npcStats["abil4"] = 8
+    npcStats["abil5"] = 12
+    npcStats["abil6"] = 16
+    npcStats["abil7"] = 20
+    npcStats["abil8"] = 22
+    npcStats["abil9"] = 24
+    npcStats["abil10"] = 26
+    npcStats["abil11"] = 28
+    npcStats["abil12"] = 30    
     
     -- npc misc stats
     npcStats["name"] = GLOB.npcs[1]["Name"]
@@ -271,12 +168,12 @@ function scene:LoadToons()
     pcStats["abil4"] = 8
     pcStats["abil5"] = 12
     pcStats["abil6"] = 16
-    pcStats["abil7"] = 20
-    pcStats["abil8"] = 22
-    pcStats["abil9"] = 24
-    pcStats["abil10"] = 26
-    pcStats["abil11"] = 28
-    pcStats["abil12"] = 30
+    pcStats["abil7"] = nil
+    pcStats["abil8"] = nil
+    pcStats["abil9"] = nil
+    pcStats["abil10"] = nil
+    pcStats["abil11"] = nil
+    pcStats["abil12"] = nil
 
     pcStats["name"] = "Jack"
     pcStats["type"] = "pc"
@@ -314,14 +211,13 @@ function scene:MeditateClick()
 end
 
 -- attack function. can be called by players and npcs as well as their pets
--- todo consider adding attacker's level onto it to make it more useful at higher levels
 function scene:Attack(attacker, defender)
     scene:CheckSilenceBlind("statusBlind") -- if the person attacking is blinded and fails check, the following if statement code will not execute
     
     if not turnLost then
         local roll = utilities:RNG(6)        
         
-        local attack = attacker["str"] + roll - defender["def"]
+        local attack = attacker["str"] + attacker["level"] + roll - defender["def"]
         
         if attack < 0 then
             attack = 0
@@ -548,9 +444,9 @@ end
 
 function scene:DRUTurnOne(attacker, defender, matchup, move)
     if move == "Delayed Reaction" then
-        CheckSilenceBlind("statusBlind")
+        scene:CheckSilenceBlind("statusBlind")
     else
-        CheckSilenceBlind("statusSilence")
+        scene:CheckSilenceBlind("statusSilence")
     end
     
     if not turnLost then
@@ -577,9 +473,9 @@ end
 
 function scene:DRUTurnTwo(attacker, defender, matchup, move)
     if move == "Delayed Reaction" then
-        CheckSilenceBlind("statusBlind")
+        scene:CheckSilenceBlind("statusBlind")
     else
-        CheckSilenceBlind("statusSilence")
+        scene:CheckSilenceBlind("statusSilence")
     end    
     
     if not turnLost then
@@ -1006,6 +902,516 @@ function scene:Cannibalize(attacker, defender)
     scene:EndTurn()       
 end
 
+function scene:MindOverMatter(attacker, defender)
+    scene:CheckSilenceBlind("statusSilence")
+    
+    if not turnLost then        
+        local attack = attacker["int"] - defender["def"] 
+        
+        if attack < 0 then
+            attack = 0
+        end        
+        
+        defender["currentHp"] = defender["currentHp"] - attack 
+        
+        if attack > 0 then            
+            scene:BattleLogAdd(attacker["name"].." projects Mind Over Matter, doing "..attack.." damage to "..defender["name"]..".")
+        else
+            scene:BattleLogAdd(attacker["name"].."'s Mind Over Matter does "..attack.." damage to "..defender["name"]..".")
+        end      
+    end
+
+    attacker["currentAp"] =  attacker["currentAp"] - 1
+    scene:EndTurn()    
+end
+
+function scene:Blast(attacker, defender)
+    scene:CheckSilenceBlind("statusSilence")
+    
+    if not turnLost then
+        local roll = utilities:RNG(6)
+        local attack = 0
+        
+        if roll == 6 then
+            attack = (attacker["int"] * 3) - defender["will"]
+        elseif roll == 1 then -- miss
+            attack = 0
+        else
+            attack = (attacker["int"] * 2) - defender["will"]            
+        end
+        
+        if attack < 0 then
+            attack = 0
+        end        
+        
+        defender["currentHp"] = defender["currentHp"] - attack
+        
+        if roll == 6 then            
+            scene:BattleLogAdd(attacker["name"].." critically Blasts  "..defender["name"]..", doing "..attack.." damage.")
+        elseif roll == 1 then
+            scene:BattleLogAdd(attacker["name"].."'s Blast misses the mark, doing "..attack.." damage to "..defender["name"]..".")            
+        else
+            scene:BattleLogAdd(attacker["name"].."'s Blast does "..attack.." damage to "..defender["name"]..".")            
+        end
+    end
+
+    attacker["currentAp"] =  attacker["currentAp"] - 1
+    scene:EndTurn()    
+end
+
+function scene:FinalCountdownTurnOne(attacker, defender, matchup)
+    scene:CheckSilenceBlind("statusSilence")
+    
+    if not turnLost then
+        local roll = utilities:RNG(2)
+        
+        if roll == 2 then
+            nextTurnDmg[matchup] = -1
+            attacker["finalCountdownReady"] = true
+            attacker["tickFinalCountdown"] = 1 -- could set this to 0 if FC is too OP            
+            scene:BattleLogAdd(attacker["name"].." begins a Final Countdown, hexing "..defender["name"]..".")            
+        else
+            scene:BattleLogAdd(attacker["name"].." tries to hex "..defender["name"].." with Final Countdown, but fails.")
+        end  
+    end
+
+    attacker["currentAp"] =  attacker["currentAp"] - 1
+    scene:EndTurn()    
+end
+
+function scene:FinalCountdownActive(attacker, defender, matchup)
+    -- the way this is set up, silence will stop the FC
+    if attacker["tickFinalCountdown"] ~= 3 then
+        scene:CheckSilenceBlind("statusSilence")
+
+        if not turnLost then
+            scene:BattleLogAdd(attacker["name"].." continues the Final Countdown.")
+            attacker["tickFinalCountdown"] = attacker["tickFinalCountdown"] + 1         
+        else
+            -- fc broken by silence
+            attacker["tickFinalCountdown"] = 0
+            attacker["finalCountdownReady"] = false
+            nextTurnDmg[matchup] = 0
+        end
+    else
+        scene:CheckSilenceBlind("statusSilence")    
+    
+        if not turnLost then
+            if (matchup == "pcVnpcPet" or matchup == "pcPetVnpcPet") and npcPetMelee == false then
+                -- npc melee pet is no longer in battle
+                scene:BattleLogAdd(attacker["name"].."'s Final Countdown does nothing, as the intended target is no longer in the battle.")
+            elseif (matchup == "npcVpcPet" or matchup == "npcPetVpcPet") and pcPetMelee == false then
+                -- pc melee pet is no longer in battle
+                scene:BattleLogAdd(attacker["name"].."'s Final Countdown does nothing, as the intended target is no longer in the battle.")            
+            else -- FC goes off
+                defender["currentHp"] = 0
+                scene:BattleLogAdd(attacker["name"].."'s Final Countdown ends, killing "..defender["name"]..".")                                                    
+            end     
+        end
+        
+        -- fc broken by silence or it was executed
+        attacker["tickFinalCountdown"] = 0
+        attacker["finalCountdownReady"] = false
+        nextTurnDmg[matchup] = 0  
+    end
+    
+    turnLost = true
+end
+
+function scene:SilenceLullBlind(attacker, defender, affliction)
+    scene:CheckSilenceBlind("statusSilence")
+    
+    if not turnLost then
+        local roll = utilities:RNG(3)
+        
+        if roll ~= 1 then
+            if affliction == "Silences" then
+                defender["statusSilence"] = true
+                defender["tickStatusSilence"] = 0
+
+                if defender["type"] == "pc" then
+                    pcSilenceImg.isVisible = true
+                elseif defender["type"] == "pcPet" then
+                    pcPetSilenceImg.isVisible = true
+                elseif defender["type"] == "npc" then
+                    npcSilenceImg.isVisible = true
+                elseif defender["type"] == "npcPet" then
+                    npcPetSilenceImg.isVisible = true
+                end       
+                
+                scene:BattleLogAdd(attacker["name"].." "..affliction.." "..defender["name"]..", preventing them from using magical abilities.")                
+            elseif affliction == "Blinds" then
+                defender["statusBlind"] = true
+                defender["tickStatusBlind"] = 0
+
+                if defender["type"] == "pc" then
+                    pcBlindImg.isVisible = true
+                elseif defender["type"] == "pcPet" then
+                    pcPetBlindImg.isVisible = true
+                elseif defender["type"] == "npc" then
+                    npcBlindImg.isVisible = true
+                elseif defender["type"] == "npcPet" then
+                    npcPetBlindImg.isVisible = true
+                end  
+                
+                scene:BattleLogAdd(attacker["name"].." "..affliction.." "..defender["name"]..", preventing them from using physical abilities.")
+            else -- lull
+                defender["statusLull"] = true
+
+                if defender["type"] == "pc" then
+                    pcLullImg.isVisible = true
+                elseif defender["type"] == "pcPet" then
+                    pcPetLullImg.isVisible = true
+                elseif defender["type"] == "npc" then
+                    npcLullImg.isVisible = true
+                elseif defender["type"] == "npcPet" then
+                    npcPetLullImg.isVisible = true
+                end  
+                
+                scene:BattleLogAdd(attacker["name"].." "..affliction.." "..defender["name"].." to sleep, preventing them from taking action.")
+            end        
+        else
+            scene:BattleLogAdd(attacker["name"].." "..affliction.." "..defender["name"]..", but they avoid the attempt.")
+        end
+    
+    end
+    
+    attacker["currentAp"] =  attacker["currentAp"] - 1
+    scene:EndTurn()       
+end
+
+function scene:MirrorMania(attacker, defender, pet)
+    -- pass in tables for caster, character being mirrored, and the pet to be created
+    scene:CheckSilenceBlind("statusSilence")
+    
+    if not turnLost then        
+        local roll = utilities:RNG(2)
+        
+        if roll == 2 then
+            pet["baseHp"] = defender["baseHp"]
+            pet["baseStr"] = defender["baseStr"]
+            pet["baseDef"] = defender["baseDef"]
+            pet["baseAp"] = defender["baseAp"]
+            pet["baseInt"] = defender["baseInt"]
+            pet["baseWill"] = defender["baseWill"]
+
+            pet["hp"] = pet["baseHp"]
+            pet["str"] = pet["baseStr"]
+            pet["def"] = pet["baseDef"]
+            pet["ap"] = pet["baseAp"]
+            pet["int"] = pet["baseInt"]
+            pet["will"] = pet["baseWill"]
+
+            -- shouldn't need these but doesn't hurt to have them
+            pet["lightning"] = defender["lightning"]
+            pet["poison"] = defender["poison"]
+            pet["ice"] = defender["ice"]
+            pet["disease"] = defender["disease"]
+            pet["earth"] = defender["earth"]
+            pet["fire"] = defender["fire"]
+
+            pet["abil1"] = defender["abil1"]
+            pet["abil2"] = defender["abil2"]
+            pet["abil3"] = defender["abil3"]
+            pet["abil4"] = defender["abil4"]
+            pet["abil5"] = defender["abil5"]
+            pet["abil6"] = defender["abil6"]
+            pet["abil7"] = defender["abil7"]
+            pet["abil8"] = defender["abil8"]
+            pet["abil9"] = defender["abil9"]
+            pet["abil10"] = defender["abil10"]
+            pet["abil11"] = defender["abil11"]
+            pet["abil12"] = defender["abil12"]       
+
+            pet["name"] = "Shadow "..defender["name"]            
+            pet["level"] = defender["level"]
+            pet["currentHp"] = defender["hp"]
+            pet["currentAp"] = defender["ap"]               
+            
+            -- flag and tick count for caster
+            attacker["petMirrorMania"] = true
+            attacker["tickPetMirrorMania"] = 1 -- can be changed to 0 if we want to allow extra turn for pet
+            
+            -- todo add image
+            if attacker["type"] == "pc" then
+                pet["type"] = "pcPet"
+                pcPetMagic = true   
+                
+                -- set labels
+                pcPetStatGroup.isVisible = true
+                pcPetNameLabel.text = pet["name"]
+                pcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
+                pcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
+            elseif attacker["type"] == "npc" then
+                pet["type"] = "npcPet"
+                npcPetMagic = true
+                
+                -- set labels
+                npcPetStatGroup.isVisible = true
+                npcPetNameLabel.text = pet["name"]
+                npcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
+                npcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
+            end
+            
+            scene:BattleLogAdd(attacker["name"].." casts Mirror Mania and spawns a shadow of "..defender["name"]..".")            
+        else
+            scene:BattleLogAdd(attacker["name"].." casts Mirror Mania, but it fails.")            
+        end            
+    end
+
+    attacker["currentAp"] =  attacker["currentAp"] - 1
+    scene:EndTurn()    
+end
+
+function scene:UndeadMinion(attacker, pet)
+    scene:CheckSilenceBlind("statusSilence")
+    
+    if not turnLost then        
+        local roll = utilities:RNG(2)
+        
+        if roll == 2 then
+            pet["baseHp"] = (attacker["level"] + attacker["level"] - 1) * 3
+            pet["baseStr"] = attacker["level"] * 2
+            pet["baseDef"] = attacker["level"] * 1
+            pet["baseAp"] = attacker["level"] * 1
+            pet["baseInt"] = attacker["level"] * 0
+            pet["baseWill"] = attacker["level"] * 1
+
+            pet["hp"] = pet["baseHp"]
+            pet["str"] = pet["baseStr"]
+            pet["def"] = pet["baseDef"]
+            pet["ap"] = pet["baseAp"]
+            pet["int"] = pet["baseInt"]
+            pet["will"] = pet["baseWill"]
+
+            pet["lightning"] = 1
+            pet["poison"] = 1
+            pet["ice"] = 1
+            pet["disease"] = 1
+            pet["earth"] = 1
+            pet["fire"] = 1
+            
+            -- assign abilities based on level
+            pet["abil1"] = 1
+            pet["abil2"] = 10
+            
+            if attacker["level"] >= 3 then
+                pet["abil3"] = 5
+            else
+                pet["abil3"] = nil
+            end
+            
+            if attacker["level"] >= 5 then
+                pet["abil4"] = 29
+            else
+                pet["abil4"] = nil
+            end
+            
+            if attacker["level"] >= 7 then
+                pet["abil5"] = 9
+            else
+                pet["abil5"] = nil
+            end
+            
+            if attacker["level"] >= 9 then
+                pet["abil6"] = 16
+            else
+                pet["abil6"] = nil
+            end            
+            
+            -- todo set these up if adding higher levels
+            pet["abil7"] = nil
+            pet["abil8"] = nil
+            pet["abil9"] = nil
+            pet["abil10"] = nil
+            pet["abil11"] = nil
+            pet["abil12"] = nil
+
+            pet["name"] = "Undead Minion"            
+            pet["level"] = attacker["level"]
+            pet["currentHp"] = pet["hp"]
+            pet["currentAp"] = pet["ap"] 
+
+            -- todo add image
+            if attacker["type"] == "pc" then
+                pet["type"] = "pcPet"
+                pcPetMelee = true   
+                
+                -- set labels
+                pcPetStatGroup.isVisible = true
+                pcPetNameLabel.text = pet["name"]
+                pcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
+                pcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
+            elseif attacker["type"] == "npc" then
+                pet["type"] = "npcPet"
+                npcPetMelee = true
+                
+                -- set labels
+                npcPetStatGroup.isVisible = true
+                npcPetNameLabel.text = pet["name"]
+                npcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
+                npcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
+            end
+            
+            scene:BattleLogAdd(attacker["name"].." summons an Undead Minion to aid in battle.")            
+        else
+            scene:BattleLogAdd(attacker["name"].." tries to summon an Undead Minion, but fails.")            
+        end            
+    end
+
+    attacker["currentAp"] =  attacker["currentAp"] - 1
+    scene:EndTurn()    
+end
+
+function scene:AssistedSuicide(attacker, defender)
+    scene:CheckSilenceBlind("statusSilence")
+    
+    if not turnLost then
+        local roll = utilities:RNG(4)
+        local attack = 0
+        
+        if roll ~= 1 then
+            roll = utilities:RNG(6)
+            attack = defender["str"] + defender["level"] + roll - defender["def"]
+            
+            if attack < 0 then
+                attack = 0
+            end  
+            
+            defender["currentHp"] = defender["currentHp"] - attack
+            
+            scene:BattleLogAdd(attacker["name"].." performs Assisted Suicide on "..defender["name"].." doing "..attack.." damage.")            
+        else
+            scene:BattleLogAdd(attacker["name"].."'s Assisted Suicide misses the mark, doing "..attack.." damage to "..defender["name"]..".")
+        end
+    end
+
+    attacker["currentAp"] =  attacker["currentAp"] - 1
+    scene:EndTurn()    
+end
+
+-- calls individual ability functions based on the passed in index number
+-- parameters will be passed into the ability based on whose turn it is and who is active in battle
+-- this function will be called from the ability buttons by the player or by the ai function
+-- any checks such as if a pet is already active or if an affliction is already active are done before this is called
+function scene:ExecuteAbility(abilIndex)    
+    -- todo make sure this works right doing it this way
+    
+    local attacker, defender, pet, matchup
+    
+    -- first determine whose turn it is (attacker), then who is defending (defender)
+    -- also create a string for the matchup of who is facing off. this is only used by multi turn abilities
+    -- some functions may not need all of this info, but gather it just in case to cut down on bloat of determining this individually for each ability
+    if pcTurn then
+        if pcTurnPet then -- pc pet turn
+            attacker = pcPetStats
+            pet = nil
+            if npcPetMelee then -- attack npc pet
+                defender = npcPetStats
+                matchup = "pcPetVnpcPet"
+            else -- attack npc
+                defender = npcStats
+                matchup = "pcPetVnpc"
+            end
+        else -- pc turn
+            attacker = pcStats
+            pet = pcPetStats
+            if npcPetMelee then -- attack npc pet
+                defender = npcPetStats
+                matchup = "pcVnpcPet"
+            else -- attack npc
+                defender = npcStats
+                matchup = "pcVnpc"
+            end                
+        end
+    else
+        if npcTurnPet then -- npc pet turn
+            attacker = npcPetStats
+            pet = nil
+            if pcPetMelee then -- attack pc pet
+                defender = pcPetStats
+                matchup = "npcPetVpcPet"
+            else -- attack pc
+                defender = pcStats
+                matchup = "npcPetVpc"
+            end
+        else -- npc turn
+            attacker = npcStats
+            pet = npcPetStats
+            if pcPetMelee then -- attack pc pet
+                defender = pcPetStats
+                matchup = "npcVpcPet"
+            else -- attack pc
+                defender = pcStats
+                matchup = "npcVpc"
+            end                
+        end  
+    end        
+    
+    -- call the individual ability function, passing in relevent data as determined above
+    if abilIndex == 1 then  -- cleave
+        scene:Cleave(attacker, defender)
+    elseif abilIndex == 2 then  -- berserk
+        scene:Berserk(attacker, defender)
+    elseif abilIndex == 3 then  -- test of will
+        scene:TestOfWill(attacker, defender)
+    elseif abilIndex == 4 then  -- backstab
+        scene:Backstab(attacker, defender)
+    elseif abilIndex == 5 then  -- beat down
+        scene:BeatDown(attacker, defender)
+    elseif abilIndex == 6 then  -- delayed reaction
+        scene:DRUTurnOne(attacker, defender, matchup, "Delayed Reaction")
+    elseif abilIndex == 7 then  -- fireball
+        scene:Fireball(attacker, defender)
+    elseif abilIndex == 8 then  -- shockwave
+        scene:Shockwave(attacker, defender)
+    elseif abilIndex == 9 then  -- venom
+        scene:Venom(attacker, defender)
+    elseif abilIndex == 10 then -- leech
+        scene:Leech(attacker, defender)
+    elseif abilIndex == 11 then -- ice storm
+        scene:IceStorm(attacker, defender)
+    elseif abilIndex == 12 then -- rock wall
+        scene:RockWall(attacker, defender)
+    elseif abilIndex == 13 then -- heal
+        scene:Heal(attacker)
+    elseif abilIndex == 14 then -- cleanse
+        scene:Cleanse(attacker)
+    elseif abilIndex == 15 then -- cramp
+        scene:CrampCrippleMindBreakDelude(attacker, defender, "Cramp")
+    elseif abilIndex == 16 then -- cripple
+        scene:CrampCrippleMindBreakDelude(attacker, defender, "Cripple")
+    elseif abilIndex == 17 then -- mind break
+        scene:CrampCrippleMindBreakDelude(attacker, defender, "Mind Break")
+    elseif abilIndex == 18 then -- delude
+        scene:CrampCrippleMindBreakDelude(attacker, defender, "Delude")
+    elseif abilIndex == 19 then -- forbidden ritual
+        scene:ForbiddenRitual(attacker, defender)
+    elseif abilIndex == 20 then -- cannibalize
+        scene:Cannibalize(attacker, defender)
+    elseif abilIndex == 21 then -- mind over matter
+        scene:MindOverMatter(attacker, defender)
+    elseif abilIndex == 22 then -- blast
+        scene:Blast(attacker, defender)
+    elseif abilIndex == 23 then -- final countdown
+        scene:FinalCountdownTurnOne(attacker, defender, matchup)
+    elseif abilIndex == 24 then -- unleash
+        scene:DRUTurnOne(attacker, defender, matchup, "Unleash")
+    elseif abilIndex == 25 then -- silence
+        scene:SilenceLullBlind(attacker, defender, "Silences")
+    elseif abilIndex == 26 then -- mirror mania
+        scene:MirrorMania(attacker, defender, pet)
+    elseif abilIndex == 27 then -- undead minion
+        scene:UndeadMinion(attacker, pet)
+    elseif abilIndex == 28 then -- lull
+        scene:SilenceLullBlind(attacker, defender, "Lulls")
+    elseif abilIndex == 29 then -- assisted suicide
+        scene:AssistedSuicide(attacker, defender)
+    elseif abilIndex == 30 then -- blind
+        scene:SilenceLullBlind(attacker, defender, "Blinds")
+    end
+end
+
 function scene:EndTurnClick()
     scene:EndTurn() -- this will see if anyone has died, update labels, etc. added this for if player hits end turn without taking any sort of regular action
     
@@ -1091,9 +1497,24 @@ function scene:EndTurn()
     abilityButton.isVisible = false
     itemButton.isVisible = false
     meditateButton.isVisible = false
-    runButton.isVisible = false
+    runButton.isVisible = false    
+            
+    -- hide abil buttons     
+    showAbilities = false
+    abil1Button.isVisible = false
+    abil2Button.isVisible = false
+    abil3Button.isVisible = false
+    abil4Button.isVisible = false
+    abil5Button.isVisible = false
+    abil6Button.isVisible = false
+    abil7Button.isVisible = false
+    abil8Button.isVisible = false
+    abil9Button.isVisible = false
+    abil10Button.isVisible = false
+    abil11Button.isVisible = false
+    abil12Button.isVisible = false
 
-    --todo hide abil buttons here
+    
 
     -- todo add anything else that needs changed here
     
@@ -1101,6 +1522,7 @@ end
 
 --check ticks, call on ai after player finishes turn, check to see if a player is dead
 -- tables are passed in for attacker (whomever's turn it is) and defender (defender is pc or npc or melee pet)
+-- called by the EndTurnClick function
 function scene:StartTurn(attacker, defender)
     
     scene:Ticks("Poison", attacker) -- tick poison first since it may kill attacker and doesn't go away. turnLost will be set to true if attacker dies
@@ -1116,8 +1538,9 @@ function scene:StartTurn(attacker, defender)
        scene:Ticks("Lulled", attacker)
     end
     
+    -- try to execute a multiturn move
     if not turnLost then
-        scene:TickMultiTurnMoves()
+        scene:TickMultiTurnMoves(attacker, defender)
     end    
     
     if not turnLost and not pcTurn then
@@ -1127,7 +1550,7 @@ function scene:StartTurn(attacker, defender)
         if pcTurnPet then
             endTurnButton:setLabel("End Player Pet Turn")            
         else
-            endTurnButton:setLabel("End Player Turn")            
+            endTurnButton:setLabel("End Player Turn")
         end
         
         -- enable controls
@@ -1135,9 +1558,7 @@ function scene:StartTurn(attacker, defender)
         abilityButton.isVisible = true
         itemButton.isVisible = true
         meditateButton.isVisible = true
-        runButton.isVisible = true      
-        
-        scene:SetAbilButtonLabels(attacker) -- map ability names to buttons
+        runButton.isVisible = true    
     else
         turnLost = false
         scene:EndTurn()
@@ -1326,8 +1747,80 @@ function scene:Ticks(condition, attacker)
     end
 end
 
-function scene:TickMultiTurnMoves()
+-- try to execute or tick Delayed Reaction, Unleash, and Final Countdown
+-- this occurs by the StartTurn function
+function scene:TickMultiTurnMoves(attacker, defender)
+    -- first build a string of the current matchup to use as the index for nextTurnDmg table
+    local matchup = attacker["type"].."V"..defender["type"]
     
+    -- execute delayed reatcion
+    if pcTurn then
+        if pcTurnPet and attacker["delayedReactionReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:DRUTurnTwo(attacker, defender, matchup, "Delayed Reaction")                
+            end
+        elseif pcTurnPet == false and attacker["delayedReactionReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:DRUTurnTwo(attacker, defender, matchup, "Delayed Reaction") 
+            end
+        end
+    else
+        if npcTurnPet and attacker["delayedReactionReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:DRUTurnTwo(attacker, defender, matchup, "Delayed Reaction")                
+            end
+        elseif npcTurnPet == false and attacker["delayedReactionReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:DRUTurnTwo(attacker, defender, matchup, "Delayed Reaction") 
+            end
+        end        
+    end
+    
+    -- execute unleash
+    if pcTurn then
+        if pcTurnPet and attacker["unleashReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:DRUTurnTwo(attacker, defender, matchup, "Unleash")                
+            end
+        elseif pcTurnPet == false and attacker["unleashReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:DRUTurnTwo(attacker, defender, matchup, "Unleash") 
+            end
+        end
+    else
+        if npcTurnPet and attacker["unleashReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:DRUTurnTwo(attacker, defender, matchup, "Unleash")                
+            end
+        elseif npcTurnPet == false and attacker["unleashReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:DRUTurnTwo(attacker, defender, matchup, "Unleash") 
+            end
+        end        
+    end   
+    
+    -- execute final countdown
+    if pcTurn then
+        if pcTurnPet and attacker["finalCountdownReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:FinalCountdownActive(attacker, defender, matchup)                
+            end
+        elseif pcTurnPet == false and attacker["finalCountdownReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:FinalCountdownActive(attacker, defender, matchup) 
+            end
+        end
+    else
+        if npcTurnPet and attacker["finalCountdownReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:FinalCountdownActive(attacker, defender, matchup)                
+            end
+        elseif npcTurnPet == false and attacker["finalCountdownReady"] then
+            if nextTurnDmg[matchup] ~= 0 then
+                scene:FinalCountdownActive(attacker, defender, matchup) 
+            end
+        end        
+    end        
 end
 
 -- determine if anyone has died
@@ -1417,6 +1910,16 @@ function scene:Initialize()
     npcPetMagic = false
     turnLost = false
     
+    -- explicitely set these to 0 so that if they are used in a comparison, a table index error doesn't occur
+    nextTurnDmg["pcVnpc"] = 0
+    nextTurnDmg["pcVnpcPet"] = 0
+    nextTurnDmg["pcPetVnpc"] = 0
+    nextTurnDmg["pcPetVnpcPet"] = 0
+    nextTurnDmg["npcVpc"] = 0
+    nextTurnDmg["npcVpcPet"] = 0
+    nextTurnDmg["npcPetVpc"] = 0
+    nextTurnDmg["npcPetVpcPet"] = 0
+    
     pcPetStatGroup.isVisible = false
     npcPetStatGroup.isVisible = false
     
@@ -1424,8 +1927,7 @@ function scene:Initialize()
     pcTurn = true
     pcTurnPet = false
     npcTurnPet = false    
-    endTurnButton:setLabel("End Player Turn") 
-    scene:SetAbilButtonLabels(pcStats) -- map ability names to buttons
+    endTurnButton:setLabel("End Player Turn")
 end
 
 -- add a battle event to the scroller log
@@ -1463,78 +1965,144 @@ function scene:BattleLogAdd(logText)
     end    
 end
 
-function scene:SetAbilButtonLabels(attacker)   
+-- functionality to press/depress abilities button and hide ability buttons
+-- if they are to be shown, label and press functionality will be set by scene:SetAbilButtons
+-- this function is called by the ability button when pressed
+function scene:ShowHideAbilities()
+    if not showAbilities then -- show ability buttons
+        if not pcTurnPet then
+            scene:SetAbilButtons(pcStats)
+            
+            attackButton.isVisible = false  
+            abilityButton.isVisible = true
+            itemButton.isVisible = false
+            meditateButton.isVisible = false
+            runButton.isVisible = false   
+            endTurnButton.isVisible = false 
+        elseif pcTurnPet then
+            scene:SetAbilButtons(pcPetStats)
+            
+            attackButton.isVisible = false  
+            abilityButton.isVisible = true
+            itemButton.isVisible = false
+            meditateButton.isVisible = false
+            runButton.isVisible = false   
+            endTurnButton.isVisible = false               
+        end
+    else -- hide ability buttons
+        attackButton.isVisible = true
+        abilityButton.isVisible = true
+        itemButton.isVisible = true
+        meditateButton.isVisible = true
+        runButton.isVisible = true   
+        endTurnButton.isVisible = true
+        
+        abil1Button.isVisible = false
+        abil2Button.isVisible = false
+        abil3Button.isVisible = false
+        abil4Button.isVisible = false
+        abil5Button.isVisible = false
+        abil6Button.isVisible = false
+        abil7Button.isVisible = false
+        abil8Button.isVisible = false
+        abil9Button.isVisible = false
+        abil10Button.isVisible = false
+        abil11Button.isVisible = false
+        abil12Button.isVisible = false        
+    end
+    
+    showAbilities = not showAbilities
+end
+
+function scene:SetAbilButtons(attacker)   
     if attacker["abil1"] then
         abil1Button:setLabel(GLOB.abilities[attacker["abil1"]]["Name"])
+        --abil1Button.onRelease = print("hello")--scene:Meditate(attacker)
+        abil1Button.isVisible = true
+        --abil1Button.onRelease = self.MeditateClick
+        --abil1Button.onRelease = print("hello")
     else
-        abil1Button:setLabel("Unknown")
+        abil1Button.isVisible = false
     end
     
     if attacker["abil2"] then
         abil2Button:setLabel(GLOB.abilities[attacker["abil2"]]["Name"])
+        abil2Button.isVisible = true
     else
-        abil2Button:setLabel("Unknown")
+        abil2Button.isVisible = false
     end
 
     if attacker["abil3"] then
         abil3Button:setLabel(GLOB.abilities[attacker["abil3"]]["Name"])
+        abil3Button.isVisible = true
     else
-        abil3Button:setLabel("Unknown")
+        abil3Button.isVisible = false
     end
     
     if attacker["abil4"] then
         abil4Button:setLabel(GLOB.abilities[attacker["abil4"]]["Name"])
+        abil4Button.isVisible = true
     else
-        abil4Button:setLabel("Unknown")
+        abil4Button.isVisible = false
     end
     
     if attacker["abil5"] then
         abil5Button:setLabel(GLOB.abilities[attacker["abil5"]]["Name"])
+        abil5Button.isVisible = true
     else
-        abil5Button:setLabel("Unknown")
+        abil5Button.isVisible = false
     end
     
     if attacker["abil6"] then
         abil6Button:setLabel(GLOB.abilities[attacker["abil6"]]["Name"])
+        abil6Button.isVisible = true
     else
-        abil6Button:setLabel("Unknown")
+        abil6Button.isVisible = false
     end
     
     if attacker["abil7"] then
         abil7Button:setLabel(GLOB.abilities[attacker["abil7"]]["Name"])
+        abil7Button.isVisible = true
     else
-        abil7Button:setLabel("Unknown")
+        abil7Button.isVisible = false
     end
     
     if attacker["abil8"] then
         abil8Button:setLabel(GLOB.abilities[attacker["abil8"]]["Name"])
+        abil8Button.isVisible = true
     else
-        abil8Button:setLabel("Unknown")
+        abil8Button.isVisible = false
     end
     
     if attacker["abil9"] then
         abil9Button:setLabel(GLOB.abilities[attacker["abil9"]]["Name"])
+        abil9Button.isVisible = true
     else
-        abil9Button:setLabel("Unknown")
+        abil9Button.isVisible = false
     end
     
     if attacker["abil10"] then
         abil10Button:setLabel(GLOB.abilities[attacker["abil10"]]["Name"])
+        abil10Button.isVisible = true
     else
-        abil10Button:setLabel("Unknown")
+        abil10Button.isVisible = false
     end
     
     if attacker["abil11"] then
         abil11Button:setLabel(GLOB.abilities[attacker["abil11"]]["Name"])
+        abil11Button.isVisible = true
     else
-        abil11Button:setLabel("Unknown")
+        abil11Button.isVisible = false
     end
     
     if attacker["abil12"] then
         abil12Button:setLabel(GLOB.abilities[attacker["abil12"]]["Name"])
+        abil12Button.isVisible = true
     else
-        abil12Button:setLabel("Unknown")
+        abil12Button.isVisible = false
     end  
+    
+    
 end
 
 function scene:MakeLabels(myScene)
@@ -1934,13 +2502,14 @@ function scene:MakeButtons(myScene)
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Ability"
     options["x"] = buttonXLoc
-    options["onRelease"] = nil    
+    options["onRelease"] = self.ShowHideAbilities    
     abilityButton = widget.newButton(options)
     
     -- item button
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Item"
-    options["x"] = buttonXLoc    
+    options["x"] = buttonXLoc  
+    options["onRelease"] = nil
     itemButton = widget.newButton(options)
     
     -- meditate button
@@ -1972,12 +2541,13 @@ function scene:MakeButtons(myScene)
     buttonXLoc = buttonOrigLoc
     options["label"] = "Abil1"
     options["x"] = buttonXLoc
-    options["onRelease"] = nil
+    options["onRelease"] = self.MeditateClick -- todo start here
     abil1Button = widget.newButton(options)
     
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Abil2"
     options["x"] = buttonXLoc    
+    options["onRelease"] = nil
     abil2Button = widget.newButton(options)    
     
     buttonXLoc = buttonXLoc + 125
@@ -2035,6 +2605,19 @@ function scene:MakeButtons(myScene)
     options["label"] = "Abil12"
     options["x"] = buttonXLoc    
     abil12Button = widget.newButton(options)      
+    
+    abil1Button.isVisible = false
+    abil2Button.isVisible = false
+    abil3Button.isVisible = false
+    abil4Button.isVisible = false
+    abil5Button.isVisible = false
+    abil6Button.isVisible = false
+    abil7Button.isVisible = false
+    abil8Button.isVisible = false
+    abil9Button.isVisible = false
+    abil10Button.isVisible = false
+    abil11Button.isVisible = false
+    abil12Button.isVisible = false
     
     -- add controls to group 
     buttonGroupOne:insert(attackButton)
