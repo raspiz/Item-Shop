@@ -9,6 +9,7 @@ local scene = composer.newScene()
 
 --todo:
 -- need to look into cleaning up previous scenes
+--composer.removeScene("screens.BattleScreen") -- moved this to scene:show so it executes each time the scene is loaded
 
 -- local forward references here
 -- All code outside of the listener functions will only be executed ONCE unless "composer.removeScene()" is called.
@@ -95,7 +96,7 @@ function scene:show(event)
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.
         -- Example: start timers, begin animation, play audio, etc.
-        
+        composer.removeScene("screens.BattleScreen") 
         print("shop scene started")
     end
 end
