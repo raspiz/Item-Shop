@@ -4,9 +4,9 @@ local controls = require("controls.Controls")
 local button = require("controls.Button")
 local widget = require "widget"
 local utilities = require "functions.Utilities"
+local rpg = require "functions.RPG"
 local json = require "json"
 local scene = composer.newScene()
---todo:
 
 -- local forward references here
 -- All code outside of the listener functions will only be executed ONCE unless "composer.removeScene()" is called.
@@ -123,14 +123,14 @@ function scene:LoadToons()
     npcStats["abil2"] = 4
     npcStats["abil3"] = 7
     npcStats["abil4"] = 8
-    npcStats["abil5"] = 12
-    npcStats["abil6"] = 16
-    npcStats["abil7"] = 20
-    npcStats["abil8"] = 22
-    npcStats["abil9"] = 24
-    npcStats["abil10"] = 26
-    npcStats["abil11"] = 28
-    npcStats["abil12"] = 30    
+    npcStats["abil5"] = 6
+    npcStats["abil6"] = 27
+    npcStats["abil7"] = nil
+    npcStats["abil8"] = nil
+    npcStats["abil9"] = nil
+    npcStats["abil10"] = nil
+    npcStats["abil11"] = nil
+    npcStats["abil12"] = nil   
     
     -- npc misc stats
     npcStats["name"] = GLOB.npcs[1]["Name"]
@@ -167,7 +167,7 @@ function scene:LoadToons()
     pcStats["abil3"] = 7
     pcStats["abil4"] = 8
     pcStats["abil5"] = 12
-    pcStats["abil6"] = 27
+    pcStats["abil6"] = 26
     pcStats["abil7"] = nil
     pcStats["abil8"] = nil
     pcStats["abil9"] = nil
@@ -261,8 +261,6 @@ function scene:Meditate(attacker)
     turnLost = false
     scene:EndTurn()
 end
-
-
 
 -- check for silence or blind. a string value will be passed in to check the table value in the character's stats
 -- determine whose turn it is and if they are afflicted. if so, roll and see if they are prevented from acting
@@ -1569,7 +1567,7 @@ function scene:EndTurnClick()
         else
             scene:StartTurn(npcStats, pcStats)
         end
-    elseif (not pcTurn and not pcTurnPet) then
+    elseif (not pcTurn and not npcTurnPet) then
         if (npcPetMelee or npcPetMagic) then
             npcTurnPet = true
             scene:BattleLogAdd(npcPetStats["name"].."'s turn.")
@@ -1615,7 +1613,7 @@ function scene:EndTurn()
     npcHPLabel.text = "HP: "..npcStats["currentHp"].."/"..npcStats["hp"]
     npcAPLabel.text = "AP: "..npcStats["currentAp"].."/"..npcStats["ap"]
     
-    if npcPetMelee or pcPetMagic then    
+    if npcPetMelee or npcPetMagic then    
         npcPetHPLabel.text = "HP: "..npcPetStats["currentHp"].."/"..npcPetStats["hp"]
         npcPetAPLabel.text = "AP: "..npcPetStats["currentAp"].."/"..npcPetStats["ap"]    
     end
@@ -1671,10 +1669,15 @@ function scene:StartTurn(attacker, defender)
     
     if not turnLost and not pcTurn then
         scene:AI(attacker, defender)-- start AI routine
-        endTurnButton:setLabel("End NPC Turn")
+        
+        if npcTurnPet then
+            endTurnButton:setLabel("End NPC Pet Turn")
+        else
+            endTurnButton:setLabel("End NPC Turn")
+        end  
     elseif not turnLost and pcTurn then
         if pcTurnPet then
-            endTurnButton:setLabel("End Player Pet Turn")            
+            endTurnButton:setLabel("End Pet Turn")            
         else
             endTurnButton:setLabel("End Player Turn")
         end
@@ -1839,10 +1842,10 @@ function scene:Ticks(condition, attacker)
             scene:BattleLogAdd(toonName.." is no longer "..condition..".")
         end                     
     elseif condition == "Mirror Mania" and attacker["petMirrorMania"] then -- todo make sure this is working correctly
-        if attacker["tickPetMirroMania"] ~= 3 then
-            attacker["tickPetMirroMania"] = attacker["tickPetMirroMania"] + 1
+        if attacker["tickPetMirrorMania"] ~= 3 then
+            attacker["tickPetMirrorMania"] = attacker["tickPetMirrorMania"] + 1
         else
-            attacker["tickPetMirroMania"] = 0
+            attacker["tickPetMirrorMania"] = 0
             attacker["petMirrorMania"] = false
             
             scene:ClearStats(toonType)
@@ -1980,9 +1983,25 @@ function scene:Die()
     
 end
 
+-- calls the ai routine and determines actions
 function scene:AI(attacker, defender)
-    --todo add rest of stuff. for now just attack and return control to player
-    scene:Attack(attacker, defender)
+    local petStatus
+    
+    if (not npcPetMelee) and (not npcPetMagic) then
+        petStatus = false
+    else
+        petStatus = true
+    end
+    
+    local action = rpg:AI(attacker, defender, petStatus)
+    
+    if action == "atk" then
+        scene:Attack(attacker, defender)
+    elseif action == "med" then
+        scene:Meditate(attacker)
+    else
+        scene:ExecuteAbility(action)
+    end
 end
 
 -- nil out tables for a pc or npc pet and hide their stat labels
@@ -2272,7 +2291,7 @@ function scene:MakeLabels(myScene)
         width = 150,
         height = 30,
         font = native.systemFont,
-        fontSize = 16,
+        fontSize = 14,
         align = "left"    
     }    
 
