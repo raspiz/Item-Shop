@@ -30,6 +30,7 @@ local nextTurnDmg = {}
 
 -- some flags used by the game
 local turnLost = false -- bool value
+local battleEnded = false
 
 -- bools to keep track of pets that are out. pc and npc can only have one type of pet at a time
 local pcPetMelee = false
@@ -210,6 +211,14 @@ function scene:MeditateClick()
     end
 end
 
+function scene:RunClick()
+    if pcTurnPet then
+        scene:Run(pcPetStats)
+    else
+        scene:Run(pcStats)
+    end    
+end
+
 -- attack function. can be called by players and npcs as well as their pets
 function scene:Attack(attacker, defender)
     scene:CheckSilenceBlind("statusBlind") -- if the person attacking is blinded and fails check, the following if statement code will not execute
@@ -260,6 +269,22 @@ function scene:Meditate(attacker)
     
     turnLost = false
     scene:EndTurn()
+end
+
+function scene:Run(attacker)
+    -- npcs can also be passed into here for ones like quiksilver
+    local roll = utilities:RNG(3)
+    
+    if roll ~= 3 then
+        scene:BattleLogAdd(attacker["name"].." Runs from battle.")
+        battleEnded = true
+        endTurnButton:setLabel("End Battle")
+    else
+        scene:BattleLogAdd(attacker["name"].." tries to Run from battle, but is unsuccessful.")
+    end
+    
+    turnLost = false
+    scene:EndTurn()    
 end
 
 -- check for silence or blind. a string value will be passed in to check the table value in the character's stats
@@ -1541,57 +1566,61 @@ end
 function scene:EndTurnClick()
     scene:EndTurn() -- this will see if anyone has died, update labels, etc. added this for if player hits end turn without taking any sort of regular action
     
-    -- decide who's turn is next and who the defender is
-    if (pcTurn and not pcTurnPet) then
-        if (pcPetMelee or pcPetMagic) then
-            pcTurnPet = true
-            scene:BattleLogAdd(pcPetStats["name"].."'s turn.")
-            
-            if npcPetMelee then
-                scene:StartTurn(pcPetStats, npcPetStats)
+    if not battleEnded then
+        -- decide who's turn is next and who the defender is
+        if (pcTurn and not pcTurnPet) then
+            if (pcPetMelee or pcPetMagic) then
+                pcTurnPet = true
+                scene:BattleLogAdd(pcPetStats["name"].."'s turn.")
+
+                if npcPetMelee then
+                    scene:StartTurn(pcPetStats, npcPetStats)
+                else
+                    scene:StartTurn(pcPetStats, npcStats)
+                end
             else
-                scene:StartTurn(pcPetStats, npcStats)
-            end
-        else
+                pcTurn = false
+                scene:BattleLogAdd(npcStats["name"].."'s turn.")
+                scene:StartTurn(npcStats, pcStats)
+            end        
+        elseif pcTurnPet then
             pcTurn = false
+            pcTurnPet = false
             scene:BattleLogAdd(npcStats["name"].."'s turn.")
-            scene:StartTurn(npcStats, pcStats)
-        end        
-    elseif pcTurnPet then
-        pcTurn = false
-        pcTurnPet = false
-        scene:BattleLogAdd(npcStats["name"].."'s turn.")
-        
-        if pcPetMelee then
-            scene:StartTurn(npcStats, pcPetStats)
-        else
-            scene:StartTurn(npcStats, pcStats)
-        end
-    elseif (not pcTurn and not npcTurnPet) then
-        if (npcPetMelee or npcPetMagic) then
-            npcTurnPet = true
-            scene:BattleLogAdd(npcPetStats["name"].."'s turn.")
-            
+
             if pcPetMelee then
-                scene:StartTurn(npcPetStats, pcPetStats)
+                scene:StartTurn(npcStats, pcPetStats)
             else
-                scene:StartTurn(npcPetStats, pcStats)
+                scene:StartTurn(npcStats, pcStats)
             end
-        else
+        elseif (not pcTurn and not npcTurnPet) then
+            if (npcPetMelee or npcPetMagic) then
+                npcTurnPet = true
+                scene:BattleLogAdd(npcPetStats["name"].."'s turn.")
+
+                if pcPetMelee then
+                    scene:StartTurn(npcPetStats, pcPetStats)
+                else
+                    scene:StartTurn(npcPetStats, pcStats)
+                end
+            else
+                pcTurn = true
+                scene:BattleLogAdd(pcStats["name"].."'s turn.")
+                scene:StartTurn(pcStats, npcStats)
+            end
+        else -- pc turn
             pcTurn = true
+            npcTurnPet = false
             scene:BattleLogAdd(pcStats["name"].."'s turn.")
-            scene:StartTurn(pcStats, npcStats)
+
+            if npcPetMelee then
+                scene:StartTurn(pcStats, npcPetStats)
+            else
+                scene:StartTurn(pcStats, npcStats)
+            end
         end
-    else -- pc turn
-        pcTurn = true
-        npcTurnPet = false
-        scene:BattleLogAdd(pcStats["name"].."'s turn.")
-        
-        if npcPetMelee then
-            scene:StartTurn(pcStats, npcPetStats)
-        else
-            scene:StartTurn(pcStats, npcStats)
-        end
+    else -- battle is over. todo make this do something different
+        composer.gotoScene("screens.Start")
     end
 end
 
@@ -1671,15 +1700,32 @@ function scene:StartTurn(attacker, defender)
         scene:AI(attacker, defender)-- start AI routine
         
         if npcTurnPet then
-            endTurnButton:setLabel("End NPC Pet Turn")
+            if battleEnded then        
+                endTurnButton:setLabel("End Battle")
+            else
+                endTurnButton:setLabel("End NPC Pet Turn")
+            end            
+            
         else
-            endTurnButton:setLabel("End NPC Turn")
+            if battleEnded then        
+                endTurnButton:setLabel("End Battle")
+            else
+                endTurnButton:setLabel("End NPC Turn")
+            end     
         end  
     elseif not turnLost and pcTurn then
         if pcTurnPet then
-            endTurnButton:setLabel("End Pet Turn")            
+            if battleEnded then        
+                endTurnButton:setLabel("End Battle")
+            else
+                endTurnButton:setLabel("End Pet Turn") 
+            end                       
         else
-            endTurnButton:setLabel("End Player Turn")
+            if battleEnded then        
+                endTurnButton:setLabel("End Battle")
+            else
+                endTurnButton:setLabel("End Player Turn")
+            end   
         end
         
         -- enable controls
@@ -1958,6 +2004,8 @@ function scene:Die()
     if pcStats["currentHp"] < 1 then
         pcStats["currentHp"] = 0
         scene:BattleLogAdd(pcStats["name"].." has died.")
+        battleEnded = true
+        endTurnButton:setLabel("End Battle")
     end
     
     if pcPetMelee and pcPetStats["currentHp"] < 1 then
@@ -1971,6 +2019,8 @@ function scene:Die()
     if npcStats["currentHp"] < 1 then
         npcStats["currentHp"] = 0
         scene:BattleLogAdd(npcStats["name"].." has died.")
+        battleEnded = true
+        endTurnButton:setLabel("End Battle")
     end
     
     if npcPetMelee and npcPetStats["currentHp"] < 1 then
@@ -2068,11 +2118,14 @@ function scene:Initialize()
     pcPetStatGroup.isVisible = false
     npcPetStatGroup.isVisible = false
     
-    -- todo add initiative roll here
+    -- todo add initiative roll here. also output text to scroller for whose turn it is
+    
+    
     pcTurn = true
     pcTurnPet = false
     npcTurnPet = false    
     endTurnButton:setLabel("End Player Turn")
+    
 end
 
 -- add a battle event to the scroller log
@@ -2084,6 +2137,12 @@ function scene:BattleLogAdd(logText)
     local textHeight = 20    
     local outputDone = false
     local charCount = 0
+    
+    -- indent the text if it it not indicating whose turn it is
+    if not string.find(logText, "'s turn") then
+        logText = "   "..logText
+    end
+        
     
     while not outputDone do
         local multiLine = ""
@@ -2684,7 +2743,7 @@ function scene:MakeButtons(myScene)
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Run"
     options["x"] = buttonXLoc 
-    options["onRelease"] = nil 
+    options["onRelease"] = self.RunClick 
     runButton = widget.newButton(options)      
     
     -- end turn button
