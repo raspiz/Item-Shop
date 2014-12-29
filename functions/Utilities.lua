@@ -29,7 +29,7 @@ function utilities:RNG(high, low) -- can pass in 0, 1, or 2 numbers
         newNum = math.random(high) -- in the range 1 - high inclusive
     else
         newNum = math.random() -- in the range 0 - 1 inclusive
-    end
+    end  
         
     return newNum
 end 
