@@ -29,7 +29,7 @@ local npcPetStats = {}
 local nextTurnDmg = {}
 
 -- some flags used by the game
-local turnLost = false -- bool value
+local turnLost = false
 local battleEnded = false
 
 -- bools to keep track of pets that are out. pc and npc can only have one type of pet at a time
@@ -124,8 +124,8 @@ function scene:LoadToons()
     npcStats["abil2"] = 4
     npcStats["abil3"] = 7
     npcStats["abil4"] = 8
-    npcStats["abil5"] = 6
-    npcStats["abil6"] = 27
+    npcStats["abil5"] = 15
+    npcStats["abil6"] = 26
     npcStats["abil7"] = nil
     npcStats["abil8"] = nil
     npcStats["abil9"] = nil
@@ -163,12 +163,12 @@ function scene:LoadToons()
     pcStats["earth"] = 2
     pcStats["fire"] = 0
     
-    pcStats["abil1"] = 1
-    pcStats["abil2"] = 4
-    pcStats["abil3"] = 7
-    pcStats["abil4"] = 8
-    pcStats["abil5"] = 12
-    pcStats["abil6"] = 26
+    pcStats["abil1"] = 25
+    pcStats["abil2"] = 26
+    pcStats["abil3"] = 27
+    pcStats["abil4"] = 28
+    pcStats["abil5"] = 29
+    pcStats["abil6"] = 30
     pcStats["abil7"] = nil
     pcStats["abil8"] = nil
     pcStats["abil9"] = nil
@@ -241,8 +241,7 @@ function scene:Attack(attacker, defender)
     end
     
     turnLost = false
-    scene:EndTurn()
-    
+    scene:EndTurn()    
 end
 
 -- meditate function. can be called by players and npcs as well as their pets
@@ -317,11 +316,9 @@ function scene:CheckSilenceBlind(affliction)
         local affText = ""
         
         if affliction == "statusBlind" then
-            affText = "blinded"
+            affText = "Blinded"
         elseif affliction == "statusSilence" then
-            affText = "silenced"
-        else -- todo remove this condition. it's just here for error checking to make sure this function is called correctly
-            scene:BattleLogAdd("YOU FUCKED UP HERE SON")
+            affText = "Silenced"
         end
         
         local outputString = outputName.." is "..affText.." and is unable to make an action."
@@ -331,169 +328,6 @@ function scene:CheckSilenceBlind(affliction)
             turnLost = true
         end   
     end
-end
-
-function scene:Cleave(attacker, defender)
-    scene:CheckSilenceBlind("statusBlind")
-    
-    if not turnLost then
-        local roll = utilities:RNG(3)
-        local attack = (attacker["str"] * roll) - defender["def"]
-        
-        if attack < 0 then
-            attack = 0
-        end
-        
-        defender["currentHp"] = defender["currentHp"] - attack
-        
-        if roll == 3 and attack > 0 then            
-            scene:BattleLogAdd(attacker["name"].." Cleaves with a mighty swing, doing "..attack.." damage to "..defender["name"]..".")
-        elseif attack > 0 then
-            scene:BattleLogAdd(attacker["name"].." Cleaves, doing "..attack.." damage to "..defender["name"]..".")
-        else
-            scene:BattleLogAdd(attacker["name"].."'s Cleave does "..attack.." damage to "..defender["name"]..".")            
-        end
-    end
-
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()    
-end
-
-function scene:Berserk(attacker, defender)
-    scene:CheckSilenceBlind("statusBlind")
-    
-    if not turnLost then        
-        local attack = (attacker["str"] * 2) - defender["def"]  
-        
-        if attack < 0 then
-            attack = 0
-        end        
-        
-        defender["currentHp"] = defender["currentHp"] - attack 
-        
-        if attack > 0 then            
-            scene:BattleLogAdd(attacker["name"].." goes Berserk, doing "..attack.." damage to "..defender["name"]..".")
-        else
-            scene:BattleLogAdd(attacker["name"].."'s Berserk does "..attack.." damage to "..defender["name"]..".")
-        end      
-    end
-
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()    
-end
-
-function scene:TestOfWill(attacker, defender)
-    scene:CheckSilenceBlind("statusBlind")
-    
-    if not turnLost then        
-        local attack = attacker["str"] - defender["will"] 
-        
-        if attack < 0 then
-            attack = 0
-        end        
-        
-        defender["currentHp"] = defender["currentHp"] - attack 
-        
-        if attack > 0 then            
-            scene:BattleLogAdd(attacker["name"].." uses a Test of Will, doing "..attack.." damage to "..defender["name"]..".")
-        else
-            scene:BattleLogAdd(attacker["name"].."'s Test of Will does "..attack.." damage to "..defender["name"]..".")
-        end      
-    end
-
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()    
-end
-
-function scene:Backstab(attacker, defender)
-    scene:CheckSilenceBlind("statusBlind")
-    
-    if not turnLost then
-        local roll = utilities:RNG(6)
-        local attack = 0
-        
-        if roll == 6 then
-            attack = (attacker["str"] * 3) - defender["def"]
-        elseif roll == 1 then -- miss
-            attack = 0
-        else
-            attack = (attacker["str"] * 2) - defender["def"]            
-        end
-        
-        if attack < 0 then
-            attack = 0
-        end        
-        
-        defender["currentHp"] = defender["currentHp"] - attack
-        
-        if roll == 6 then            
-            scene:BattleLogAdd(attacker["name"].." critically Backstabs  "..defender["name"]..", doing "..attack.." damage.")
-        elseif roll == 1 then
-            scene:BattleLogAdd(attacker["name"].."'s Backstab misses the mark, doing "..attack.." damage to "..defender["name"]..".")            
-        else
-            scene:BattleLogAdd(attacker["name"].."'s Backstab does "..attack.." damage to "..defender["name"]..".")            
-        end
-    end
-
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()    
-end
-
-function scene:BeatDown(attacker, defender)
-    scene:CheckSilenceBlind("statusBlind")
-    
-    if not turnLost then
-        local roll = utilities:RNG(2)
-        local attack = 0
-        
-        if roll == 2 then
-            attack = (attacker["str"] * 3) - defender["def"]
-            
-            if attack < 0 then
-                attack = 0
-            end  
-        end
-        
-        defender["currentHp"] = defender["currentHp"] - attack
-        
-        if roll == 2 then            
-            scene:BattleLogAdd(attacker["name"].." uses a Beat Down, doing "..attack.." damage to "..defender["name"]..".")
-        elseif roll == 1 then
-            scene:BattleLogAdd(attacker["name"].." tries a Beat Down but misses his mark, doing "..attack.." damage to "..defender["name"]..".")       
-        end
-    end
-
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()    
-end
-
-function scene:DRUTurnOne(attacker, defender, matchup, move)
-    if move == "Delayed Reaction" then
-        scene:CheckSilenceBlind("statusBlind")
-    else
-        scene:CheckSilenceBlind("statusSilence")
-    end
-    
-    if not turnLost then
-        -- associate attacker with target and determine damage
-        if move == "Delayed Reaction" then
-            nextTurnDmg[matchup] = (attacker["str"] * 3) - defender["def"]
-            attacker["delayedReactionReady"] = true
-            scene:BattleLogAdd(attacker["name"].." sizes up "..defender["name"].." for a "..move..".")            
-        else
-            nextTurnDmg[matchup] = (attacker["int"] * 3) - defender["will"]
-            attacker["unleashReady"] = true
-            scene:BattleLogAdd(attacker["name"].." prepares to "..move.." on "..defender["name"]..".")
-        end   
-        
-        -- give an arbitrary value to dmg if 0 or below, so that the game shows the text when DRUTurnTwo is activated
-        if nextTurnDmg[matchup] < 1 then
-            nextTurnDmg[matchup] = -1
-        end 
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()  
 end
 
 function scene:DRUTurnTwo(attacker, defender, matchup, move)
@@ -526,482 +360,6 @@ function scene:DRUTurnTwo(attacker, defender, matchup, move)
     
     nextTurnDmg[matchup] = 0
     turnLost = true    
-end
-
-function scene:Fireball(attacker, defender)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local attack = (attacker["int"] * 2 * defender["fire"]) - defender["will"]
-        
-        -- set the damage to 0 if it's less than 0, otherwise round it
-        if attack < 0 then
-            attack = 0
-        else
-            attack = utilities:Round(attack)
-        end
-        
-        defender["currentHp"] = defender["currentHp"] - attack
-        
-        if defender["fire"] ~= 0 then            
-            scene:BattleLogAdd(attacker["name"].." conjures a Fireball, doing "..attack.." fire damage to "..defender["name"]..".")
-        else
-            scene:BattleLogAdd(attacker["name"].." conjures a Fireball, but "..defender["name"].." is resistant to fire.")
-        end  
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:Shockwave(attacker, defender)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local roll = utilities:RNG(3)
-        local attack = (attacker["int"] * roll * defender["lightning"]) - defender["will"]
-        
-        -- set the damage to 0 if it's less than 0, otherwise round it
-        if attack < 0 then
-            attack = 0
-        else
-            attack = utilities:Round(attack)
-        end
-        
-        defender["currentHp"] = defender["currentHp"] - attack
-        
-        if roll == 3 and attack > 0 then
-            scene:BattleLogAdd(attacker["name"].." releases a mighty Shockwave, doing "..attack.." lightning damage to "..defender["name"]..".")            
-        elseif defender["lightning"] == 0 then  
-            scene:BattleLogAdd(attacker["name"].." releases a Shockwave, but "..defender["name"].." is resistant to lightning.")            
-        else
-            scene:BattleLogAdd(attacker["name"].." releases a Shockwave, doing "..attack.." lightning damage to "..defender["name"]..".")   
-        end  
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:Venom(attacker, defender)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local roll = utilities:RNG(3)
-        local attack = roll * defender["poison"] * attacker["level"]   
-        attack = utilities:Round(attack)
-        
-        -- poison can be reapplied for new damage. this allows it to be used as an attack or to improve the poison damage
-        if attack > 0 then
-            defender["currentHp"] = defender["currentHp"] - attack
-            defender["dotPoison"] = true
-            defender["dotPoisonDmg"] = attack            
-            scene:BattleLogAdd(attacker["name"].." uses Venom on "..defender["name"]..", poisoning them for an ongoing "..attack.." damage.")
-            
-            if defender["type"] == "pc" then
-                pcPoisonImg.isVisible = true
-            elseif defender["type"] == "pcPet" then
-                pcPetPoisonImg.isVisible = true
-            elseif defender["type"] == "npc" then
-                npcPoisonImg.isVisible = true
-            elseif defender["type"] == "npcPet" then
-                npcPetPoisonImg.isVisible = true
-            end            
-        elseif defender["poison"] == 0 then  
-            scene:BattleLogAdd(attacker["name"].." uses Venom on "..defender["name"]..", but they are resistant to poison.")            
-        else
-            scene:BattleLogAdd(attacker["name"].." uses Venom on "..defender["name"]..", but the poison doesn't take hold.")   
-        end  
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:Leech(attacker, defender)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local roll = utilities:RNG(3)
-        local attack = roll * defender["disease"] * attacker["level"]
-        attack = utilities:Round(attack)
-        
-        if defender["disease"] ~= 0 then
-            defender["currentHp"] = defender["currentHp"] - attack
-            attacker["currentHp"] = attacker["currentHp"] + attack
-            
-            if attacker["currentHp"] > attacker["hp"] then
-                attacker["currentHp"] = attacker["hp"]
-            end
-            
-            scene:BattleLogAdd(attacker["name"].." Leeches from "..defender["name"]..", inflicting and restoring "..attack.." disease damage.")            
-        else
-            scene:BattleLogAdd(attacker["name"].." Leeches, but "..defender["name"].." is resistant to disease.")            
-        end  
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:IceStorm(attacker, defender)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local roll = utilities:RNG(2)
-        local attack = 0
-        
-        if roll == 2 then
-            attack = (attacker["int"] * 3 * defender["ice"]) - defender["will"]
-            
-            -- set the damage to 0 if it's less than 0, otherwise round it
-            if attack < 0 then
-                attack = 0
-            else
-                attack = utilities:Round(attack)
-            end
-            
-            defender["currentHp"] = defender["currentHp"] - attack
-        end        
-        
-        if defender["ice"] == 0 then 
-            scene:BattleLogAdd(attacker["name"].." summons an Ice Storm, but "..defender["name"].." is resistant to ice.")                        
-        elseif roll == 2 then
-            scene:BattleLogAdd(attacker["name"].." summons an Ice Storm, doing "..attack.." ice damage to "..defender["name"]..".")            
-        else
-            scene:BattleLogAdd(attacker["name"].." tries to summon an Ice Storm, but fails.")   
-        end  
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:RockWall(attacker, defender)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local attack = (attacker["int"] + attacker["level"]) * defender["earth"]
-        attack = utilities:Round(attack)
-        
-        defender["currentHp"] = defender["currentHp"] - attack
-        
-        if defender["earth"] ~= 0 then            
-            scene:BattleLogAdd(attacker["name"].." creates a Rock Wall, doing "..attack.." earth damage to "..defender["name"]..".")
-        else
-            scene:BattleLogAdd(attacker["name"].." creates a Rock Wall, but "..defender["name"].." is resistant to earth.")
-        end  
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:Heal(attacker)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local attack = attacker["int"] * 3
- 
-        attacker["currentHp"] = attacker["currentHp"] + attack
-
-        if attacker["currentHp"] > attacker["hp"] then
-            attacker["currentHp"] = attacker["hp"]
-        end
-            
-        if attack > 0 then            
-            scene:BattleLogAdd(attacker["name"].." Heals, restoring "..attack.." health.")
-        else
-            scene:BattleLogAdd(attacker["name"].." tries to Heal, but it has no effect.")
-        end  
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:Cleanse(attacker)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        scene:BattleLogAdd(attacker["name"].." Cleanses, removing all negative status effects.")
-        
-        -- remove status effects
-        attacker["dotPoison"] = false
-        attacker["dotPoisonDmg"] = false       
-        attacker["debuffCramp"] = false
-        attacker["tickDebuffCramp"] = 0
-        attacker["str"] = attacker["baseStr"]
-        attacker["debuffCripple"] = false
-        attacker["tickDebuffCripple"] = 0
-        attacker["def"] = attacker["baseDef"]
-        attacker["debuffMindBreak"] = false
-        attacker["tickDebuffMindBreak"] = 0
-        attacker["int"] = attacker["baseInt"]
-        attacker["debuffDelude"] = false
-        attacker["tickDebuffDelude"] = 0
-        attacker["will"] = attacker["baseWill"]
-        attacker["statusBlind"] = false
-        attacker["tickStatusBlind"] = 0
-        attacker["statusSilence"] = false
-        attacker["tickStatusSilence"] = 0   
-        attacker["statusLull"] = false
-        
-        -- hide images
-        if attacker["type"] == "pc" then
-            pcCrampImg.isVisible = false
-            pcCrippleImg.isVisible = false
-            pcMindBreakImg.isVisible = false
-            pcDeludeImg.isVisible = false
-            pcPoisonImg.isVisible = false
-            pcBlindImg.isVisible = false
-            pcSilenceImg.isVisible = false
-            pcLullImg.isVisible = false            
-        elseif attacker["type"] == "pcPet" then
-            pcPetCrampImg.isVisible = false
-            pcPetCrippleImg.isVisible = false
-            pcPetMindBreakImg.isVisible = false
-            pcPetDeludeImg.isVisible = false
-            pcPetPoisonImg.isVisible = false
-            pcPetBlindImg.isVisible = false
-            pcPetSilenceImg.isVisible = false
-            pcPetLullImg.isVisible = false           
-        elseif attacker["type"] == "npc" then
-            npcCrampImg.isVisible = false
-            npcCrippleImg.isVisible = false
-            npcMindBreakImg.isVisible = false
-            npcDeludeImg.isVisible = false
-            npcPoisonImg.isVisible = false
-            npcBlindImg.isVisible = false
-            npcSilenceImg.isVisible = false
-            npcLullImg.isVisible = false               
-        elseif attacker["type"] == "npcPet" then
-            npcPetCrampImg.isVisible = false
-            npcPetCrippleImg.isVisible = false
-            npcPetMindBreakImg.isVisible = false
-            npcPetDeludeImg.isVisible = false
-            npcPetPoisonImg.isVisible = false
-            npcPetBlindImg.isVisible = false
-            npcPetSilenceImg.isVisible = false
-            npcPetLullImg.isVisible = false               
-        end 
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:CrampCrippleMindBreakDelude(attacker, defender, affliction)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local stat = ""
-        local halfStat = 0
-        
-        -- todo consider whether to start the tick count at 0 or 1. at 0 they get 3 full turns of debuff applied to them
-        if affliction == "Cramp" then
-            stat = "strength"
-            halfStat = defender["baseStr"] / 2
-            defender["str"] = utilities:Round(halfStat)
-            defender["debuffCramp"] = true
-            defender["tickDebuffCramp"] = 0
-            
-            if defender["type"] == "pc" then
-                pcCrampImg.isVisible = true
-            elseif defender["type"] == "pcPet" then
-                pcPetCrampImg.isVisible = true
-            elseif defender["type"] == "npc" then
-                npcCrampImg.isVisible = true
-            elseif defender["type"] == "npcPet" then
-                npcPetCrampImg.isVisible = true
-            end                  
-        elseif affliction == "Cripple" then
-            stat = "defense"
-            halfStat = defender["baseDef"] / 2
-            defender["def"] = utilities:Round(halfStat)
-            defender["debuffCripple"] = true
-            defender["tickDebuffCripple"] = 0
-            
-            if defender["type"] == "pc" then
-                pcCrippleImg.isVisible = true
-            elseif defender["type"] == "pcPet" then
-                pcPetCrippleImg.isVisible = true
-            elseif defender["type"] == "npc" then
-                npcCrippleImg.isVisible = true
-            elseif defender["type"] == "npcPet" then
-                npcPetCrippleImg.isVisible = true
-            end                     
-        elseif affliction == "Mind Break" then
-            stat = "intelligence"
-            halfStat = defender["baseInt"] / 2
-            defender["int"] = utilities:Round(halfStat)
-            defender["debuffMindBreak"] = true
-            defender["tickDebuffMindBreak"] = 0
-            
-            if defender["type"] == "pc" then
-                pcMindBreakImg.isVisible = true
-            elseif defender["type"] == "pcPet" then
-                pcPetMindBreakImg.isVisible = true
-            elseif defender["type"] == "npc" then
-                npcMindBreakImg.isVisible = true
-            elseif defender["type"] == "npcPet" then
-                npcPetMindBreakImg.isVisible = true
-            end                     
-        else
-            stat = "will"
-            halfStat = defender["baseWill"] / 2
-            defender["will"] = utilities:Round(halfStat)
-            defender["debuffDelude"] = true
-            defender["tickDebuffDelude"] = 0
-            
-            if defender["type"] == "pc" then
-                pcDeludeImg.isVisible = true
-            elseif defender["type"] == "pcPet" then
-                pcPetDeludeImg.isVisible = true
-            elseif defender["type"] == "npc" then
-                npcDeludeImg.isVisible = true
-            elseif defender["type"] == "npcPet" then
-                npcPetDeludeImg.isVisible = true
-            end                     
-        end
-
-        scene:BattleLogAdd(attacker["name"].." casts "..affliction..", lowering "..defender["name"].."'s "..stat..".")
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:ForbiddenRitual(attacker, defender)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local roll = utilities:RNG(3)
-        local attack = 0
-        
-        if roll ~= 1 then
-            attack = defender["currentHp"] / 2
-            attack = utilities:Round(attack)
-            
-            -- prevent defender from being killed if currentHp is 1
-            if defender["currentHp"] == 1 and attack == 1 then
-                scene:BattleLogAdd(attacker["name"].."'s Forbidden Ritual does no damage to "..defender["name"]..".")                            
-            else
-                defender["currentHp"] = defender["currentHp"] - attack                
-                scene:BattleLogAdd(attacker["name"].." commits a Forbidden Ritual, doing "..attack.." damage to "..defender["name"]..".")              
-            end
-        else
-            scene:BattleLogAdd(attacker["name"].." commits a Forbidden Ritual, but it fails.")                        
-        end
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:Cannibalize(attacker, defender)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local roll = utilities:RNG(6)
-        local attack = attacker["int"] + roll
-        local canniAtk = attack - attacker["will"]
-        local canniDef = (attack * 2) - defender["will"]
-        
-        -- set the damage to 0 if it's less than 0, otherwise round it
-        if canniAtk < 0 then
-            canniAtk = 0
-        end
-        
-        if canniDef < 0 then
-            canniDef = 0
-        end     
-        
-        attacker["currentHp"] = attacker["currentHp"] - canniAtk
-        defender["currentHp"] = defender["currentHp"] - canniDef
-
-        scene:BattleLogAdd(attacker["name"].." Cannibalizes flesh, suffering "..canniAtk.." damage and inflicting "..canniDef.." damage to "..defender["name"]..".")            
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:MindOverMatter(attacker, defender)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then        
-        local attack = attacker["int"] - defender["def"] 
-        
-        if attack < 0 then
-            attack = 0
-        end        
-        
-        defender["currentHp"] = defender["currentHp"] - attack 
-        
-        if attack > 0 then            
-            scene:BattleLogAdd(attacker["name"].." projects Mind Over Matter, doing "..attack.." damage to "..defender["name"]..".")
-        else
-            scene:BattleLogAdd(attacker["name"].."'s Mind Over Matter does "..attack.." damage to "..defender["name"]..".")
-        end      
-    end
-
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()    
-end
-
-function scene:Blast(attacker, defender)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local roll = utilities:RNG(6)
-        local attack = 0
-        
-        if roll == 6 then
-            attack = (attacker["int"] * 3) - defender["will"]
-        elseif roll == 1 then -- miss
-            attack = 0
-        else
-            attack = (attacker["int"] * 2) - defender["will"]            
-        end
-        
-        if attack < 0 then
-            attack = 0
-        end        
-        
-        defender["currentHp"] = defender["currentHp"] - attack
-        
-        if roll == 6 then            
-            scene:BattleLogAdd(attacker["name"].." critically Blasts  "..defender["name"]..", doing "..attack.." damage.")
-        elseif roll == 1 then
-            scene:BattleLogAdd(attacker["name"].."'s Blast misses the mark, doing "..attack.." damage to "..defender["name"]..".")            
-        else
-            scene:BattleLogAdd(attacker["name"].."'s Blast does "..attack.." damage to "..defender["name"]..".")            
-        end
-    end
-
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()    
-end
-
-function scene:FinalCountdownTurnOne(attacker, defender, matchup)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local roll = utilities:RNG(2)
-        
-        if roll == 2 then
-            nextTurnDmg[matchup] = -1
-            attacker["finalCountdownReady"] = true
-            attacker["tickFinalCountdown"] = 1 -- could set this to 0 if FC is too OP            
-            scene:BattleLogAdd(attacker["name"].." begins a Final Countdown, hexing "..defender["name"]..".")            
-        else
-            scene:BattleLogAdd(attacker["name"].." tries to hex "..defender["name"].." with Final Countdown, but fails.")
-        end  
-    end
-
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()    
 end
 
 function scene:FinalCountdownActive(attacker, defender, matchup)
@@ -1043,279 +401,8 @@ function scene:FinalCountdownActive(attacker, defender, matchup)
     turnLost = true
 end
 
-function scene:SilenceLullBlind(attacker, defender, affliction)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local roll = utilities:RNG(3)
-        
-        if roll ~= 1 then
-            if affliction == "Silences" then
-                defender["statusSilence"] = true
-                defender["tickStatusSilence"] = 0
-
-                if defender["type"] == "pc" then
-                    pcSilenceImg.isVisible = true
-                elseif defender["type"] == "pcPet" then
-                    pcPetSilenceImg.isVisible = true
-                elseif defender["type"] == "npc" then
-                    npcSilenceImg.isVisible = true
-                elseif defender["type"] == "npcPet" then
-                    npcPetSilenceImg.isVisible = true
-                end       
-                
-                scene:BattleLogAdd(attacker["name"].." "..affliction.." "..defender["name"]..", preventing them from using magical abilities.")                
-            elseif affliction == "Blinds" then
-                defender["statusBlind"] = true
-                defender["tickStatusBlind"] = 0
-
-                if defender["type"] == "pc" then
-                    pcBlindImg.isVisible = true
-                elseif defender["type"] == "pcPet" then
-                    pcPetBlindImg.isVisible = true
-                elseif defender["type"] == "npc" then
-                    npcBlindImg.isVisible = true
-                elseif defender["type"] == "npcPet" then
-                    npcPetBlindImg.isVisible = true
-                end  
-                
-                scene:BattleLogAdd(attacker["name"].." "..affliction.." "..defender["name"]..", preventing them from using physical abilities.")
-            else -- lull
-                defender["statusLull"] = true
-
-                if defender["type"] == "pc" then
-                    pcLullImg.isVisible = true
-                elseif defender["type"] == "pcPet" then
-                    pcPetLullImg.isVisible = true
-                elseif defender["type"] == "npc" then
-                    npcLullImg.isVisible = true
-                elseif defender["type"] == "npcPet" then
-                    npcPetLullImg.isVisible = true
-                end  
-                
-                scene:BattleLogAdd(attacker["name"].." "..affliction.." "..defender["name"].." to sleep, preventing them from taking action.")
-            end        
-        else
-            scene:BattleLogAdd(attacker["name"].." "..affliction.." "..defender["name"]..", but they avoid the attempt.")
-        end
-    
-    end
-    
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()       
-end
-
-function scene:MirrorMania(attacker, defender, pet)
-    -- pass in tables for caster, character being mirrored, and the pet to be created
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then        
-        local roll = utilities:RNG(2)
-        
-        if roll == 2 then
-            pet["baseHp"] = defender["baseHp"]
-            pet["baseStr"] = defender["baseStr"]
-            pet["baseDef"] = defender["baseDef"]
-            pet["baseAp"] = defender["baseAp"]
-            pet["baseInt"] = defender["baseInt"]
-            pet["baseWill"] = defender["baseWill"]
-
-            pet["hp"] = pet["baseHp"]
-            pet["str"] = pet["baseStr"]
-            pet["def"] = pet["baseDef"]
-            pet["ap"] = pet["baseAp"]
-            pet["int"] = pet["baseInt"]
-            pet["will"] = pet["baseWill"]
-
-            -- shouldn't need these but doesn't hurt to have them
-            pet["lightning"] = defender["lightning"]
-            pet["poison"] = defender["poison"]
-            pet["ice"] = defender["ice"]
-            pet["disease"] = defender["disease"]
-            pet["earth"] = defender["earth"]
-            pet["fire"] = defender["fire"]
-
-            pet["abil1"] = defender["abil1"]
-            pet["abil2"] = defender["abil2"]
-            pet["abil3"] = defender["abil3"]
-            pet["abil4"] = defender["abil4"]
-            pet["abil5"] = defender["abil5"]
-            pet["abil6"] = defender["abil6"]
-            pet["abil7"] = defender["abil7"]
-            pet["abil8"] = defender["abil8"]
-            pet["abil9"] = defender["abil9"]
-            pet["abil10"] = defender["abil10"]
-            pet["abil11"] = defender["abil11"]
-            pet["abil12"] = defender["abil12"]       
-
-            pet["name"] = "Shadow "..defender["name"]            
-            pet["level"] = defender["level"]
-            pet["currentHp"] = defender["hp"]
-            pet["currentAp"] = defender["ap"]               
-            
-            -- flag and tick count for caster
-            attacker["petMirrorMania"] = true
-            attacker["tickPetMirrorMania"] = 1 -- can be changed to 0 if we want to allow extra turn for pet
-            
-            -- todo add image
-            if attacker["type"] == "pc" then
-                pet["type"] = "pcPet"
-                pcPetMagic = true   
-                
-                -- set labels
-                pcPetStatGroup.isVisible = true
-                pcPetNameLabel.text = pet["name"]
-                pcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
-                pcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
-            elseif attacker["type"] == "npc" then
-                pet["type"] = "npcPet"
-                npcPetMagic = true
-                
-                -- set labels
-                npcPetStatGroup.isVisible = true
-                npcPetNameLabel.text = pet["name"]
-                npcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
-                npcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
-            end
-            
-            scene:BattleLogAdd(attacker["name"].." casts Mirror Mania and spawns a shadow of "..defender["name"]..".")            
-        else
-            scene:BattleLogAdd(attacker["name"].." casts Mirror Mania, but it fails.")            
-        end            
-    end
-
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()    
-end
-
-function scene:UndeadMinion(attacker, pet)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then        
-        local roll = utilities:RNG(2)   
-        
-        if roll == 2 then
-            pet["baseHp"] = (attacker["level"] + attacker["level"] - 1) * 3
-            pet["baseStr"] = attacker["level"] * 2
-            pet["baseDef"] = attacker["level"] * 1
-            pet["baseAp"] = attacker["level"] * 1
-            pet["baseInt"] = attacker["level"] * 0
-            pet["baseWill"] = attacker["level"] * 1
-
-            pet["hp"] = pet["baseHp"]
-            pet["str"] = pet["baseStr"]
-            pet["def"] = pet["baseDef"]
-            pet["ap"] = pet["baseAp"]
-            pet["int"] = pet["baseInt"]
-            pet["will"] = pet["baseWill"]
-
-            pet["lightning"] = 1
-            pet["poison"] = 1
-            pet["ice"] = 1
-            pet["disease"] = 1
-            pet["earth"] = 1
-            pet["fire"] = 1
-            
-            -- assign abilities based on level
-            pet["abil1"] = 1
-            pet["abil2"] = 10
-            
-            if attacker["level"] >= 3 then
-                pet["abil3"] = 5
-            else
-                pet["abil3"] = nil
-            end
-            
-            if attacker["level"] >= 5 then
-                pet["abil4"] = 29
-            else
-                pet["abil4"] = nil
-            end
-            
-            if attacker["level"] >= 7 then
-                pet["abil5"] = 9
-            else
-                pet["abil5"] = nil
-            end
-            
-            if attacker["level"] >= 9 then
-                pet["abil6"] = 16
-            else
-                pet["abil6"] = nil
-            end            
-            
-            -- todo set these up if adding higher levels
-            pet["abil7"] = nil
-            pet["abil8"] = nil
-            pet["abil9"] = nil
-            pet["abil10"] = nil
-            pet["abil11"] = nil
-            pet["abil12"] = nil
-
-            pet["name"] = "Undead Minion"            
-            pet["level"] = attacker["level"]
-            pet["currentHp"] = pet["hp"]
-            pet["currentAp"] = pet["ap"] 
-
-            -- todo add image
-            if attacker["type"] == "pc" then
-                pet["type"] = "pcPet"
-                pcPetMelee = true   
-                
-                -- set labels
-                pcPetStatGroup.isVisible = true
-                pcPetNameLabel.text = pet["name"]
-                pcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
-                pcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
-            elseif attacker["type"] == "npc" then
-                pet["type"] = "npcPet"
-                npcPetMelee = true
-                
-                -- set labels
-                npcPetStatGroup.isVisible = true
-                npcPetNameLabel.text = pet["name"]
-                npcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
-                npcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
-            end
-            
-            scene:BattleLogAdd(attacker["name"].." summons an Undead Minion to aid in battle.")            
-        else
-            scene:BattleLogAdd(attacker["name"].." tries to summon an Undead Minion, but fails.")            
-        end            
-    end
-
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()    
-end
-
-function scene:AssistedSuicide(attacker, defender)
-    scene:CheckSilenceBlind("statusSilence")
-    
-    if not turnLost then
-        local roll = utilities:RNG(4)
-        local attack = 0
-        
-        if roll ~= 1 then
-            roll = utilities:RNG(6)
-            attack = defender["str"] + defender["level"] + roll - defender["def"]
-            
-            if attack < 0 then
-                attack = 0
-            end  
-            
-            defender["currentHp"] = defender["currentHp"] - attack
-            
-            scene:BattleLogAdd(attacker["name"].." performs Assisted Suicide on "..defender["name"].." doing "..attack.." damage.")            
-        else
-            scene:BattleLogAdd(attacker["name"].."'s Assisted Suicide misses the mark, doing "..attack.." damage to "..defender["name"]..".")
-        end
-    end
-
-    attacker["currentAp"] =  attacker["currentAp"] - 1
-    scene:EndTurn()    
-end
-
 function scene:AbilityOneClick()
+    --print(text)
     if not pcTurnPet and pcStats["currentAp"] == 0 then
         scene:BattleLogAdd("You are out of AP. Try Meditating.")
     elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
@@ -1499,68 +586,204 @@ function scene:ExecuteAbility(abilIndex)
         end  
     end        
     
-    -- call the individual ability function, passing in relevent data as determined above
-    if abilIndex == 1 then  -- cleave
-        scene:Cleave(attacker, defender)
-    elseif abilIndex == 2 then  -- berserk
-        scene:Berserk(attacker, defender)
-    elseif abilIndex == 3 then  -- test of will
-        scene:TestOfWill(attacker, defender)
-    elseif abilIndex == 4 then  -- backstab
-        scene:Backstab(attacker, defender)
-    elseif abilIndex == 5 then  -- beat down
-        scene:BeatDown(attacker, defender)
-    elseif abilIndex == 6 then  -- delayed reaction
-        scene:DRUTurnOne(attacker, defender, matchup, "Delayed Reaction")
-    elseif abilIndex == 7 then  -- fireball
-        scene:Fireball(attacker, defender)
-    elseif abilIndex == 8 then  -- shockwave
-        scene:Shockwave(attacker, defender)
-    elseif abilIndex == 9 then  -- venom
-        scene:Venom(attacker, defender)
-    elseif abilIndex == 10 then -- leech
-        scene:Leech(attacker, defender)
-    elseif abilIndex == 11 then -- ice storm
-        scene:IceStorm(attacker, defender)
-    elseif abilIndex == 12 then -- rock wall
-        scene:RockWall(attacker, defender)
-    elseif abilIndex == 13 then -- heal
-        scene:Heal(attacker)
-    elseif abilIndex == 14 then -- cleanse
-        scene:Cleanse(attacker)
-    elseif abilIndex == 15 then -- cramp
-        scene:CrampCrippleMindBreakDelude(attacker, defender, "Cramp")
-    elseif abilIndex == 16 then -- cripple
-        scene:CrampCrippleMindBreakDelude(attacker, defender, "Cripple")
-    elseif abilIndex == 17 then -- mind break
-        scene:CrampCrippleMindBreakDelude(attacker, defender, "Mind Break")
-    elseif abilIndex == 18 then -- delude
-        scene:CrampCrippleMindBreakDelude(attacker, defender, "Delude")
-    elseif abilIndex == 19 then -- forbidden ritual
-        scene:ForbiddenRitual(attacker, defender)
-    elseif abilIndex == 20 then -- cannibalize
-        scene:Cannibalize(attacker, defender)
-    elseif abilIndex == 21 then -- mind over matter
-        scene:MindOverMatter(attacker, defender)
-    elseif abilIndex == 22 then -- blast
-        scene:Blast(attacker, defender)
-    elseif abilIndex == 23 then -- final countdown
-        scene:FinalCountdownTurnOne(attacker, defender, matchup)
-    elseif abilIndex == 24 then -- unleash
-        scene:DRUTurnOne(attacker, defender, matchup, "Unleash")
-    elseif abilIndex == 25 then -- silence
-        scene:SilenceLullBlind(attacker, defender, "Silences")
-    elseif abilIndex == 26 then -- mirror mania
-        scene:MirrorMania(attacker, defender, pet)
-    elseif abilIndex == 27 then -- undead minion
-        scene:UndeadMinion(attacker, pet)
-    elseif abilIndex == 28 then -- lull
-        scene:SilenceLullBlind(attacker, defender, "Lulls")
-    elseif abilIndex == 29 then -- assisted suicide
-        scene:AssistedSuicide(attacker, defender)
-    elseif abilIndex == 30 then -- blind
-        scene:SilenceLullBlind(attacker, defender, "Blinds")
+    -- do a silence or blind check. if they fail, the ability does not execute and they lose ap
+    if abilIndex <= 6 then
+        scene:CheckSilenceBlind("statusBlind")
+    else
+        scene:CheckSilenceBlind("statusSilence")
     end
+    
+    if not turnLost then
+        local textOutput = ""
+        
+        -- call the individual ability function, passing in relevent data as determined above
+        if abilIndex == 1 then  -- cleave
+            textOutput = rpg:Cleave(attacker, defender)
+        elseif abilIndex == 2 then  -- berserk    
+            textOutput = rpg:Berserk(attacker, defender)            
+        elseif abilIndex == 3 then  -- test of will
+            textOutput = rpg:TestOfWill(attacker, defender)
+        elseif abilIndex == 4 then  -- backstab
+            textOutput = rpg:Backstab(attacker, defender)
+        elseif abilIndex == 5 then  -- beat down
+            textOutput = rpg:BeatDown(attacker, defender)
+        elseif abilIndex == 6 then  -- delayed reaction
+            textOutput = rpg:DRUTurnOne(attacker, defender, matchup, "Delayed Reaction", nextTurnDmg)
+        elseif abilIndex == 7 then  -- fireball
+            textOutput = rpg:Fireball(attacker, defender)
+        elseif abilIndex == 8 then  -- shockwave
+            textOutput = rpg:Shockwave(attacker, defender)
+        elseif abilIndex == 9 then  -- venom
+            textOutput = rpg:Venom(attacker, defender)
+            if defender["dotPoison"] then -- show affliction image if they have been poisoned
+                if defender["type"] == "pc" then
+                    pcPoisonImg.isVisible = true
+                elseif defender["type"] == "pcPet" then
+                    pcPetPoisonImg.isVisible = true
+                elseif defender["type"] == "npc" then
+                    npcPoisonImg.isVisible = true
+                elseif defender["type"] == "npcPet" then
+                    npcPetPoisonImg.isVisible = true
+                end 
+            end
+        elseif abilIndex == 10 then -- leech
+            textOutput = rpg:Leech(attacker, defender)
+        elseif abilIndex == 11 then -- ice storm
+            textOutput = rpg:IceStorm(attacker, defender)
+        elseif abilIndex == 12 then -- rock wall
+            textOutput = rpg:RockWall(attacker, defender)
+        elseif abilIndex == 13 then -- heal
+            textOutput = rpg:Heal(attacker)
+        elseif abilIndex == 14 then -- cleanse
+            textOutput = rpg:Cleanse(attacker)            
+            scene:HideAfflictionImages(attacker["type"]) 
+        elseif abilIndex == 15 then -- cramp
+            textOutput = rpg:CrampCrippleMindBreakDelude(attacker, defender, "Cramp")
+            if defender["type"] == "pc" then
+                pcCrampImg.isVisible = true
+            elseif defender["type"] == "pcPet" then
+                pcPetCrampImg.isVisible = true
+            elseif defender["type"] == "npc" then
+                npcCrampImg.isVisible = true
+            elseif defender["type"] == "npcPet" then
+                npcPetCrampImg.isVisible = true
+            end                
+        elseif abilIndex == 16 then -- cripple
+            textOutput = rpg:CrampCrippleMindBreakDelude(attacker, defender, "Cripple")
+            if defender["type"] == "pc" then
+                pcCrippleImg.isVisible = true
+            elseif defender["type"] == "pcPet" then
+                pcPetCrippleImg.isVisible = true
+            elseif defender["type"] == "npc" then
+                npcCrippleImg.isVisible = true
+            elseif defender["type"] == "npcPet" then
+                npcPetCrippleImg.isVisible = true
+            end                
+        elseif abilIndex == 17 then -- mind break
+            textOutput = rpg:CrampCrippleMindBreakDelude(attacker, defender, "Mind Break")
+            if defender["type"] == "pc" then
+                pcMindBreakImg.isVisible = true
+            elseif defender["type"] == "pcPet" then
+                pcPetMindBreakImg.isVisible = true
+            elseif defender["type"] == "npc" then
+                npcMindBreakImg.isVisible = true
+            elseif defender["type"] == "npcPet" then
+                npcPetMindBreakImg.isVisible = true
+            end                      
+        elseif abilIndex == 18 then -- delude
+            textOutput = rpg:CrampCrippleMindBreakDelude(attacker, defender, "Delude")
+            if defender["type"] == "pc" then
+                pcDeludeImg.isVisible = true
+            elseif defender["type"] == "pcPet" then
+                pcPetDeludeImg.isVisible = true
+            elseif defender["type"] == "npc" then
+                npcDeludeImg.isVisible = true
+            elseif defender["type"] == "npcPet" then
+                npcPetDeludeImg.isVisible = true
+            end               
+        elseif abilIndex == 19 then -- forbidden ritual
+            textOutput = rpg:ForbiddenRitual(attacker, defender)
+        elseif abilIndex == 20 then -- cannibalize
+            textOutput = rpg:Cannibalize(attacker, defender)
+        elseif abilIndex == 21 then -- mind over matter
+            textOutput = rpg:MindOverMatter(attacker, defender)
+        elseif abilIndex == 22 then -- blast
+            textOutput = rpg:Blast(attacker, defender)
+        elseif abilIndex == 23 then -- final countdown
+            textOutput = rpg:FinalCountdownTurnOne(attacker, defender, matchup, nextTurnDmg)
+        elseif abilIndex == 24 then -- unleash
+            textOutput = rpg:DRUTurnOne(attacker, defender, matchup, "Unleash", nextTurnDmg)
+        elseif abilIndex == 25 then -- silence
+            textOutput = rpg:SilenceLullBlind(attacker, defender, "Silences")
+            if defender["statusSilence"] then
+                if defender["type"] == "pc" then
+                    pcSilenceImg.isVisible = true
+                elseif defender["type"] == "pcPet" then
+                    pcPetSilenceImg.isVisible = true
+                elseif defender["type"] == "npc" then
+                    npcSilenceImg.isVisible = true
+                elseif defender["type"] == "npcPet" then
+                    npcPetSilenceImg.isVisible = true
+                end    
+            end
+        elseif abilIndex == 26 then -- mirror mania
+            -- if the defender is a pet, change the table reference to the pets' owner        
+            if defender["type"] == "pcPet" then                
+                defender = pcStats
+            elseif defender["type"] ==  "npcPet" then
+                defender = npcStats
+            end        
+            textOutput = rpg:MirrorMania(attacker, defender, pet)
+            -- todo add image
+            if attacker["type"] == "pc" and pet["type"] == "pcPet" then
+                pcPetMagic = true                   
+                -- set labels
+                pcPetStatGroup.isVisible = true
+                pcPetNameLabel.text = pet["name"]
+                pcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
+                pcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
+            elseif attacker["type"] == "npc" and pet["type"] == "npcPet"  then
+                npcPetMagic = true                
+                -- set labels
+                npcPetStatGroup.isVisible = true
+                npcPetNameLabel.text = pet["name"]
+                npcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
+                npcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
+            end  
+        elseif abilIndex == 27 then -- undead minion
+            textOutput = rpg:UndeadMinion(attacker, pet)
+            -- todo add image
+            if attacker["type"] == "pc" and pet["type"] == "pcPet"  then
+                pcPetMelee = true                   
+                -- set labels
+                pcPetStatGroup.isVisible = true
+                pcPetNameLabel.text = pet["name"]
+                pcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
+                pcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
+            elseif attacker["type"] == "npc" and pet["type"] == "npcPet"  then
+                npcPetMelee = true                
+                -- set labels
+                npcPetStatGroup.isVisible = true
+                npcPetNameLabel.text = pet["name"]
+                npcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
+                npcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
+            end            
+        elseif abilIndex == 28 then -- lull
+            textOutput = rpg:SilenceLullBlind(attacker, defender, "Lulls")
+            if defender["statusLull"] then            
+                if defender["type"] == "pc" then
+                    pcLullImg.isVisible = true
+                elseif defender["type"] == "pcPet" then
+                    pcPetLullImg.isVisible = true
+                elseif defender["type"] == "npc" then
+                    npcLullImg.isVisible = true
+                elseif defender["type"] == "npcPet" then
+                    npcPetLullImg.isVisible = true
+                end    
+            end
+        elseif abilIndex == 29 then -- assisted suicide
+            textOutput = rpg:AssistedSuicide(attacker, defender)
+        elseif abilIndex == 30 then -- blind
+            textOutput = rpg:SilenceLullBlind(attacker, defender, "Blinds")
+            if defender["statusBlind"] then
+                if defender["type"] == "pc" then
+                    pcBlindImg.isVisible = true
+                elseif defender["type"] == "pcPet" then
+                    pcPetBlindImg.isVisible = true
+                elseif defender["type"] == "npc" then
+                    npcBlindImg.isVisible = true
+                elseif defender["type"] == "npcPet" then
+                    npcPetBlindImg.isVisible = true
+                end    
+            end
+        end
+        
+        scene:BattleLogAdd(textOutput)
+    end
+    
+    attacker["currentAp"] =  attacker["currentAp"] - 1
+    scene:EndTurn()        
+    
 end
 
 function scene:EndTurnClick()
@@ -1735,6 +958,18 @@ function scene:StartTurn(attacker, defender)
         meditateButton.isVisible = true
         runButton.isVisible = true    
     else
+        if battleEnded then
+            endTurnButton:setLabel("End Battle")
+        elseif pcTurnPet then
+            endTurnButton:setLabel("End Pet Turn") 
+        elseif pcTurn then
+            endTurnButton:setLabel("End Player Turn")
+        elseif npcTurnPet then
+            endTurnButton:setLabel("End NPC Pet Turn")
+        else
+            endTurnButton:setLabel("End NPC Turn")
+        end
+        
         turnLost = false
         scene:EndTurn()
     end    
@@ -2061,36 +1296,18 @@ function scene:ClearStats(owner)
     if owner == "pc" then
         pcPetStats = {}
         pcPetMelee = false
-        pcPetMagic = false
-        
-        pcPetCrampImg.isVisible = false
-        pcPetCrippleImg.isVisible = false
-        pcPetMindBreakImg.isVisible = false
-        pcPetDeludeImg.isVisible = false
-        pcPetPoisonImg.isVisible = false
-        pcPetBlindImg.isVisible = false
-        pcPetSilenceImg.isVisible = false
-        pcPetLullImg.isVisible = false    
-        pcPetStatGroup.isVisible = false
-        
+        pcPetMagic = false        
+        scene:HideAfflictionImages("pcPet") 
+        pcPetStatGroup.isVisible = false        
         pcPetNameLabel.text = ""
         pcPetHPLabel.text = "0/0"
         pcPetAPLabel.text = "0/0"        
     elseif owner == "npc" then
         npcPetStats = {}
         npcPetMelee = false
-        npcPetMagic = false
-        
-        npcPetCrampImg.isVisible = false
-        npcPetCrippleImg.isVisible = false
-        npcPetMindBreakImg.isVisible = false
-        npcPetDeludeImg.isVisible = false
-        npcPetPoisonImg.isVisible = false
-        npcPetBlindImg.isVisible = false
-        npcPetSilenceImg.isVisible = false
-        npcPetLullImg.isVisible = false    
-        npcPetStatGroup.isVisible = false
-        
+        npcPetMagic = false        
+        scene:HideAfflictionImages("npcPet")
+        npcPetStatGroup.isVisible = false        
         npcPetNameLabel.text = ""
         npcPetHPLabel.text = "0/0"
         npcPetAPLabel.text = "0/0"            
@@ -2119,13 +1336,27 @@ function scene:Initialize()
     npcPetStatGroup.isVisible = false
     
     -- todo add initiative roll here. also output text to scroller for whose turn it is
+    local roll = utilities:RNG(2)
     
+    if roll == 2 then -- player gets first turn
+        pcTurn = true     
+        endTurnButton:setLabel("End Player Turn")
+        scene:BattleLogAdd(pcStats["name"].."'s turn.")
+    else    -- npc gets first turn
+        pcTurn = false
+        scene:BattleLogAdd(npcStats["name"].."'s turn.")
+        attackButton.isVisible = false
+        abilityButton.isVisible = false
+        itemButton.isVisible = false
+        meditateButton.isVisible = false
+        runButton.isVisible = false  
+        endTurnButton:setLabel("End NPC Turn")
+        scene:AI(npcStats, pcStats)
+    end
     
-    pcTurn = true
+
     pcTurnPet = false
     npcTurnPet = false    
-    endTurnButton:setLabel("End Player Turn")
-    
 end
 
 -- add a battle event to the scroller log
@@ -2323,6 +1554,47 @@ function scene:SetAbilButtons(attacker)
     end  
     
     
+end
+
+-- hide all of the affliction images for the passed in character
+function scene:HideAfflictionImages(who)
+    if who == "pc" then
+        pcCrampImg.isVisible = false
+        pcCrippleImg.isVisible = false
+        pcMindBreakImg.isVisible = false
+        pcDeludeImg.isVisible = false
+        pcPoisonImg.isVisible = false
+        pcBlindImg.isVisible = false
+        pcSilenceImg.isVisible = false
+        pcLullImg.isVisible = false            
+    elseif who == "pcPet" then
+        pcPetCrampImg.isVisible = false
+        pcPetCrippleImg.isVisible = false
+        pcPetMindBreakImg.isVisible = false
+        pcPetDeludeImg.isVisible = false
+        pcPetPoisonImg.isVisible = false
+        pcPetBlindImg.isVisible = false
+        pcPetSilenceImg.isVisible = false
+        pcPetLullImg.isVisible = false           
+    elseif who == "npc" then
+        npcCrampImg.isVisible = false
+        npcCrippleImg.isVisible = false
+        npcMindBreakImg.isVisible = false
+        npcDeludeImg.isVisible = false
+        npcPoisonImg.isVisible = false
+        npcBlindImg.isVisible = false
+        npcSilenceImg.isVisible = false
+        npcLullImg.isVisible = false               
+    elseif who == "npcPet" then
+        npcPetCrampImg.isVisible = false
+        npcPetCrippleImg.isVisible = false
+        npcPetMindBreakImg.isVisible = false
+        npcPetDeludeImg.isVisible = false
+        npcPetPoisonImg.isVisible = false
+        npcPetBlindImg.isVisible = false
+        npcPetSilenceImg.isVisible = false
+        npcPetLullImg.isVisible = false               
+    end   
 end
 
 function scene:MakeLabels(myScene)
@@ -2650,38 +1922,10 @@ function scene:MakeLabels(myScene)
     ---------------------    
 
     -- hide all the affliction images. can comment these all out to make sure they are in correct positions
-    pcCrampImg.isVisible = false
-    pcCrippleImg.isVisible = false
-    pcMindBreakImg.isVisible = false
-    pcDeludeImg.isVisible = false
-    pcPoisonImg.isVisible = false
-    pcBlindImg.isVisible = false
-    pcSilenceImg.isVisible = false
-    pcLullImg.isVisible = false
-    pcPetCrampImg.isVisible = false
-    pcPetCrippleImg.isVisible = false
-    pcPetMindBreakImg.isVisible = false
-    pcPetDeludeImg.isVisible = false
-    pcPetPoisonImg.isVisible = false
-    pcPetBlindImg.isVisible = false
-    pcPetSilenceImg.isVisible = false
-    pcPetLullImg.isVisible = false    
-    npcCrampImg.isVisible = false
-    npcCrippleImg.isVisible = false
-    npcMindBreakImg.isVisible = false
-    npcDeludeImg.isVisible = false
-    npcPoisonImg.isVisible = false
-    npcBlindImg.isVisible = false
-    npcSilenceImg.isVisible = false
-    npcLullImg.isVisible = false    
-    npcPetCrampImg.isVisible = false
-    npcPetCrippleImg.isVisible = false
-    npcPetMindBreakImg.isVisible = false
-    npcPetDeludeImg.isVisible = false
-    npcPetPoisonImg.isVisible = false
-    npcPetBlindImg.isVisible = false
-    npcPetSilenceImg.isVisible = false
-    npcPetLullImg.isVisible = false
+    scene:HideAfflictionImages("pc")
+    scene:HideAfflictionImages("pcPet")
+    scene:HideAfflictionImages("npc")
+    scene:HideAfflictionImages("npcPet")
 end
 
 function scene:MakeButtons(myScene)
