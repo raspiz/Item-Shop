@@ -4,7 +4,10 @@ local controls = require("controls.Controls")
 local button = require("controls.Button")
 local widget = require "widget"
 local utilities = require "functions.Utilities"
+local abilitiesT1 = require "functions.AbilitiesT1"
+local abilitiesT2 = require "functions.AbilitiesT2"
 local rpg = require "functions.RPG"
+local ai = require "functions.AI"
 local json = require "json"
 local scene = composer.newScene()
 
@@ -45,7 +48,12 @@ local pcTurnPet = false
 local npcTurnPet = false
 
 -- flag to determine if abilities button is pressed or depressed (show/hide abilities)
+-- flags for special abilities that have to overwrite regular ability labels and functionality
 local showAbilities = false
+local kineticTouchOn = false
+local chooseElemResOn = false
+local chooseImbueOn = false
+local switchElem = ""
 
 -- todo some item variables were here in orig. need a new way to deal with those
 -- probably pull up inv screen from shop and disable what doesn't need to be shown
@@ -66,14 +74,18 @@ abil7Button,abil8Button,abil9Button,abil10Button,abil11Button,abil12Button
 local buttonGroupTwo,buttonGroupThree
  
 -- labels 
-local pcHPLabel,pcAPLabel,pcPetHPLabel,pcPetAPLabel,pcPetNameLabel,npcHPLabel,npcAPLabel,npcPetHPLabel,npcPetAPLabel,npcPetNameLabel,pcPetStatGroup,npcPetStatGroup
+local pcHPLabel,pcAPLabel,pcPetHPLabel,pcPetAPLabel,pcPetNameLabel,npcHPLabel,npcAPLabel,npcPetHPLabel,npcPetAPLabel,npcPetNameLabel,pcStatGroup,pcPetStatGroup,npcStatGroup,npcPetStatGroup
 
 -- affliction images
 local pcCrampImg,pcCrippleImg,pcMindBreakImg,pcDeludeImg,pcPoisonImg,pcBlindImg,pcSilenceImg,pcLullImg,
 pcPetCrampImg,pcPetCrippleImg,pcPetMindBreakImg,pcPetDeludeImg,pcPetPoisonImg,pcPetBlindImg,pcPetSilenceImg,pcPetLullImg,
 npcCrampImg,npcCrippleImg,npcMindBreakImg,npcDeludeImg,npcPoisonImg,npcBlindImg,npcSilenceImg,npcLullImg,
-npcPetCrampImg,npcPetCrippleImg,npcPetMindBreakImg,npcPetDeludeImg,npcPetPoisonImg,npcPetBlindImg,npcPetSilenceImg,npcPetLullImg
- 
+npcPetCrampImg,npcPetCrippleImg,npcPetMindBreakImg,npcPetDeludeImg,npcPetPoisonImg,npcPetBlindImg,npcPetSilenceImg,npcPetLullImg,
+pcHasteImg, pcReplenishImg, pcRefShieldImg, pcValorImg, pcElemResImg, pcImbueImg, pcHemorrhageImg, pcHamstringImg, pcIncinerateImg, pcVampEmbImg,
+pcPetHasteImg, pcPetReplenishImg, pcPetRefShieldImg, pcPetValorImg, pcPetElemResImg, pcPetImbueImg, pcPetHemorrhageImg, pcPetHamstringImg, pcPetIncinerateImg, pcPetVampEmbImg, 
+npcHasteImg, npcReplenishImg, npcRefShieldImg, npcValorImg, npcElemResImg, npcImbueImg, npcHemorrhageImg, npcHamstringImg, npcIncinerateImg, npcVampEmbImg,
+npcPetHasteImg, npcPetReplenishImg, npcPetRefShieldImg, npcPetValorImg, npcPetElemResImg, npcPetImbueImg, npcPetHemorrhageImg, npcPetHamstringImg, npcPetIncinerateImg, npcPetVampEmbImg
+
 -- stuff for scrollview
 local scrollView
 local visibleScroll = 100 -- the visible area of the scrollview
@@ -111,12 +123,19 @@ function scene:LoadToons()
     npcStats["will"] = npcStats["baseWill"]
     
     -- npc elem resistances
-    npcStats["lightning"] = GLOB.npcs[1]["Lightning"]
-    npcStats["poison"] = GLOB.npcs[1]["Poison"]
-    npcStats["ice"] = GLOB.npcs[1]["Ice"]
-    npcStats["disease"] = GLOB.npcs[1]["Disease"]
-    npcStats["earth"] = GLOB.npcs[1]["Earth"]
-    npcStats["fire"] = GLOB.npcs[1]["Fire"]
+    npcStats["baseLightning"] = GLOB.npcs[1]["Lightning"]
+    npcStats["basePoison"] = GLOB.npcs[1]["Poison"]
+    npcStats["baseIce"] = GLOB.npcs[1]["Ice"]
+    npcStats["baseDisease"] = GLOB.npcs[1]["Disease"]
+    npcStats["baseEarth"] = GLOB.npcs[1]["Earth"]
+    npcStats["baseFire"] = GLOB.npcs[1]["Fire"]
+    
+    npcStats["lightning"] = npcStats["baseLightning"]
+    npcStats["poison"] = npcStats["basePoison"]
+    npcStats["ice"] = npcStats["baseIce"]
+    npcStats["disease"] = npcStats["baseDisease"]
+    npcStats["earth"] = npcStats["baseEarth"]
+    npcStats["fire"] = npcStats["baseFire"]
     
     --todo load these in from json
     -- npc abilities
@@ -124,7 +143,7 @@ function scene:LoadToons()
     npcStats["abil2"] = 4
     npcStats["abil3"] = 7
     npcStats["abil4"] = 8
-    npcStats["abil5"] = 15
+    npcStats["abil5"] = 22
     npcStats["abil6"] = 26
     npcStats["abil7"] = nil
     npcStats["abil8"] = nil
@@ -145,8 +164,8 @@ function scene:LoadToons()
     pcStats["baseHp"] = 50
     pcStats["baseStr"] = 4
     pcStats["baseDef"] = 3
-    pcStats["baseAp"] = 5
-    pcStats["baseInt"] = 0
+    pcStats["baseAp"] = 50
+    pcStats["baseInt"] = 3
     pcStats["baseWill"] = 1
     
     pcStats["hp"] = pcStats["baseHp"]
@@ -156,25 +175,32 @@ function scene:LoadToons()
     pcStats["int"] = pcStats["baseInt"]
     pcStats["will"] = pcStats["baseWill"]    
 
+    pcStats["baseLightning"] = 1
+    pcStats["basePoison"] = 1
+    pcStats["baseIce"] = 1
+    pcStats["baseDisease"] = 1.5
+    pcStats["baseEarth"] = 2
+    pcStats["baseFire"] = 0
+    
     pcStats["lightning"] = 1
     pcStats["poison"] = 1
     pcStats["ice"] = 1
     pcStats["disease"] = 1.5
     pcStats["earth"] = 2
-    pcStats["fire"] = 0
+    pcStats["fire"] = 0    
     
-    pcStats["abil1"] = 25
-    pcStats["abil2"] = 26
-    pcStats["abil3"] = 27
-    pcStats["abil4"] = 28
-    pcStats["abil5"] = 29
-    pcStats["abil6"] = 30
-    pcStats["abil7"] = nil
-    pcStats["abil8"] = nil
-    pcStats["abil9"] = nil
-    pcStats["abil10"] = nil
-    pcStats["abil11"] = nil
-    pcStats["abil12"] = nil
+    pcStats["abil1"] = 55
+    pcStats["abil2"] = 56
+    pcStats["abil3"] = 57
+    pcStats["abil4"] = 58
+    pcStats["abil5"] = 59
+    pcStats["abil6"] = 60
+    pcStats["abil7"] = 49
+    pcStats["abil8"] = 42
+    pcStats["abil9"] = 51
+    pcStats["abil10"] = 52
+    pcStats["abil11"] = 53
+    pcStats["abil12"] = 54
 
     pcStats["name"] = "Jack"
     pcStats["type"] = "pc"
@@ -227,6 +253,7 @@ function scene:Attack(attacker, defender)
         local roll = utilities:RNG(6)        
         
         local attack = attacker["str"] + attacker["level"] + roll - defender["def"]
+        attack = rpg:ValorCheck(defender, attack)
         
         if attack < 0 then
             attack = 0
@@ -234,7 +261,16 @@ function scene:Attack(attacker, defender)
         
         if attack > 0 then
             defender["currentHp"] = defender["currentHp"] - attack
-            scene:BattleLogAdd(attacker["name"].." makes an Attack, doing "..attack.." damage to "..defender["name"]..".")        
+            
+            local textOutput = ""
+            
+            if attack > 0 and defender["buffRefShield"] then
+                if attacker["type"] == "pc" or attacker["type"] == "npc" or (attacker["type"] == "pcPet" and pcPetMelee) or (attacker["type"] == "npcPet" and npcPetMelee)then
+                    textOutput = rpg:ReflectiveShieldCheck(attacker, attack, textOutput)
+                end
+            end                 
+            
+            scene:BattleLogAdd(attacker["name"].." makes an Attack, doing "..attack.." damage to "..defender["name"].."."..textOutput)        
         else            
             scene:BattleLogAdd(attacker["name"].." Attacks "..defender["name"].." but does no damage.")
         end
@@ -251,10 +287,10 @@ function scene:Meditate(attacker)
     if not turnLost then
         local roll = 0
         
-        if attacker["level"] < 11 then -- restore 1-3 or 1-6 ap based on level
+        if attacker["level"] < 11 then -- restore 1-3 or 2-6 ap based on level
             roll = utilities:RNG(3)
         else
-            roll = utilities:RNG(6)
+            roll = utilities:RNG(3) + utilities:RNG(3)
         end
         
         attacker["currentAp"] = attacker["currentAp"] + roll
@@ -347,8 +383,18 @@ function scene:DRUTurnTwo(attacker, defender, matchup, move)
         elseif nextTurnDmg[matchup] == -1 then
             scene:BattleLogAdd(attacker["name"].."'s "..move.." does no damage to "..defender["name"]..".")                        
         else
+            nextTurnDmg[matchup] = rpg:ValorCheck(defender, nextTurnDmg[matchup])
             defender["currentHp"] = defender["currentHp"] - nextTurnDmg[matchup]
-            scene:BattleLogAdd(attacker["name"].."'s "..move.." goes off, doing "..nextTurnDmg[matchup].." damage to "..defender["name"]..".")                                    
+            
+            local textOutput = ""
+            
+            if nextTurnDmg[matchup] > 0 and defender["buffRefShield"] then
+                if attacker["type"] == "pc" or attacker["type"] == "npc" or (attacker["type"] == "pcPet" and pcPetMelee) or (attacker["type"] == "npcPet" and npcPetMelee)then
+                    textOutput = rpg:ReflectiveShieldCheck(attacker, nextTurnDmg[matchup], textOutput)
+                end
+            end            
+
+            scene:BattleLogAdd(attacker["name"].."'s "..move.." goes off, doing "..nextTurnDmg[matchup].." damage to "..defender["name"].."."..textOutput)                                    
         end
     end
     
@@ -402,11 +448,27 @@ function scene:FinalCountdownActive(attacker, defender, matchup)
 end
 
 function scene:AbilityOneClick()
-    --print(text)
+    --for buttons 7-12 make sure they have 2 ap
     if not pcTurnPet and pcStats["currentAp"] == 0 then
         scene:BattleLogAdd("You are out of AP. Try Meditating.")
     elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
         scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil1"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil1"]) 
+        end  
+    elseif chooseElemResOn then
+        chooseElemResOn = false
+        switchElem = "lightning"
+        scene:ExecuteAbility(58)   
+    elseif chooseImbueOn then
+        chooseImbueOn = false
+        switchElem = "lightning"
+        scene:ExecuteAbility(59)
     elseif pcTurn and not pcTurnPet then
         scene:UseAbilityClick(pcStats["abil1"])
     elseif pcTurn and pcTurnPet then
@@ -419,6 +481,22 @@ function scene:AbilityTwoClick()
         scene:BattleLogAdd("You are out of AP. Try Meditating.")
     elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
         scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil2"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil2"]) 
+        end 
+    elseif chooseElemResOn then
+        chooseElemResOn = false
+        switchElem = "poison"
+        scene:ExecuteAbility(58)   
+    elseif chooseImbueOn then
+        chooseImbueOn = false
+        switchElem = "poison"
+        scene:ExecuteAbility(59)        
     elseif pcTurn and not pcTurnPet then
         scene:UseAbilityClick(pcStats["abil2"])
     elseif pcTurn and pcTurnPet then
@@ -431,6 +509,22 @@ function scene:AbilityThreeClick()
         scene:BattleLogAdd("You are out of AP. Try Meditating.")
     elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
         scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil3"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil3"]) 
+        end      
+    elseif chooseElemResOn then
+        chooseElemResOn = false
+        switchElem = "ice"
+        scene:ExecuteAbility(58)   
+    elseif chooseImbueOn then
+        chooseImbueOn = false
+        switchElem = "ice"
+        scene:ExecuteAbility(59)        
     elseif pcTurn and not pcTurnPet then
         scene:UseAbilityClick(pcStats["abil3"])
     elseif pcTurn and pcTurnPet then
@@ -443,6 +537,22 @@ function scene:AbilityFourClick()
         scene:BattleLogAdd("You are out of AP. Try Meditating.")
     elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
         scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil4"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil4"]) 
+        end      
+    elseif chooseElemResOn then
+        chooseElemResOn = false
+        switchElem = "disease"
+        scene:ExecuteAbility(58)   
+    elseif chooseImbueOn then
+        chooseImbueOn = false
+        switchElem = "disease"
+        scene:ExecuteAbility(59)        
     elseif pcTurn and not pcTurnPet then
         scene:UseAbilityClick(pcStats["abil4"])
     elseif pcTurn and pcTurnPet then
@@ -455,6 +565,22 @@ function scene:AbilityFiveClick()
         scene:BattleLogAdd("You are out of AP. Try Meditating.")
     elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
         scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil5"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil5"]) 
+        end      
+    elseif chooseElemResOn then
+        chooseElemResOn = false
+        switchElem = "earth"
+        scene:ExecuteAbility(58)   
+    elseif chooseImbueOn then
+        chooseImbueOn = false
+        switchElem = "earth"
+        scene:ExecuteAbility(59)        
     elseif pcTurn and not pcTurnPet then
         scene:UseAbilityClick(pcStats["abil5"])
     elseif pcTurn and pcTurnPet then
@@ -467,10 +593,146 @@ function scene:AbilitySixClick()
         scene:BattleLogAdd("You are out of AP. Try Meditating.")
     elseif pcTurnPet and pcPetStats["currentAp"] == 0 then
         scene:BattleLogAdd("Your pet is out of AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil6"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil6"]) 
+        end   
+    elseif chooseElemResOn then
+        chooseElemResOn = false
+        switchElem = "fire"
+        scene:ExecuteAbility(58)   
+    elseif chooseImbueOn then
+        chooseImbueOn = false
+        switchElem = "fire"
+        scene:ExecuteAbility(59)        
     elseif pcTurn and not pcTurnPet then
         scene:UseAbilityClick(pcStats["abil6"])
     elseif pcTurn and pcTurnPet then
         scene:UseAbilityClick(pcPetStats["abil6"])
+    end    
+end
+
+function scene:AbilitySevenClick()
+    if not pcTurnPet and pcStats["currentAp"] < 2 then
+        scene:BattleLogAdd("You are low on AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] < 2 then
+        scene:BattleLogAdd("Your pet is low on AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil7"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil7"]) 
+        end   
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil7"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil7"])
+    end    
+end
+
+function scene:AbilityEightClick()
+    if not pcTurnPet and pcStats["currentAp"] < 2 then
+        scene:BattleLogAdd("You are low on AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] < 2 then
+        scene:BattleLogAdd("Your pet is low on AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil8"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil8"]) 
+        end   
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil8"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil8"])
+    end    
+end
+
+function scene:AbilityNineClick()
+    if not pcTurnPet and pcStats["currentAp"] < 2 then
+        scene:BattleLogAdd("You are low on AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] < 2 then
+        scene:BattleLogAdd("Your pet is low on AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil9"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil9"]) 
+        end   
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil9"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil9"])
+    end    
+end
+
+function scene:AbilityTenClick()
+    if not pcTurnPet and pcStats["currentAp"] < 2 then
+        scene:BattleLogAdd("You are low on AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] < 2 then
+        scene:BattleLogAdd("Your pet is low on AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil10"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil10"]) 
+        end   
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil10"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil10"])
+    end    
+end
+
+function scene:AbilityElevenClick()
+    if not pcTurnPet and pcStats["currentAp"] < 2 then
+        scene:BattleLogAdd("You are low on AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] < 2 then
+        scene:BattleLogAdd("Your pet is low on AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil11"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil11"]) 
+        end   
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil11"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil11"])
+    end    
+end
+
+function scene:AbilityTwelveClick()
+    if not pcTurnPet and pcStats["currentAp"] < 2 then
+        scene:BattleLogAdd("You are low on AP. Try Meditating.")
+    elseif pcTurnPet and pcPetStats["currentAp"] < 2 then
+        scene:BattleLogAdd("Your pet is low on AP. Try Meditating.")
+    elseif kineticTouchOn then
+        if npcPetMelee then
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcPetStats["abil12"]) 
+        else
+            kineticTouchOn = false
+            scene:UseAbilityClick(npcStats["abil12"]) 
+        end   
+    elseif pcTurn and not pcTurnPet then
+        scene:UseAbilityClick(pcStats["abil12"])
+    elseif pcTurn and pcTurnPet then
+        scene:UseAbilityClick(pcPetStats["abil12"])
     end    
 end
 
@@ -497,6 +759,45 @@ function scene:UseAbilityClick(ability)
         scene:StatusAilmentCheck(ability, "statusLull", "Lulled")
     elseif ability == 30 then   -- blind
         scene:StatusAilmentCheck(ability, "statusBlind", "Blinded")
+    elseif ability == 33 then -- hemorrhage
+        scene:StatusAilmentCheck(ability, "dotHemorrhage", "Hemorrhaged")
+    elseif ability == 37 then -- incinerate
+        scene:StatusAilmentCheck(ability, "dotIncinerate", "Incinerated")
+    elseif ability == 39 then -- debilitate
+        scene:StatusAilmentCheck(ability, "dotPoison", "Poisoned")
+    elseif ability == 40 then -- vampiric embrace
+        scene:BuffCheck(ability, "buffVampEmb", "using a Vampiric Embrace")
+    elseif ability == 43 then -- replenish
+        scene:BuffCheck(ability, "buffReplenish", "using Replenish")
+    elseif ability == 44 then -- hamstring
+        scene:StatusAilmentCheck(ability, "statusHamstring", "Hamstrung")
+    elseif ability == 45 then -- haste
+        scene:BuffCheck(ability, "buffHaste", "Hasted")
+    elseif ability == 47 then -- valor
+        scene:BuffCheck(ability, "buffValor", "using Valor")
+    elseif ability == 48 then -- ref shield
+        scene:BuffCheck(ability, "buffRefShield", "using Reflective Shield")
+    elseif ability == 50 then
+        kineticTouchOn = true
+        if npcPetMelee then
+            scene:SetAbilButtons(npcPetStats) 
+        else
+            scene:SetAbilButtons(npcStats) 
+        end
+    elseif ability == 55 then -- summon demon
+        scene:PetOutCheck(ability)
+    elseif ability == 56 then -- tame the wild
+        scene:PetOutCheck(ability)
+    elseif ability == 57 then -- banish
+        if npcPetMelee or npcPetMagic then
+            scene:ExecuteAbility(ability)
+        else
+            scene:BattleLogAdd("The opponent does not have an active pet.")
+        end
+    elseif ability == 58 then -- elem res
+        scene:ElemResCheck(ability, "buffElemRes", "using Elemental Resistance")
+    elseif ability == 59 then -- imbue
+        scene:ImbueCheck(ability, "debuffImbue", "Imbued")
     else -- ability isn't an affliction or pet
         scene:ExecuteAbility(ability)
     end
@@ -506,17 +807,69 @@ end
 function scene:StatusAilmentCheck(ability, affliction, afflictionText)
     if npcPetMelee then
         if npcPetStats[affliction] then
-            scene:BattleLogAdd(npcPetStats["name"].." is already "..affliction..".")
+            scene:BattleLogAdd(npcPetStats["name"].." is already "..afflictionText..".")
         else
             scene:ExecuteAbility(ability)
         end
     else
         if npcStats[affliction] then
-            scene:BattleLogAdd(npcStats["name"].." is already "..affliction..".")
+            scene:BattleLogAdd(npcStats["name"].." is already "..afflictionText..".")
         else
             scene:ExecuteAbility(ability)
         end        
     end
+end
+
+function scene:ImbueCheck(ability, affliction, afflictionText)
+    if npcPetMelee then
+        if npcPetStats[affliction] then
+            scene:BattleLogAdd(npcPetStats["name"].." is already "..afflictionText..".")
+        else
+            chooseImbueOn = true
+            scene:PickElementButtons()
+        end
+    else
+        if npcStats[affliction] then
+            scene:BattleLogAdd(npcStats["name"].." is already "..afflictionText..".")
+        else
+            chooseImbueOn = true
+            scene:PickElementButtons()
+        end        
+    end
+end
+
+function scene:ElemResCheck(ability, buff, buffText)
+    if pcTurnPet then
+        if pcPetStats[buff] then
+            scene:BattleLogAdd(pcPetStats["name"].." is already "..buffText..".")
+        else
+            chooseElemResOn = true
+            scene:PickElementButtons()
+        end
+    else
+        if pcStats[buff] then
+            scene:BattleLogAdd(pcStats["name"].." is already "..buffText..".")
+        else
+            chooseElemResOn = true
+            scene:PickElementButtons()
+        end        
+    end 
+end
+
+function scene:BuffCheck(ability, buff, buffText)
+    if pcTurnPet then
+        if pcPetStats[buff] then
+            scene:BattleLogAdd(pcPetStats["name"].." is already "..buffText..".")
+        else
+            scene:ExecuteAbility(ability)
+        end
+    else
+        if pcStats[buff] then
+            scene:BattleLogAdd(pcStats["name"].." is already "..buffText..".")
+        else
+            scene:ExecuteAbility(ability)
+        end        
+    end 
 end
 
 -- make sure player isn't trying to call a pet if one is out already
@@ -536,6 +889,8 @@ function scene:ExecuteAbility(abilIndex)
     -- todo make sure this works right doing it this way
     
     local attacker, defender, pet, matchup
+    local attack = nil
+    local refShieldTarget = false
     
     -- first determine whose turn it is (attacker), then who is defending (defender)
     -- also create a string for the matchup of who is facing off. this is only used by multi turn abilities
@@ -543,6 +898,9 @@ function scene:ExecuteAbility(abilIndex)
     if pcTurn then
         if pcTurnPet then -- pc pet turn
             attacker = pcPetStats
+            if pcPetMelee then
+                refShieldTarget = true
+            end
             pet = {}
             if npcPetMelee then -- attack npc pet
                 defender = npcPetStats
@@ -553,6 +911,7 @@ function scene:ExecuteAbility(abilIndex)
             end
         else -- pc turn
             attacker = pcStats
+            refShieldTarget = true
             pet = pcPetStats
             if npcPetMelee then -- attack npc pet
                 defender = npcPetStats
@@ -565,6 +924,9 @@ function scene:ExecuteAbility(abilIndex)
     else
         if npcTurnPet then -- npc pet turn
             attacker = npcPetStats
+            if npcPetMelee then
+                refShieldTarget = true
+            end
             pet = {}
             if pcPetMelee then -- attack pc pet
                 defender = pcPetStats
@@ -575,6 +937,7 @@ function scene:ExecuteAbility(abilIndex)
             end
         else -- npc turn
             attacker = npcStats
+            refShieldTarget = true
             pet = npcPetStats
             if pcPetMelee then -- attack pc pet
                 defender = pcPetStats
@@ -587,7 +950,7 @@ function scene:ExecuteAbility(abilIndex)
     end        
     
     -- do a silence or blind check. if they fail, the ability does not execute and they lose ap
-    if abilIndex <= 6 then
+    if abilIndex <= 6 and (abilIndex > 30 and abilIndex <= 36) then
         scene:CheckSilenceBlind("statusBlind")
     else
         scene:CheckSilenceBlind("statusSilence")
@@ -598,113 +961,65 @@ function scene:ExecuteAbility(abilIndex)
         
         -- call the individual ability function, passing in relevent data as determined above
         if abilIndex == 1 then  -- cleave
-            textOutput = rpg:Cleave(attacker, defender)
+            textOutput, attack = abilitiesT1:Cleave(attacker, defender)
         elseif abilIndex == 2 then  -- berserk    
-            textOutput = rpg:Berserk(attacker, defender)            
+            textOutput, attack = abilitiesT1:Berserk(attacker, defender)            
         elseif abilIndex == 3 then  -- test of will
-            textOutput = rpg:TestOfWill(attacker, defender)
+            textOutput, attack = abilitiesT1:TestOfWill(attacker, defender)
         elseif abilIndex == 4 then  -- backstab
-            textOutput = rpg:Backstab(attacker, defender)
+            textOutput, attack = abilitiesT1:Backstab(attacker, defender)
         elseif abilIndex == 5 then  -- beat down
-            textOutput = rpg:BeatDown(attacker, defender)
+            textOutput, attack = abilitiesT1:BeatDown(attacker, defender)
         elseif abilIndex == 6 then  -- delayed reaction
-            textOutput = rpg:DRUTurnOne(attacker, defender, matchup, "Delayed Reaction", nextTurnDmg)
+            textOutput = abilitiesT1:DRUTurnOne(attacker, defender, matchup, "Delayed Reaction", nextTurnDmg)
         elseif abilIndex == 7 then  -- fireball
-            textOutput = rpg:Fireball(attacker, defender)
+            textOutput, attack = abilitiesT1:Fireball(attacker, defender)
         elseif abilIndex == 8 then  -- shockwave
-            textOutput = rpg:Shockwave(attacker, defender)
+            textOutput, attack = abilitiesT1:Shockwave(attacker, defender)
         elseif abilIndex == 9 then  -- venom
-            textOutput = rpg:Venom(attacker, defender)
+            textOutput = abilitiesT1:Venom(attacker, defender)
             if defender["dotPoison"] then -- show affliction image if they have been poisoned
-                if defender["type"] == "pc" then
-                    pcPoisonImg.isVisible = true
-                elseif defender["type"] == "pcPet" then
-                    pcPetPoisonImg.isVisible = true
-                elseif defender["type"] == "npc" then
-                    npcPoisonImg.isVisible = true
-                elseif defender["type"] == "npcPet" then
-                    npcPetPoisonImg.isVisible = true
-                end 
+                scene:ShowPoisonImages(defender["type"])
             end
         elseif abilIndex == 10 then -- leech
-            textOutput = rpg:Leech(attacker, defender)
+            textOutput = abilitiesT1:Leech(attacker, defender)
         elseif abilIndex == 11 then -- ice storm
-            textOutput = rpg:IceStorm(attacker, defender)
+            textOutput, attack = abilitiesT1:IceStorm(attacker, defender)
         elseif abilIndex == 12 then -- rock wall
-            textOutput = rpg:RockWall(attacker, defender)
+            textOutput, attack = abilitiesT1:RockWall(attacker, defender)
         elseif abilIndex == 13 then -- heal
-            textOutput = rpg:Heal(attacker)
+            textOutput = abilitiesT1:Heal(attacker)
         elseif abilIndex == 14 then -- cleanse
-            textOutput = rpg:Cleanse(attacker)            
-            scene:HideAfflictionImages(attacker["type"]) 
+            textOutput = abilitiesT1:Cleanse(attacker)            
+            scene:HideAfflictionImages(attacker["type"], false) 
         elseif abilIndex == 15 then -- cramp
-            textOutput = rpg:CrampCrippleMindBreakDelude(attacker, defender, "Cramp")
-            if defender["type"] == "pc" then
-                pcCrampImg.isVisible = true
-            elseif defender["type"] == "pcPet" then
-                pcPetCrampImg.isVisible = true
-            elseif defender["type"] == "npc" then
-                npcCrampImg.isVisible = true
-            elseif defender["type"] == "npcPet" then
-                npcPetCrampImg.isVisible = true
-            end                
+            textOutput = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Cramp")
+            scene:ShowCrampImages(defender["type"])
         elseif abilIndex == 16 then -- cripple
-            textOutput = rpg:CrampCrippleMindBreakDelude(attacker, defender, "Cripple")
-            if defender["type"] == "pc" then
-                pcCrippleImg.isVisible = true
-            elseif defender["type"] == "pcPet" then
-                pcPetCrippleImg.isVisible = true
-            elseif defender["type"] == "npc" then
-                npcCrippleImg.isVisible = true
-            elseif defender["type"] == "npcPet" then
-                npcPetCrippleImg.isVisible = true
-            end                
+            textOutput = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Cripple")
+            scene:ShowCrippleImages(defender["type"])
         elseif abilIndex == 17 then -- mind break
-            textOutput = rpg:CrampCrippleMindBreakDelude(attacker, defender, "Mind Break")
-            if defender["type"] == "pc" then
-                pcMindBreakImg.isVisible = true
-            elseif defender["type"] == "pcPet" then
-                pcPetMindBreakImg.isVisible = true
-            elseif defender["type"] == "npc" then
-                npcMindBreakImg.isVisible = true
-            elseif defender["type"] == "npcPet" then
-                npcPetMindBreakImg.isVisible = true
-            end                      
+            textOutput = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Mind Break")
+            scene:ShowMindBreakImages(defender["type"])
         elseif abilIndex == 18 then -- delude
-            textOutput = rpg:CrampCrippleMindBreakDelude(attacker, defender, "Delude")
-            if defender["type"] == "pc" then
-                pcDeludeImg.isVisible = true
-            elseif defender["type"] == "pcPet" then
-                pcPetDeludeImg.isVisible = true
-            elseif defender["type"] == "npc" then
-                npcDeludeImg.isVisible = true
-            elseif defender["type"] == "npcPet" then
-                npcPetDeludeImg.isVisible = true
-            end               
+            textOutput = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Delude")
+            scene:ShowDeludeImages(defender["type"])
         elseif abilIndex == 19 then -- forbidden ritual
-            textOutput = rpg:ForbiddenRitual(attacker, defender)
+            textOutput = abilitiesT1:ForbiddenRitual(attacker, defender)
         elseif abilIndex == 20 then -- cannibalize
-            textOutput = rpg:Cannibalize(attacker, defender)
+            textOutput, attack = abilitiesT1:Cannibalize(attacker, defender)
         elseif abilIndex == 21 then -- mind over matter
-            textOutput = rpg:MindOverMatter(attacker, defender)
+            textOutput, attack = abilitiesT1:MindOverMatter(attacker, defender)
         elseif abilIndex == 22 then -- blast
-            textOutput = rpg:Blast(attacker, defender)
+            textOutput, attack = abilitiesT1:Blast(attacker, defender)
         elseif abilIndex == 23 then -- final countdown
-            textOutput = rpg:FinalCountdownTurnOne(attacker, defender, matchup, nextTurnDmg)
+            textOutput = abilitiesT1:FinalCountdownTurnOne(attacker, defender, matchup, nextTurnDmg)
         elseif abilIndex == 24 then -- unleash
-            textOutput = rpg:DRUTurnOne(attacker, defender, matchup, "Unleash", nextTurnDmg)
+            textOutput = abilitiesT1:DRUTurnOne(attacker, defender, matchup, "Unleash", nextTurnDmg)
         elseif abilIndex == 25 then -- silence
-            textOutput = rpg:SilenceLullBlind(attacker, defender, "Silences")
+            textOutput = abilitiesT1:SilenceLullBlind(attacker, defender, "Silences")
             if defender["statusSilence"] then
-                if defender["type"] == "pc" then
-                    pcSilenceImg.isVisible = true
-                elseif defender["type"] == "pcPet" then
-                    pcPetSilenceImg.isVisible = true
-                elseif defender["type"] == "npc" then
-                    npcSilenceImg.isVisible = true
-                elseif defender["type"] == "npcPet" then
-                    npcPetSilenceImg.isVisible = true
-                end    
+                scene:ShowSilenceImages(defender["type"])
             end
         elseif abilIndex == 26 then -- mirror mania
             -- if the defender is a pet, change the table reference to the pets' owner        
@@ -713,7 +1028,7 @@ function scene:ExecuteAbility(abilIndex)
             elseif defender["type"] ==  "npcPet" then
                 defender = npcStats
             end        
-            textOutput = rpg:MirrorMania(attacker, defender, pet)
+            textOutput = abilitiesT1:MirrorMania(attacker, defender, pet)
             -- todo add image
             if attacker["type"] == "pc" and pet["type"] == "pcPet" then
                 pcPetMagic = true                   
@@ -731,7 +1046,7 @@ function scene:ExecuteAbility(abilIndex)
                 npcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
             end  
         elseif abilIndex == 27 then -- undead minion
-            textOutput = rpg:UndeadMinion(attacker, pet)
+            textOutput = abilitiesT1:UndeadMinion(attacker, pet)
             -- todo add image
             if attacker["type"] == "pc" and pet["type"] == "pcPet"  then
                 pcPetMelee = true                   
@@ -749,39 +1064,321 @@ function scene:ExecuteAbility(abilIndex)
                 npcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
             end            
         elseif abilIndex == 28 then -- lull
-            textOutput = rpg:SilenceLullBlind(attacker, defender, "Lulls")
+            textOutput = abilitiesT1:SilenceLullBlind(attacker, defender, "Lulls")
             if defender["statusLull"] then            
-                if defender["type"] == "pc" then
-                    pcLullImg.isVisible = true
-                elseif defender["type"] == "pcPet" then
-                    pcPetLullImg.isVisible = true
-                elseif defender["type"] == "npc" then
-                    npcLullImg.isVisible = true
-                elseif defender["type"] == "npcPet" then
-                    npcPetLullImg.isVisible = true
-                end    
+                scene:ShowLullImages(defender["type"])
             end
         elseif abilIndex == 29 then -- assisted suicide
-            textOutput = rpg:AssistedSuicide(attacker, defender)
+            textOutput = abilitiesT1:AssistedSuicide(attacker, defender)
         elseif abilIndex == 30 then -- blind
-            textOutput = rpg:SilenceLullBlind(attacker, defender, "Blinds")
+            textOutput = abilitiesT1:SilenceLullBlind(attacker, defender, "Blinds")
             if defender["statusBlind"] then
-                if defender["type"] == "pc" then
-                    pcBlindImg.isVisible = true
-                elseif defender["type"] == "pcPet" then
-                    pcPetBlindImg.isVisible = true
-                elseif defender["type"] == "npc" then
-                    npcBlindImg.isVisible = true
-                elseif defender["type"] == "npcPet" then
-                    npcPetBlindImg.isVisible = true
-                end    
+                scene:ShowBlindImages(defender["type"])
             end
+        elseif abilIndex == 31 then-- concussive blow
+            textOutput, attack = abilitiesT2:ConcussiveBlow(attacker, defender)
+            local bText = ""
+            local sText = ""
+            if not defender["statusBlind"] then
+                bText = abilitiesT1:SilenceLullBlind(attacker, defender, "Blinds")
+                
+                if defender["statusBlind"] then
+                    scene:ShowBlindImages(defender["type"])
+                end 
+            else
+                bText = defender["name"].." is already Blind."
+            end
+            if not defender["statusSilence"] then
+                sText = abilitiesT1:SilenceLullBlind(attacker, defender, "Silences")
+                
+                if defender["statusSilence"] then
+                    scene:ShowSilenceImages(defender["type"])  
+                end
+            else
+                sText = defender["name"].." is already Silenced."
+            end
+            
+            textOutput = textOutput.." "..bText.." "..sText   
+        elseif abilIndex == 32 then-- reckless assault
+            textOutput, attack = abilitiesT2:RecklessAssault(attacker, defender)
+        elseif abilIndex == 33 then-- hemorrhage
+            textOutput = abilitiesT2:Hemorrhage(attacker, defender)
+            if defender["dotHemorrhage"] then -- show affliction image if they have been poisoned
+                scene:ShowHemorrhageImages(defender["type"])
+            end  
+        elseif abilIndex == 34 then-- bloodlust
+            textOutput, attack = abilitiesT2:Bloodlust(attacker, defender)
+            local crampText = ""
+            local crippleText = ""
+            if not defender["debuffCramp"] then
+                crampText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Cramp")
+                scene:ShowCrampImages(defender["type"])
+            else
+                crampText = defender["name"].." is already Cramped."
+            end
+            if not defender["debuffCripple"] then
+                crippleText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Cripple")
+                scene:ShowCrippleImages(defender["type"])
+            else
+                crippleText = defender["name"].." is already Crippled."
+            end
+            
+            textOutput = textOutput.." "..crampText.." "..crippleText       
+        elseif abilIndex == 35 then -- resistance is futile
+            textOutput, attack = abilitiesT2:ResistanceIsFutile(attacker, defender)
+            local crampText = ""
+            if not defender["debuffCramp"] then
+                crampText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Cramp")
+                scene:ShowCrampImages(defender["type"])
+            else
+                crampText = defender["name"].." is already Cramped."
+            end
+            
+            textOutput = textOutput.." "..crampText 
+        elseif abilIndex == 36 then -- achilles heel
+            textOutput, attack = abilitiesT2:AchillesHeel(attacker, defender)
+            local crippleText = ""
+            if not defender["debuffCripple"] then
+                crippleText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Cripple")
+                scene:ShowCrippleImages(defender["type"])
+            else
+                crippleText = defender["name"].." is already Crippled."
+            end
+            
+            textOutput = textOutput.." "..crippleText       
+        elseif abilIndex == 37 then -- incinerate
+            textOutput, attack = abilitiesT2:Incinerate(attacker, defender)
+            if defender["dotIncinerate"] then
+                scene:ShowIncinerateImages(defender["type"])
+            end    
+        elseif abilIndex == 38 then -- electromagnet
+            textOutput, attack = abilitiesT2:Electromagnet(attacker, defender)  
+        elseif abilIndex == 39 then-- debilitate
+            textOutput = abilitiesT2:Debilitate(attacker, defender)
+            local crampText = ""
+            local mindBreakText = ""
+            
+            if defender["dotPoison"] then
+                if not defender["debuffCramp"] then
+                    crampText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Cramp")
+                    scene:ShowCrampImages(defender["type"])
+                else
+                    crampText = defender["name"].." is already Cramped."
+                end
+                if not defender["debuffMindBreak"] then
+                    mindBreakText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Mind Break")
+                    scene:ShowMindBreakImages(defender["type"])
+                else
+                    mindBreakText = defender["name"].." is already Mind Broken."
+                end                
+            end
+            
+            textOutput = textOutput.." "..crampText.." "..mindBreakText   
+        elseif abilIndex == 40 then -- vampiric embrace
+            textOutput = abilitiesT2:VampiricEmbrace(attacker, defender)
+            local crippleText = ""
+            if attacker["buffVampEmb"] then
+                scene:ShowVampEmbImages(attacker["type"])
+            end     
+        elseif abilIndex == 41 then -- brain freeze
+            textOutput, attack = abilitiesT2:BrainFreeze(attacker, defender)
+            local deludeText = ""
+            local crippleText = ""
+            if defender["ice"] ~= 0 then
+                if not defender["debuffDelude"] then
+                    deludeText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Delude")
+                    scene:ShowDeludeImages(defender["type"])
+                else
+                    deludeText = defender["name"].." is already Deluded."
+                end
+                if not defender["debuffCripple"] then
+                    crippleText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Cripple")
+                    scene:ShowCrippleImages(defender["type"])
+                else
+                    crippleText = defender["name"].." is already Crippled."
+                end
+            end
+            
+            textOutput = textOutput.." "..deludeText.." "..crippleText  
+        elseif abilIndex == 42 then -- essence of earth
+            textOutput, attack = abilitiesT2:EssenceOfEarth(attacker, defender)   
+            textOutput = textOutput.." "..abilitiesT1:Cleanse(attacker)            
+            scene:HideAfflictionImages(attacker["type"], false)
+        elseif abilIndex == 43 then -- replenish
+            textOutput = abilitiesT2:Replenish(attacker)
+            scene:ShowReplenishImages(attacker["type"])
+        elseif abilIndex == 44 then -- hamstring
+            textOutput = abilitiesT2:Hamstring(attacker, defender)
+            if defender["statusHamstring"] then
+                scene:ShowHamstringImages(defender["type"])
+            end    
+        elseif abilIndex == 45 then -- haste
+            textOutput = abilitiesT2:Haste(attacker)
+            if attacker["buffHaste"] then
+                scene:ShowHasteImages(attacker["type"])
+            end      
+        elseif abilIndex == 46 then -- mind shatter
+            textOutput = abilitiesT2:MindShatter(attacker, defender) 
+        elseif abilIndex == 47 then -- valor
+            textOutput = abilitiesT2:Valor(attacker)
+            scene:ShowValorImages(attacker["type"])  
+        elseif abilIndex == 48 then -- reflective shield
+            textOutput = abilitiesT2:ReflectiveShield(attacker)
+            scene:ShowRefShieldImages(attacker["type"])  
+        elseif abilIndex == 49 then -- dark pact
+            textOutput, attack = abilitiesT2:DarkPact(attacker, defender)
+            local mindBreakText = ""
+            local deludeText = ""
+            if not defender["debuffMindBreak"] then
+                mindBreakText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Mind Break")
+                scene:ShowMindBreakImages(defender["type"])
+            else
+                mindBreakText = defender["name"].." is already Mind Broken."
+            end
+            if not defender["debuffDelude"] then
+                deludeText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Delude")
+                scene:ShowDeludeImages(defender["type"])
+            else
+                deludeText = defender["name"].." is already Deluded."
+            end
+            
+            textOutput = textOutput.." "..mindBreakText.." "..deludeText               
+        elseif abilIndex == 50 then -- kinetic touch
+            -- player shouldn't be able to get to this. could put npc behavior here
+        elseif abilIndex == 51 then -- mental overload
+            textOutput, attack = abilitiesT2:MentalOverload(attacker, defender)
+            local bText = ""
+            local sText = ""
+            if not defender["statusBlind"] then
+                bText = abilitiesT1:SilenceLullBlind(attacker, defender, "Blinds")
+                
+                if defender["statusBlind"] then
+                    scene:ShowBlindImages(defender["type"])
+                end 
+            else
+                bText = defender["name"].." is already Blind."
+            end
+            if not defender["statusSilence"] then
+                sText = abilitiesT1:SilenceLullBlind(attacker, defender, "Silences")
+                
+                if defender["statusSilence"] then
+                    scene:ShowSilenceImages(defender["type"])  
+                end
+            else
+                sText = defender["name"].." is already Silenced."
+            end
+            
+            textOutput = textOutput.." "..bText.." "..sText      
+        elseif abilIndex == 52 then -- siren song
+            textOutput = abilitiesT2:SirenSong(attacker, defender)
+            local lullText = ""
+            if not defender["statusLull"] then
+                lullText = abilitiesT1:SilenceLullBlind(attacker, defender, "Lulls")
+                
+                if defender["statusLull"] then
+                    scene:ShowLullImages(defender["type"])
+                end 
+            else
+                lullText = defender["name"].." is already Lulled."
+            end
+            
+            textOutput = textOutput.." "..lullText       
+        elseif abilIndex == 53 then -- bend the spoon
+            textOutput, attack = abilitiesT2:BendTheSpoon(attacker, defender)
+            local mindBreakText = ""
+            if not defender["debuffMindBreak"] then
+                mindBreakText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Mind Break")
+                scene:ShowMindBreakImages(defender["type"])
+            else
+                mindBreakText = defender["name"].." is already Mind Broken."
+            end
+            
+            textOutput = textOutput.." "..mindBreakText    
+        elseif abilIndex == 54 then -- fallout
+            textOutput, attack = abilitiesT2:Fallout(attacker, defender)
+            local deludeText = ""
+            if not defender["debuffDelude"] then
+                deludeText = abilitiesT1:CrampCrippleMindBreakDelude(attacker, defender, "Delude")
+                scene:ShowDeludeImages(defender["type"])
+            else
+                deludeText = defender["name"].." is already Deluded."
+            end
+            
+            textOutput = textOutput.." "..deludeText 
+        elseif abilIndex == 55 then -- summon demon
+            textOutput = abilitiesT2:SummonDemon(attacker, pet)
+            -- todo add image
+            if attacker["type"] == "pc" and pet["type"] == "pcPet"  then
+                pcPetMagic = true                   
+                -- set labels
+                pcPetStatGroup.isVisible = true
+                pcPetNameLabel.text = pet["name"]
+                pcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
+                pcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
+            elseif attacker["type"] == "npc" and pet["type"] == "npcPet"  then
+                npcPetMagic = true                
+                -- set labels
+                npcPetStatGroup.isVisible = true
+                npcPetNameLabel.text = pet["name"]
+                npcPetHPLabel.text = pet["currentHp"].."/"..pet["hp"]
+                npcPetAPLabel.text = pet["currentAp"].."/"..pet["ap"]                  
+            end  
+        elseif abilIndex == 56 then -- tame the wild
+            -- todo
+        elseif abilIndex == 57 then -- banish
+            if (attacker["type"] == "pc" or attacker["type"] == "pcPet") and (npcPetMagic or npcPetMelee) then
+                textOutput = npcPetStats["name"].." has been banished from battle."
+                npcPetStats = {}
+                npcPetMelee = false
+                npcPetMagic = false
+                scene:ClearStats("npc")                
+            elseif (attacker["type"] == "npc" or attacker["type"] == "npcPet") and (pcPetMagic or pcPetMelee) then
+                textOutput = pcPetStats["name"].." has been banished from battle."
+                pcPetStats = {}
+                pcPetMelee = false
+                pcPetMagic = false
+                scene:ClearStats("pc")
+            else
+                textOutput = attacker["name"].." tries to Banish, but there are no pets available."
+            end
+        elseif abilIndex == 58 then -- elemental resistance            
+            textOutput = abilitiesT2:ElementalResistance(attacker, switchElem)
+            scene:ShowElemResImages(attacker["type"])
+            switchElem = ""
+        elseif abilIndex == 59 then -- imbue
+            textOutput = abilitiesT2:Imbue(attacker, defender, switchElem)
+            scene:ShowImbueImages(defender["type"])
+            switchElem = ""  
+        elseif abilIndex == 60 then -- polymorph
+            textOutput = abilitiesT2:Polymorph(attacker, defender)
+            if defender["debuffCramp"] then
+                scene:ShowCrampImages(defender["type"])
+            end           
+            if defender["debuffCripple"] then
+                scene:ShowCrippleImages(defender["type"])
+            end           
+            if defender["debuffMindBreak"] then
+                scene:ShowMindBreakImages(defender["type"])
+            end           
+            if defender["debuffDelude"] then
+                scene:ShowDeludeImages(defender["type"])
+            end                       
         end
+        
+        -- only abilities that return an attack are eligible for reflective shield damage
+        if attack and refShieldTarget and defender["buffRefShield"] then
+            textOutput = rpg:ReflectiveShieldCheck(attacker, attack, textOutput)            
+        end  
         
         scene:BattleLogAdd(textOutput)
     end
     
-    attacker["currentAp"] =  attacker["currentAp"] - 1
+    if abilIndex <= 30 then
+        attacker["currentAp"] =  attacker["currentAp"] - 1
+    else
+        attacker["currentAp"] =  attacker["currentAp"] - 2
+    end
+    
     scene:EndTurn()        
     
 end
@@ -790,58 +1387,104 @@ function scene:EndTurnClick()
     scene:EndTurn() -- this will see if anyone has died, update labels, etc. added this for if player hits end turn without taking any sort of regular action
     
     if not battleEnded then
-        -- decide who's turn is next and who the defender is
+        -- decide who's turn is next and who the defender is. if haste is active, they will begin their second turn
+        local attacker, defender        
+        
         if (pcTurn and not pcTurnPet) then
-            if (pcPetMelee or pcPetMagic) then
-                pcTurnPet = true
-                scene:BattleLogAdd(pcPetStats["name"].."'s turn.")
-
+            if pcStats["buffHasteOn"] then
+                attacker = pcStats 
+            
                 if npcPetMelee then
-                    scene:StartTurn(pcPetStats, npcPetStats)
+                    defender = npcPetStats
                 else
-                    scene:StartTurn(pcPetStats, npcStats)
+                    defender = npcStats
+                end            
+            elseif (pcPetMelee or pcPetMagic) then
+                pcTurnPet = true
+                attacker = pcPetStats
+                
+                if npcPetMelee then
+                    defender = npcPetStats
+                else
+                    defender = npcStats
                 end
             else
                 pcTurn = false
-                scene:BattleLogAdd(npcStats["name"].."'s turn.")
-                scene:StartTurn(npcStats, pcStats)
+                attacker = npcStats
+                defender = pcStats
             end        
         elseif pcTurnPet then
-            pcTurn = false
-            pcTurnPet = false
-            scene:BattleLogAdd(npcStats["name"].."'s turn.")
-
-            if pcPetMelee then
-                scene:StartTurn(npcStats, pcPetStats)
+            if pcPetStats["buffHasteOn"] then
+                attacker = pcPetStats 
+            
+                if npcPetMelee then
+                    defender = npcPetStats
+                else
+                    defender = npcStats
+                end  
             else
-                scene:StartTurn(npcStats, pcStats)
+                pcTurn = false
+                pcTurnPet = false
+                attacker = npcStats
+                
+                if pcPetMelee then
+                    defender = pcPetStats
+                else
+                    defender = pcStats
+                end
             end
         elseif (not pcTurn and not npcTurnPet) then
-            if (npcPetMelee or npcPetMagic) then
+            if npcStats["buffHasteOn"] then
+                attacker = npcStats 
+            
+                if pcPetMelee then
+                    defender = pcPetStats
+                else
+                    defender = pcStats
+                end 
+            elseif (npcPetMelee or npcPetMagic) then
                 npcTurnPet = true
-                scene:BattleLogAdd(npcPetStats["name"].."'s turn.")
+                attacker = npcPetStats
 
                 if pcPetMelee then
-                    scene:StartTurn(npcPetStats, pcPetStats)
+                    defender = pcPetStats
                 else
-                    scene:StartTurn(npcPetStats, pcStats)
+                    defender = pcStats
                 end
             else
                 pcTurn = true
-                scene:BattleLogAdd(pcStats["name"].."'s turn.")
-                scene:StartTurn(pcStats, npcStats)
+                attacker = pcStats
+                defender = npcStats
             end
         else -- pc turn
-            pcTurn = true
-            npcTurnPet = false
-            scene:BattleLogAdd(pcStats["name"].."'s turn.")
+            if npcPetStats["buffHasteOn"] then
+                attacker = npcPetStats 
+            
+                if pcPetMelee then
+                    defender = pcPetStats
+                else
+                    defender = pcStats
+                end  
+            else    
+                pcTurn = true
+                npcTurnPet = false
+                attacker = pcStats
 
-            if npcPetMelee then
-                scene:StartTurn(pcStats, npcPetStats)
-            else
-                scene:StartTurn(pcStats, npcStats)
+                if npcPetMelee then
+                    defender = npcPetStats
+                else
+                    defender =  npcStats
+                end
             end
         end
+        
+        if attacker["buffHasteOn"] then
+            scene:BattleLogAdd(attacker["name"].."'s Haste allows them to take another turn.")
+        else
+            scene:BattleLogAdd(attacker["name"].."'s turn.")
+        end
+        
+        scene:StartTurn(attacker, defender)        
     else -- battle is over. todo make this do something different
         composer.gotoScene("screens.Start")
     end
@@ -853,22 +1496,7 @@ function scene:EndTurn()
     --check for deaths, make hp 0 if < 0
     scene:Die()
     
-    -- update hp/ap labels for all
-    pcHPLabel.text = "HP: "..pcStats["currentHp"].."/"..pcStats["hp"]
-    pcAPLabel.text = "AP: "..pcStats["currentAp"].."/"..pcStats["ap"]
-    
-    if pcPetMelee or pcPetMagic then
-        pcPetHPLabel.text = "HP: "..pcPetStats["currentHp"].."/"..pcPetStats["hp"]
-        pcPetAPLabel.text = "AP: "..pcPetStats["currentAp"].."/"..pcPetStats["ap"] 
-    end    
-
-    npcHPLabel.text = "HP: "..npcStats["currentHp"].."/"..npcStats["hp"]
-    npcAPLabel.text = "AP: "..npcStats["currentAp"].."/"..npcStats["ap"]
-    
-    if npcPetMelee or npcPetMagic then    
-        npcPetHPLabel.text = "HP: "..npcPetStats["currentHp"].."/"..npcPetStats["hp"]
-        npcPetAPLabel.text = "AP: "..npcPetStats["currentAp"].."/"..npcPetStats["ap"]    
-    end
+    scene:UpdateStatLabels()
     
     -- todo find a better way to deal with this. using images might be ok, then just disable them ex: attackButton:setEnabled(false)
     attackButton.isVisible = false
@@ -901,23 +1529,64 @@ end
 -- called by the EndTurnClick function
 function scene:StartTurn(attacker, defender)
     
-    scene:Ticks("Poison", attacker) -- tick poison first since it may kill attacker and doesn't go away. turnLost will be set to true if attacker dies
-    
-    if not turnLost then -- tick non damaging afflictions, status effects, and mirror mania
-       scene:Ticks("Cramped", attacker)
-       scene:Ticks("Crippled", attacker)
-       scene:Ticks("Mind Broken", attacker)
-       scene:Ticks("Deluded", attacker)
-       scene:Ticks("Silenced", attacker)
-       scene:Ticks("Blinded", attacker)
-       scene:Ticks("Mirror Mania", attacker)
-       scene:Ticks("Lulled", attacker)
+    if not attacker["buffHasteOn"] then -- do not do these actions if the player is on their second haste turn
+        scene:TickBuffs("Replenish", attacker, defender)
+        scene:TickBuffs("Vampiric Embrace", attacker, defender)
+        -- after vampiric embrace is called, make sure defender has not died. if so, change defender or end battle
+        if defender["currentHp"] == 0 then
+            -- if the defender 
+            scene:Die()
+
+            if battleEnded then
+                turnLost = true
+            else -- choose a new defender. it has to be either the pc or the npc since presumably a pet just died
+                if attacker["type"] == "pc" or attacker["type"] == "pcPet" then
+                    defender = npcStats
+                else
+                    defender = pcStats
+                end
+            end        
+        end
+
+        if not battleEnded then
+            scene:TickDOTS("Poison", attacker) -- tick dots first since it may kill attacker. turnLost will be set to true if attacker dies
+            scene:TickDOTS("Hemorrhage", attacker)
+            scene:TickDOTS("Incinerate", attacker)
+        end
+
+        if not turnLost then -- tick non damaging afflictions, status effects, and mirror mania        
+           scene:TickDebuffs("Cramped", attacker)
+           scene:TickDebuffs("Crippled", attacker)
+           scene:TickDebuffs("Mind Broken", attacker)
+           scene:TickDebuffs("Deluded", attacker)
+           scene:TickStatus("Silenced", attacker)
+           scene:TickStatus("Blinded", attacker)
+           scene:TickStatus("Mirror Mania", attacker) 
+           scene:TickBuffs("Valorous", attacker, defender)
+           scene:TickBuffs("Shielded", attacker, defender)
+           scene:TickBuffs("Elementally Resistant", attacker)
+           scene:TickDebuffs("Imbued", attacker)
+           scene:TickBuffs("Hasted", attacker, defender)
+           scene:TickStatus("Hamstrung", attacker)
+        end
+    else        
+        attacker["buffHasteOn"] = false
     end
     
-    -- try to execute a multiturn move
+    scene:TickStatus("Lulled", attacker) 
+    -- put hamstring here..maybe
+    if attacker["statusHamstring"] then
+        -- make sure they aren't trying to also haste
+        attacker["buffHasteOn"] = false
+        turnLost = true
+    end
+    
+    -- try to execute a multiturn move or lull. these can be called during second haste turn
     if not turnLost then
         scene:TickMultiTurnMoves(attacker, defender)
     end    
+    
+    scene:UpdateStatLabels()    
     
     if not turnLost and not pcTurn then
         scene:AI(attacker, defender)-- start AI routine
@@ -977,10 +1646,9 @@ end
 
 -- tick down various conditions or abilities, apply damage if applicable
 -- this is called before a turn starts and an action can be taken
-function scene:Ticks(condition, attacker)
-    
+function scene:TickDOTS(condition, attacker)
     local toonName = attacker["name"]
-    local toonType = attacker["type"] -- this will either be pc, npc, pcPet, or npcPet
+    local toonType = attacker["type"] -- this will either be pc, npc, pcPet, or npcPet  
     
     if condition == "Poison" and attacker["dotPoison"] then
         attacker["currentHp"] = attacker["currentHp"] - attacker["dotPoisonDmg"]
@@ -988,23 +1656,84 @@ function scene:Ticks(condition, attacker)
         if attacker["currentHp"] < 1 then
             attacker["currentHp"] = 0
         end        
-
-        if toonType == "pc" then
-            pcHPLabel.text = "HP: "..attacker["currentHp"].."/"..attacker["hp"]    
-        elseif toonType == "pcPet" then
-            pcPetHPLabel.text = "HP: "..attacker["currentHp"].."/"..attacker["hp"] 
-        elseif toonType == "npc" then
-            npcHPLabel.text = "HP: "..attacker["currentHp"].."/"..attacker["hp"] 
-        elseif toonType == "npcPet" then
-            npcPetHPLabel.text = "HP: "..attacker["currentHp"].."/"..attacker["hp"] 
-        end
         
         scene:BattleLogAdd(toonName.." has taken "..attacker["dotPoisonDmg"].." damage from "..condition..".") 
         
         if attacker["currentHp"] < 1 then
             turnLost = true
-        end       
-    elseif condition == "Cramped" and attacker["debuffCramp"] then
+        end   
+    elseif condition == "Hemorrhage" and attacker["dotHemorrhage"] then
+        local attack = rpg:ValorCheck(attacker, attacker["dotHemorrhageDmg"])
+        attacker["currentHp"] = attacker["currentHp"] - attack
+        
+        if attacker["currentHp"] < 1 then
+            attacker["currentHp"] = 0
+        end        
+        
+        scene:BattleLogAdd(toonName.." has taken "..attack.." damage from "..condition..".") 
+        
+        if attacker["tickDotHemorrhage"] ~= 3 then        
+            attacker["tickDotHemorrhage"] = attacker["tickDotHemorrhage"] + 1
+        else
+            attacker["tickDotHemorrhage"] = 0
+            attacker["dotHemorrhage"] = false
+            attacker["buffHemorrhageDmg"] = 0
+            scene:BattleLogAdd(toonName.."'s "..condition.." has ended.")
+            
+            if toonType == "pc" then
+                pcHemorrhageImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetHemorrhageImg.isVisible = false
+            elseif toonType == "npc" then
+                npcHemorrhageImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetHemorrhageImg.isVisible = false
+            end                   
+        end         
+        
+        if attacker["currentHp"] < 1 then
+            turnLost = true
+        end  
+    elseif condition == "Incinerate" and attacker["dotIncinerate"] then
+        local attack = rpg:ValorCheck(attacker, attacker["dotIncinerateDmg"])
+        attacker["currentHp"] = attacker["currentHp"] - attack
+        
+        if attacker["currentHp"] < 1 then
+            attacker["currentHp"] = 0
+        end        
+        
+        scene:BattleLogAdd(toonName.." has taken "..attack.." damage from "..condition..".") 
+        
+        if attacker["tickDotIncinerate"] ~= 3 then        
+            attacker["tickDotIncinerate"] = attacker["tickDotIncinerate"] + 1
+        else
+            attacker["tickDotIncinerate"] = 0
+            attacker["dotIncinerate"] = false
+            attacker["buffIncinerateDmg"] = 0
+            scene:BattleLogAdd(toonName.."'s "..condition.." has ended.")
+            
+            if toonType == "pc" then
+                pcIncinerateImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetIncinerateImg.isVisible = false
+            elseif toonType == "npc" then
+                npcIncinerateImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetIncinerateImg.isVisible = false
+            end                   
+        end         
+        
+        if attacker["currentHp"] < 1 then
+            turnLost = true
+        end           
+    end
+end
+
+function scene:TickDebuffs(condition, attacker)
+    local toonName = attacker["name"]
+    local toonType = attacker["type"] -- this will either be pc, npc, pcPet, or npcPet  
+    
+    if condition == "Cramped" and attacker["debuffCramp"] then
         if attacker["tickDebuffCramp"] ~= 3 then
             attacker["tickDebuffCramp"] = attacker["tickDebuffCramp"] + 1
         else
@@ -1083,8 +1812,36 @@ function scene:Ticks(condition, attacker)
             end       
             
             scene:BattleLogAdd(toonName.." is no longer "..condition..".")
-        end             
-    elseif condition == "Silenced" and attacker["statusSilence"] then
+        end  
+    elseif condition == "Imbued" and attacker["debuffImbue"] then
+        if attacker["tickDebuffImbue"] ~= 3 then
+            attacker["tickDebuffImbue"] = attacker["tickDebuffImbue"] + 1
+        else
+            attacker["tickDebuffImbue"] = 0
+            attacker["debuffImbue"] = false
+            
+            if toonType == "pc" then
+                pcImbueImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetImbueImg.isVisible = false
+            elseif toonType == "npc" then
+                npcImbueImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetImbueImg.isVisible = false
+            end       
+            
+            rpg:ImbueElemResRestore(attacker, condition)         
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end          
+    end
+end
+
+function scene:TickStatus(condition, attacker)
+    local toonName = attacker["name"]
+    local toonType = attacker["type"] -- this will either be pc, npc, pcPet, or npcPet  
+    
+    if condition == "Silenced" and attacker["statusSilence"] then
         if attacker["tickStatusSilence"] ~= 3 then
             attacker["tickStatusSilence"] = attacker["tickStatusSilence"] + 1
         else
@@ -1153,8 +1910,180 @@ function scene:Ticks(condition, attacker)
             end       
             
             scene:BattleLogAdd(toonName.." is no longer "..condition..".")
-        end             
+        end 
+    elseif condition == "Hamstrung" and attacker["statusHamstring"] then
+        if attacker["tickStatusHamstring"] ~= 3 then
+            attacker["tickStatusHamstring"] = attacker["tickStatusHamstring"] + 1
+            scene:BattleLogAdd(toonName.." is "..condition.." and cannot take an action.")
+        else
+            attacker["tickStatusHamstring"] = 0
+            attacker["statusHamstring"] = false
+            
+            if toonType == "pc" then
+                pcHamstringImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetHamstringImg.isVisible = false
+            elseif toonType == "npc" then
+                npcHamstringImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetHamstringImg.isVisible = false
+            end       
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end 
     end
+end
+
+function scene:TickBuffs(condition, attacker, defender)
+    local toonName = attacker["name"]
+    local toonType = attacker["type"] -- this will either be pc, npc, pcPet, or npcPet  
+    
+    if condition == "Replenish" and attacker["buffReplenish"] then
+        attacker["currentHp"] = attacker["currentHp"] + attacker["buffReplenishHeal"]
+
+        if attacker["currentHp"] > attacker["hp"] then
+            attacker["currentHp"] = attacker["hp"]
+        end        
+
+        scene:BattleLogAdd(toonName.." has restored "..attacker["buffReplenishHeal"].." health from "..condition..".") 
+        
+        if attacker["tickBuffReplenish"] ~= 3 then        
+            attacker["tickBuffReplenish"] = attacker["tickBuffReplenish"] + 1
+        else
+            attacker["tickBuffReplenish"] = 0
+            attacker["buffReplenish"] = false
+            attacker["buffReplenishHeal"] = 0
+            scene:BattleLogAdd(toonName.."'s "..condition.." has ended.")
+            
+            if toonType == "pc" then
+                pcReplenishImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetReplenishImg.isVisible = false
+            elseif toonType == "npc" then
+                npcReplenishImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetReplenishImg.isVisible = false
+            end                   
+        end 
+    elseif condition == "Vampiric Embrace" and attacker["buffVampEmb"] then
+        local attack = 0
+        attack = utilities:Round(attacker["buffVampEmbHeal"] * defender["disease"])
+        
+        if defender["currentHp"] < attack then
+            attack = defender["currentHp"]
+        end          
+        
+        attacker["currentHp"] = attacker["currentHp"] + attacker["buffVampEmbHeal"]
+        defender["currentHp"] = defender["currentHp"] - attacker["buffVampEmbHeal"]
+
+        if attacker["currentHp"] > attacker["hp"] then
+            attacker["currentHp"] = attacker["hp"]
+        end     
+        
+        if defender["currentHp"] < 1 then
+            defender["currentHp"] = 0
+        end             
+
+        scene:BattleLogAdd(toonName.."'s "..condition.." has sapped "..attack.." health from "..defender["name"]..".") 
+        
+        if attacker["tickBuffVampEmb"] ~= 3 then        
+            attacker["tickBuffVampEmb"] = attacker["tickBuffVampEmb"] + 1
+        else
+            attacker["tickBuffVampEmb"] = 0
+            attacker["buffVampEmb"] = false
+            attacker["buffVampEmbHeal"] = 0
+            scene:BattleLogAdd(toonName.."'s "..condition.." has ended.")
+            
+            if toonType == "pc" then
+                pcVampEmbImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetVampEmbImg.isVisible = false
+            elseif toonType == "npc" then
+                npcVampEmbImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetVampEmbImg.isVisible = false
+            end                   
+        end 
+    elseif condition == "Hasted" and attacker["buffHaste"] then 
+        if attacker["tickBuffHaste"] ~= 3 then
+            attacker["tickBuffHaste"] = attacker["tickBuffHaste"] + 1
+            attacker["buffHasteOn"] = true
+        else
+            attacker["tickBuffHaste"] = 0
+            attacker["buffHaste"] = false
+            
+            if toonType == "pc" then
+                pcHasteImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetHasteImg.isVisible = false
+            elseif toonType == "npc" then
+                npcHasteImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetHasteImg.isVisible = false
+            end       
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end  
+    elseif condition == "Valorous" and attacker["buffValor"] then
+        if attacker["tickBuffValor"] ~= 3 then
+            attacker["tickBuffValor"] = attacker["tickBuffValor"] + 1
+        else
+            attacker["tickBuffValor"] = 0
+            attacker["buffValor"] = false
+            
+            if toonType == "pc" then
+                pcValorImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetValorImg.isVisible = false
+            elseif toonType == "npc" then
+                npcValorImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetValorImg.isVisible = false
+            end       
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end            
+    elseif condition == "Shielded" and attacker["buffRefShield"] then
+        if attacker["tickBuffRefShield"] ~= 3 then
+            attacker["tickBuffRefShield"] = attacker["tickBuffRefShield"] + 1
+        else
+            attacker["tickBuffRefShield"] = 0
+            attacker["buffRefShield"] = false
+            
+            if toonType == "pc" then
+                pcRefShieldImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetRefShieldImg.isVisible = false
+            elseif toonType == "npc" then
+                npcRefShieldImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetRefShieldImg.isVisible = false
+            end       
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end        
+    elseif condition == "Elementally Resistant" and attacker["buffElemRes"] then
+        if attacker["tickBuffElemRes"] ~= 3 then
+            attacker["tickBuffElemRes"] = attacker["tickBuffElemRes"] + 1
+        else
+            attacker["tickBuffElemRes"] = 0
+            attacker["buffElemRes"] = false
+            
+            if toonType == "pc" then
+                pcElemResImg.isVisible = false
+            elseif toonType == "pcPet" then
+                pcPetElemResImg.isVisible = false
+            elseif toonType == "npc" then
+                npcElemResImg.isVisible = false
+            elseif toonType == "npcPet" then
+                npcPetElemResImg.isVisible = false
+            end       
+            
+            rpg:ImbueElemResRestore(attacker, condition)         
+            
+            scene:BattleLogAdd(toonName.." is no longer "..condition..".")
+        end          
+    end    
 end
 
 -- try to execute or tick Delayed Reaction, Unleash, and Final Countdown
@@ -1264,8 +2193,7 @@ function scene:Die()
         npcPetMelee = false
         npcPetMagic = false
         scene:ClearStats("npc")
-    end    
-    
+    end  
 end
 
 -- calls the ai routine and determines actions
@@ -1278,7 +2206,7 @@ function scene:AI(attacker, defender)
         petStatus = true
     end
     
-    local action = rpg:AI(attacker, defender, petStatus)
+    local action = ai:AI(attacker, defender, petStatus)
     
     if action == "atk" then
         scene:Attack(attacker, defender)
@@ -1297,7 +2225,7 @@ function scene:ClearStats(owner)
         pcPetStats = {}
         pcPetMelee = false
         pcPetMagic = false        
-        scene:HideAfflictionImages("pcPet") 
+        scene:HideAfflictionImages("pcPet", true) 
         pcPetStatGroup.isVisible = false        
         pcPetNameLabel.text = ""
         pcPetHPLabel.text = "0/0"
@@ -1306,7 +2234,7 @@ function scene:ClearStats(owner)
         npcPetStats = {}
         npcPetMelee = false
         npcPetMagic = false        
-        scene:HideAfflictionImages("npcPet")
+        scene:HideAfflictionImages("npcPet", true)
         npcPetStatGroup.isVisible = false        
         npcPetNameLabel.text = ""
         npcPetHPLabel.text = "0/0"
@@ -1363,7 +2291,7 @@ end
 function scene:BattleLogAdd(logText)
     -- multiline text will be split and looped through, adding a max number of characters each line until completion
     
-    local strMaxLen = 120
+    local strMaxLen = 110
     local textWidth = scrollRectWidth
     local textHeight = 20    
     local outputDone = false
@@ -1406,7 +2334,7 @@ function scene:BattleLogAdd(logText)
         scrollView:setScrollHeight(newScrollHeight)  
         
         if charCount > strMaxLen then
-            logText = "     "..multiLine
+            logText = "   "..multiLine
         else
             outputDone = true
         end    
@@ -1465,7 +2393,30 @@ function scene:ShowHideAbilities()
         abil12Button.isVisible = false        
     end
     
+    kineticTouchOn = false
+    chooseElemResOn = false
+    chooseImbueOn = false
+    switchElem = ""    
     showAbilities = not showAbilities
+end
+
+function scene:UpdateStatLabels()
+    -- update hp/ap labels for all
+    pcHPLabel.text = "HP: "..pcStats["currentHp"].."/"..pcStats["hp"]
+    pcAPLabel.text = "AP: "..pcStats["currentAp"].."/"..pcStats["ap"]
+    
+    if pcPetMelee or pcPetMagic then
+        pcPetHPLabel.text = "HP: "..pcPetStats["currentHp"].."/"..pcPetStats["hp"]
+        pcPetAPLabel.text = "AP: "..pcPetStats["currentAp"].."/"..pcPetStats["ap"] 
+    end    
+
+    npcHPLabel.text = "HP: "..npcStats["currentHp"].."/"..npcStats["hp"]
+    npcAPLabel.text = "AP: "..npcStats["currentAp"].."/"..npcStats["ap"]
+    
+    if npcPetMelee or npcPetMagic then    
+        npcPetHPLabel.text = "HP: "..npcPetStats["currentHp"].."/"..npcPetStats["hp"]
+        npcPetAPLabel.text = "AP: "..npcPetStats["currentAp"].."/"..npcPetStats["ap"]    
+    end
 end
 
 function scene:SetAbilButtons(attacker)   
@@ -1551,64 +2502,372 @@ function scene:SetAbilButtons(attacker)
         abil12Button.isVisible = true
     else
         abil12Button.isVisible = false
-    end  
+    end      
+end
+
+function scene:PickElementButtons()
+    abil1Button:setLabel("Lightning")
+    abil1Button.isVisible = true
+    abil2Button:setLabel("Poison")
+    abil2Button.isVisible = true
+    abil3Button:setLabel("Ice")
+    abil3Button.isVisible = true
+    abil4Button:setLabel("Disease")
+    abil4Button.isVisible = true
+    abil5Button:setLabel("Earth")
+    abil5Button.isVisible = true
+    abil6Button:setLabel("Fire")
+    abil6Button.isVisible = true 
+    abil7Button.isVisible = false
+    abil8Button.isVisible = false
+    abil9Button.isVisible = false
+    abil10Button.isVisible = false
+    abil11Button.isVisible = false
+    abil12Button.isVisible = false
+    abilityButton.isVisible = false
     
-    
+    scene:BattleLogAdd("Choose an element.")
 end
 
 -- hide all of the affliction images for the passed in character
-function scene:HideAfflictionImages(who)
+function scene:HideAfflictionImages(who, allCheck)
     if who == "pc" then
-        pcCrampImg.isVisible = false
-        pcCrippleImg.isVisible = false
-        pcMindBreakImg.isVisible = false
-        pcDeludeImg.isVisible = false
-        pcPoisonImg.isVisible = false
-        pcBlindImg.isVisible = false
-        pcSilenceImg.isVisible = false
-        pcLullImg.isVisible = false            
+        scene:HideAffImgPC(allCheck)
     elseif who == "pcPet" then
-        pcPetCrampImg.isVisible = false
-        pcPetCrippleImg.isVisible = false
-        pcPetMindBreakImg.isVisible = false
-        pcPetDeludeImg.isVisible = false
-        pcPetPoisonImg.isVisible = false
-        pcPetBlindImg.isVisible = false
-        pcPetSilenceImg.isVisible = false
-        pcPetLullImg.isVisible = false           
+        scene:HideAffImgPCPet(allCheck)
     elseif who == "npc" then
-        npcCrampImg.isVisible = false
-        npcCrippleImg.isVisible = false
-        npcMindBreakImg.isVisible = false
-        npcDeludeImg.isVisible = false
-        npcPoisonImg.isVisible = false
-        npcBlindImg.isVisible = false
-        npcSilenceImg.isVisible = false
-        npcLullImg.isVisible = false               
+        scene:HideAffImgNPC(allCheck)
     elseif who == "npcPet" then
-        npcPetCrampImg.isVisible = false
-        npcPetCrippleImg.isVisible = false
-        npcPetMindBreakImg.isVisible = false
-        npcPetDeludeImg.isVisible = false
-        npcPetPoisonImg.isVisible = false
-        npcPetBlindImg.isVisible = false
-        npcPetSilenceImg.isVisible = false
-        npcPetLullImg.isVisible = false               
+        scene:HideAffImgNPCPet(allCheck)
     end   
 end
 
-function scene:MakeLabels(myScene)
-    ---------------------
-    -- BEGIN LABELS --
-    ---------------------
+function scene:HideAffImgPC(allCheck)
+    pcCrampImg.isVisible = false
+    pcCrippleImg.isVisible = false
+    pcMindBreakImg.isVisible = false
+    pcDeludeImg.isVisible = false
+    pcPoisonImg.isVisible = false
+    pcBlindImg.isVisible = false
+    pcSilenceImg.isVisible = false
+    pcLullImg.isVisible = false  
+    pcImbueImg.isVisible = false 
+    pcHemorrhageImg.isVisible = false 
+    pcIncinerateImg.isVisible = false     
+    pcHamstringImg.isVisible = false  
     
-    --todo: make the x and y coordinates for labels set at their top left point rather than center
+    -- don't hide these if cleansing
+    if allCheck then
+        pcValorImg.isVisible = false         
+        pcRefShieldImg.isVisible = false  
+        pcElemResImg.isVisible = false
+        pcReplenishImg.isVisible = false
+        pcHasteImg.isVisible = false 
+        pcVampEmbImg.isVisible = false 
+    end
+end
+
+function scene:HideAffImgPCPet(allCheck)
+    pcPetCrampImg.isVisible = false
+    pcPetCrippleImg.isVisible = false
+    pcPetMindBreakImg.isVisible = false
+    pcPetDeludeImg.isVisible = false
+    pcPetPoisonImg.isVisible = false
+    pcPetBlindImg.isVisible = false
+    pcPetSilenceImg.isVisible = false
+    pcPetLullImg.isVisible = false  
+    pcPetImbueImg.isVisible = false 
+    pcPetHemorrhageImg.isVisible = false 
+    pcPetIncinerateImg.isVisible = false     
+    pcPetHamstringImg.isVisible = false  
+    
+    -- don't hide these if cleansing
+    if allCheck then
+        pcPetValorImg.isVisible = false         
+        pcPetRefShieldImg.isVisible = false  
+        pcPetElemResImg.isVisible = false
+        pcPetReplenishImg.isVisible = false
+        pcPetHasteImg.isVisible = false 
+        pcPetVampEmbImg.isVisible = false 
+    end   
+end
+
+function scene:HideAffImgNPC(allCheck)
+    npcCrampImg.isVisible = false
+    npcCrippleImg.isVisible = false
+    npcMindBreakImg.isVisible = false
+    npcDeludeImg.isVisible = false
+    npcPoisonImg.isVisible = false
+    npcBlindImg.isVisible = false
+    npcSilenceImg.isVisible = false
+    npcLullImg.isVisible = false  
+    npcImbueImg.isVisible = false 
+    npcHemorrhageImg.isVisible = false 
+    npcIncinerateImg.isVisible = false     
+    npcHamstringImg.isVisible = false  
+    
+    -- don't hide these if cleansing
+    if allCheck then
+        npcValorImg.isVisible = false         
+        npcRefShieldImg.isVisible = false  
+        npcElemResImg.isVisible = false
+        npcReplenishImg.isVisible = false
+        npcHasteImg.isVisible = false 
+        npcVampEmbImg.isVisible = false 
+    end      
+end
+
+function scene:HideAffImgNPCPet(allCheck)
+    npcPetCrampImg.isVisible = false
+    npcPetCrippleImg.isVisible = false
+    npcPetMindBreakImg.isVisible = false
+    npcPetDeludeImg.isVisible = false
+    npcPetPoisonImg.isVisible = false
+    npcPetBlindImg.isVisible = false
+    npcPetSilenceImg.isVisible = false
+    npcPetLullImg.isVisible = false  
+    npcPetImbueImg.isVisible = false 
+    npcPetHemorrhageImg.isVisible = false 
+    npcPetIncinerateImg.isVisible = false     
+    npcPetHamstringImg.isVisible = false  
+    
+    -- don't hide these if cleansing
+    if allCheck then
+        npcPetValorImg.isVisible = false         
+        npcPetRefShieldImg.isVisible = false  
+        npcPetElemResImg.isVisible = false
+        npcPetReplenishImg.isVisible = false
+        npcPetHasteImg.isVisible = false 
+        npcPetVampEmbImg.isVisible = false 
+    end          
+end
+
+function scene:ShowPoisonImages(who)
+    if who == "pc" then
+            pcPoisonImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetPoisonImg.isVisible = true
+    elseif who == "npc" then
+            npcPoisonImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetPoisonImg.isVisible = true
+    end 
+end
+
+function scene:ShowCrampImages(who)
+    if who == "pc" then
+            pcCrampImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetCrampImg.isVisible = true
+    elseif who == "npc" then
+            npcCrampImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetCrampImg.isVisible = true
+    end    
+end
+
+function scene:ShowCrippleImages(who)
+    if who == "pc" then
+            pcCrippleImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetCrippleImg.isVisible = true
+    elseif who == "npc" then
+            npcCrippleImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetCrippleImg.isVisible = true
+    end    
+end
+
+function scene:ShowMindBreakImages(who)
+    if who == "pc" then
+            pcMindBreakImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetMindBreakImg.isVisible = true
+    elseif who == "npc" then
+            npcMindBreakImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetMindBreakImg.isVisible = true
+    end     
+end
+
+function scene:ShowDeludeImages(who)
+    if who == "pc" then
+            pcDeludeImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetDeludeImg.isVisible = true
+    elseif who == "npc" then
+            npcDeludeImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetDeludeImg.isVisible = true
+    end      
+end
+
+function scene:ShowSilenceImages(who)
+    if who == "pc" then
+            pcSilenceImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetSilenceImg.isVisible = true
+    elseif who == "npc" then
+            npcSilenceImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetSilenceImg.isVisible = true
+    end   
+end
+
+function scene:ShowLullImages(who)
+    if who == "pc" then
+            pcLullImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetLullImg.isVisible = true
+    elseif who == "npc" then
+            npcLullImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetLullImg.isVisible = true
+    end    
+end
+
+function scene:ShowBlindImages(who)
+    if who == "pc" then
+            pcBlindImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetBlindImg.isVisible = true
+    elseif who == "npc" then
+            npcBlindImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetBlindImg.isVisible = true
+    end    
+end
+
+function scene:ShowHemorrhageImages(who)
+    if who == "pc" then
+            pcHemorrhageImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetHemorrhageImg.isVisible = true
+    elseif who == "npc" then
+            npcHemorrhageImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetHemorrhageImg.isVisible = true
+    end 
+end
+
+function scene:ShowIncinerateImages(who)
+    if who == "pc" then
+            pcIncinerateImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetIncinerateImg.isVisible = true
+    elseif who == "npc" then
+            npcIncinerateImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetIncinerateImg.isVisible = true
+    end 
+end
+
+function scene:ShowVampEmbImages(who)
+    if who == "pc" then
+            pcVampEmbImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetVampEmbImg.isVisible = true
+    elseif who == "npc" then
+            npcVampEmbImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetVampEmbImg.isVisible = true
+    end 
+end
+
+function scene:ShowImbueImages(who)
+    if who == "pc" then
+            pcImbueImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetImbueImg.isVisible = true
+    elseif who == "npc" then
+            npcImbueImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetImbueImg.isVisible = true
+    end 
+end
+
+function scene:ShowHamstringImages(who)
+    if who == "pc" then
+            pcHamstringImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetHamstringImg.isVisible = true
+    elseif who == "npc" then
+            npcHamstringImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetHamstringImg.isVisible = true
+    end 
+end
+
+function scene:ShowValorImages(who)
+    if who == "pc" then
+            pcValorImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetValorImg.isVisible = true
+    elseif who == "npc" then
+            npcValorImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetValorImg.isVisible = true
+    end 
+end
+
+function scene:ShowRefShieldImages(who)
+    if who == "pc" then
+            pcRefShieldImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetRefShieldImg.isVisible = true
+    elseif who == "npc" then
+            npcRefShieldImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetRefShieldImg.isVisible = true
+    end 
+end
+
+function scene:ShowElemResImages(who)
+    if who == "pc" then
+            pcElemResImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetElemResImg.isVisible = true
+    elseif who == "npc" then
+            npcElemResImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetElemResImg.isVisible = true
+    end 
+end
+
+function scene:ShowReplenishImages(who)
+    if who == "pc" then
+            pcReplenishImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetReplenishImg.isVisible = true
+    elseif who == "npc" then
+            npcReplenishImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetReplenishImg.isVisible = true
+    end 
+end
+
+function scene:ShowHasteImages(who)
+    if who == "pc" then
+            pcHasteImg.isVisible = true
+    elseif who == "pcPet" then
+            pcPetHasteImg.isVisible = true
+    elseif who == "npc" then
+            npcHasteImg.isVisible = true
+    elseif who == "npcPet" then
+            npcPetHasteImg.isVisible = true
+    end 
+end
+
+---------------------
+-- BEGIN LABELS --
+---------------------
+function scene:MakePlayerLabels(myScene)
 
     ------------------
     -- PC LABELS
     ------------------
     local pcStartingY = 15    
-    local pcStatGroup = display.newContainer(300, 200) -- container for player stats on screen. could change to a regular group if there is a problem with the container
+    pcStatGroup = display.newContainer(300, 250) -- container for player stats on screen. could change to a regular group if there is a problem with the container
     pcStatGroup.x = 50
     
 
@@ -1637,7 +2896,8 @@ function scene:MakeLabels(myScene)
     pcHPLabel = display.newText(textOptions)
     
     -- AP Label
-    textOptions["y"] = pcStartingY * 3
+    textOptions["y"] = pcStartingY * 2
+    textOptions["x"] = 115
     textOptions["text"] = "AP: "..pcStats["ap"].."/"..pcStats["ap"]
     
     pcAPLabel = display.newText(textOptions)    
@@ -1645,35 +2905,75 @@ function scene:MakeLabels(myScene)
     -- images
     pcCrampImg = display.newImage("images/cramp.png", system.ResourceDirectory)
     pcCrampImg.x = -36
-    pcCrampImg.y = pcStartingY * 4
+    pcCrampImg.y = pcStartingY * 3
     
     pcCrippleImg = display.newImage("images/cripple.png", system.ResourceDirectory)    
     pcCrippleImg.x = -12
-    pcCrippleImg.y = pcStartingY * 4    
+    pcCrippleImg.y = pcStartingY * 3    
     
     pcMindBreakImg = display.newImage("images/mindbreak.png", system.ResourceDirectory)    
     pcMindBreakImg.x = 12
-    pcMindBreakImg.y = pcStartingY * 4        
+    pcMindBreakImg.y = pcStartingY * 3        
     
     pcDeludeImg = display.newImage("images/delude.png", system.ResourceDirectory)    
     pcDeludeImg.x = 36
-    pcDeludeImg.y = pcStartingY * 4   
+    pcDeludeImg.y = pcStartingY * 3   
+    
+    pcBlindImg = display.newImage("images/blind.png", system.ResourceDirectory)    
+    pcBlindImg.x = 60
+    pcBlindImg.y = pcStartingY * 3     
+    
+    pcSilenceImg = display.newImage("images/silence.png", system.ResourceDirectory)    
+    pcSilenceImg.x = 84
+    pcSilenceImg.y = pcStartingY * 3     
     
     pcPoisonImg = display.newImage("images/poison.png", system.ResourceDirectory)    
     pcPoisonImg.x = -36
-    pcPoisonImg.y = pcStartingY * 4 + 24       
-    
-    pcBlindImg = display.newImage("images/blind.png", system.ResourceDirectory)    
-    pcBlindImg.x = -12
-    pcBlindImg.y = pcStartingY * 4 + 24     
-    
-    pcSilenceImg = display.newImage("images/silence.png", system.ResourceDirectory)    
-    pcSilenceImg.x = 12
-    pcSilenceImg.y = pcStartingY * 4 + 24       
+    pcPoisonImg.y = pcStartingY * 3 + 24 
     
     pcLullImg = display.newImage("images/lull.png", system.ResourceDirectory)    
-    pcLullImg.x = 36
-    pcLullImg.y = pcStartingY * 4 + 24         
+    pcLullImg.x = -12
+    pcLullImg.y = pcStartingY * 3 + 24 
+    
+    pcHemorrhageImg = display.newImage("images/hemorrhage.png", system.ResourceDirectory)    
+    pcHemorrhageImg.x = 12
+    pcHemorrhageImg.y = pcStartingY * 3 + 24       
+    
+    pcHamstringImg = display.newImage("images/hamstring.png", system.ResourceDirectory)    
+    pcHamstringImg.x = 36
+    pcHamstringImg.y = pcStartingY * 3 + 24    
+    
+    pcIncinerateImg = display.newImage("images/incinerate.png", system.ResourceDirectory)    
+    pcIncinerateImg.x = 60
+    pcIncinerateImg.y = pcStartingY * 3 + 24      
+    
+    pcImbueImg = display.newImage("images/imbue.png", system.ResourceDirectory)    
+    pcImbueImg.x = 84
+    pcImbueImg.y = pcStartingY * 3 + 24    
+    
+    pcHasteImg = display.newImage("images/haste.png", system.ResourceDirectory)    
+    pcHasteImg.x = -36
+    pcHasteImg.y = pcStartingY * 3 + 48 
+    
+    pcRefShieldImg = display.newImage("images/reflectiveshield.png", system.ResourceDirectory)    
+    pcRefShieldImg.x = -12
+    pcRefShieldImg.y = pcStartingY * 3 + 48 
+    
+    pcValorImg = display.newImage("images/valor.png", system.ResourceDirectory)    
+    pcValorImg.x = 12
+    pcValorImg.y = pcStartingY * 3 + 48      
+    
+    pcElemResImg = display.newImage("images/elemresistance.png", system.ResourceDirectory)    
+    pcElemResImg.x = 36
+    pcElemResImg.y = pcStartingY * 3 + 48    
+    
+    pcVampEmbImg = display.newImage("images/vampembrace.png", system.ResourceDirectory)    
+    pcVampEmbImg.x = 60
+    pcVampEmbImg.y = pcStartingY * 3 + 48     
+    
+    pcReplenishImg = display.newImage("images/replenish.png", system.ResourceDirectory)    
+    pcReplenishImg.x = 84
+    pcReplenishImg.y = pcStartingY * 3 + 48       
     
     pcStatGroup:insert(pcNameLabel) 
     pcStatGroup:insert(pcHPLabel)
@@ -1686,21 +2986,38 @@ function scene:MakeLabels(myScene)
     pcStatGroup:insert(pcBlindImg)
     pcStatGroup:insert(pcSilenceImg)
     pcStatGroup:insert(pcLullImg)
-    
-    
+    pcStatGroup:insert(pcHasteImg)
+    pcStatGroup:insert(pcReplenishImg)
+    pcStatGroup:insert(pcRefShieldImg)
+    pcStatGroup:insert(pcValorImg)
+    pcStatGroup:insert(pcElemResImg)
+    pcStatGroup:insert(pcImbueImg)
+    pcStatGroup:insert(pcHemorrhageImg)
+    pcStatGroup:insert(pcIncinerateImg)
+    pcStatGroup:insert(pcVampEmbImg)
+    pcStatGroup:insert(pcHamstringImg)   
+end
+
+function scene:MakePlayerPetLabels(myScene)
     ------------------
     -- PC PET LABELS
     ------------------
     local pcPetStartingY = 15      
-    pcPetStatGroup = display.newContainer(300, 200) -- container for player stats on screen. could change to a regular group if there is a problem with the container
+    pcPetStatGroup = display.newContainer(300, 250) -- container for player stats on screen. could change to a regular group if there is a problem with the container
     pcPetStatGroup.x = 50
-    pcPetStatGroup.y = 100
+    pcPetStatGroup.y = 110    
     
-    -- the text label's center is point 0,0. this must be accounted for
-    -- label for player pet name
-    textOptions["x"] = 30
-    textOptions["y"] = pcPetStartingY    
-    textOptions["text"] = "PC Pet Name"
+    local textOptions = {
+    text = "PC Pet Name",
+    x = 30,
+    y = pcPetStartingY,
+    anchorX = 0,
+    width = 150,
+    height = 30,
+    font = native.systemFont,
+    fontSize = 14,
+    align = "left"    
+    }    
 
     pcPetNameLabel = display.newText(textOptions)
     --pcNameLabel:setFillColor(0,0,0)    
@@ -1713,7 +3030,8 @@ function scene:MakeLabels(myScene)
     pcPetHPLabel = display.newText(textOptions)
     
     -- AP Label
-    textOptions["y"] = pcPetStartingY * 3
+    textOptions["y"] = pcPetStartingY * 2
+    textOptions["x"] = 115
     textOptions["text"] = "AP: 0/0"
     
     pcPetAPLabel = display.newText(textOptions)    
@@ -1721,39 +3039,79 @@ function scene:MakeLabels(myScene)
     -- images
     pcPetCrampImg = display.newImage("images/cramp.png", system.ResourceDirectory)
     pcPetCrampImg.x = -36
-    pcPetCrampImg.y = pcPetStartingY * 4
+    pcPetCrampImg.y = pcPetStartingY * 3
     
     pcPetCrippleImg = display.newImage("images/cripple.png", system.ResourceDirectory)    
     pcPetCrippleImg.x = -12
-    pcPetCrippleImg.y = pcPetStartingY * 4    
+    pcPetCrippleImg.y = pcPetStartingY * 3    
     
     pcPetMindBreakImg = display.newImage("images/mindbreak.png", system.ResourceDirectory)    
     pcPetMindBreakImg.x = 12
-    pcPetMindBreakImg.y = pcPetStartingY * 4        
+    pcPetMindBreakImg.y = pcPetStartingY * 3        
     
     pcPetDeludeImg = display.newImage("images/delude.png", system.ResourceDirectory)    
     pcPetDeludeImg.x = 36
-    pcPetDeludeImg.y = pcPetStartingY * 4   
+    pcPetDeludeImg.y = pcPetStartingY * 3   
+    
+    pcPetBlindImg = display.newImage("images/blind.png", system.ResourceDirectory)    
+    pcPetBlindImg.x = 60
+    pcPetBlindImg.y = pcPetStartingY * 3     
+    
+    pcPetSilenceImg = display.newImage("images/silence.png", system.ResourceDirectory)    
+    pcPetSilenceImg.x = 84
+    pcPetSilenceImg.y = pcPetStartingY * 3     
     
     pcPetPoisonImg = display.newImage("images/poison.png", system.ResourceDirectory)    
     pcPetPoisonImg.x = -36
-    pcPetPoisonImg.y = pcPetStartingY * 4 + 24       
-    
-    pcPetBlindImg = display.newImage("images/blind.png", system.ResourceDirectory)    
-    pcPetBlindImg.x = -12
-    pcPetBlindImg.y = pcPetStartingY * 4 + 24     
-    
-    pcPetSilenceImg = display.newImage("images/silence.png", system.ResourceDirectory)    
-    pcPetSilenceImg.x = 12
-    pcPetSilenceImg.y = pcPetStartingY * 4 + 24       
+    pcPetPoisonImg.y = pcPetStartingY * 3 + 24 
     
     pcPetLullImg = display.newImage("images/lull.png", system.ResourceDirectory)    
-    pcPetLullImg.x = 36
-    pcPetLullImg.y = pcPetStartingY * 4 + 24   
+    pcPetLullImg.x = -12
+    pcPetLullImg.y = pcPetStartingY * 3 + 24 
+    
+    pcPetHemorrhageImg = display.newImage("images/hemorrhage.png", system.ResourceDirectory)    
+    pcPetHemorrhageImg.x = 12
+    pcPetHemorrhageImg.y = pcPetStartingY * 3 + 24       
+    
+    pcPetHamstringImg = display.newImage("images/hamstring.png", system.ResourceDirectory)    
+    pcPetHamstringImg.x = 36
+    pcPetHamstringImg.y = pcPetStartingY * 3 + 24    
+    
+    pcPetIncinerateImg = display.newImage("images/incinerate.png", system.ResourceDirectory)    
+    pcPetIncinerateImg.x = 60
+    pcPetIncinerateImg.y = pcPetStartingY * 3 + 24      
+    
+    pcPetImbueImg = display.newImage("images/imbue.png", system.ResourceDirectory)    
+    pcPetImbueImg.x = 84
+    pcPetImbueImg.y = pcPetStartingY * 3 + 24    
+    
+    pcPetHasteImg = display.newImage("images/haste.png", system.ResourceDirectory)    
+    pcPetHasteImg.x = -36
+    pcPetHasteImg.y = pcPetStartingY * 3 + 48 
+    
+    pcPetRefShieldImg = display.newImage("images/reflectiveshield.png", system.ResourceDirectory)    
+    pcPetRefShieldImg.x = -12
+    pcPetRefShieldImg.y = pcPetStartingY * 3 + 48 
+    
+    pcPetValorImg = display.newImage("images/valor.png", system.ResourceDirectory)    
+    pcPetValorImg.x = 12
+    pcPetValorImg.y = pcPetStartingY * 3 + 48      
+    
+    pcPetElemResImg = display.newImage("images/elemresistance.png", system.ResourceDirectory)    
+    pcPetElemResImg.x = 36
+    pcPetElemResImg.y = pcPetStartingY * 3 + 48    
+    
+    pcPetVampEmbImg = display.newImage("images/vampembrace.png", system.ResourceDirectory)    
+    pcPetVampEmbImg.x = 60
+    pcPetVampEmbImg.y = pcPetStartingY * 3 + 48     
+    
+    pcPetReplenishImg = display.newImage("images/replenish.png", system.ResourceDirectory)    
+    pcPetReplenishImg.x = 84
+    pcPetReplenishImg.y = pcPetStartingY * 3 + 48       
     
     pcPetStatGroup:insert(pcPetNameLabel) 
     pcPetStatGroup:insert(pcPetHPLabel)
-    pcPetStatGroup:insert(pcPetAPLabel)    
+    pcPetStatGroup:insert(pcPetAPLabel)
     pcPetStatGroup:insert(pcPetCrampImg)
     pcPetStatGroup:insert(pcPetCrippleImg)
     pcPetStatGroup:insert(pcPetMindBreakImg)
@@ -1761,20 +3119,39 @@ function scene:MakeLabels(myScene)
     pcPetStatGroup:insert(pcPetPoisonImg)
     pcPetStatGroup:insert(pcPetBlindImg)
     pcPetStatGroup:insert(pcPetSilenceImg)
-    pcPetStatGroup:insert(pcPetLullImg)    
-    
+    pcPetStatGroup:insert(pcPetLullImg)
+    pcPetStatGroup:insert(pcPetHasteImg)
+    pcPetStatGroup:insert(pcPetReplenishImg)
+    pcPetStatGroup:insert(pcPetRefShieldImg)
+    pcPetStatGroup:insert(pcPetValorImg)
+    pcPetStatGroup:insert(pcPetElemResImg)
+    pcPetStatGroup:insert(pcPetImbueImg)
+    pcPetStatGroup:insert(pcPetHemorrhageImg)
+    pcPetStatGroup:insert(pcPetIncinerateImg)
+    pcPetStatGroup:insert(pcPetVampEmbImg)
+    pcPetStatGroup:insert(pcPetHamstringImg)        
+end
+
+function scene:MakeNPCLabels(myScene)
     ------------------
     -- NPC LABELS
     ------------------
     local npcStartingY = 15
-    local npcStatGroup = display.newContainer(300, 200)
+    npcStatGroup = display.newContainer(300, 250)
     npcStatGroup.x = GLOB.width - 100
     npcStatGroup.y = 0
     
-    -- label for npc name
-    textOptions["x"] = 30
-    textOptions["y"] = npcStartingY
-    textOptions["text"] = npcStats["name"]
+    local textOptions = {
+    text = npcStats["name"],
+    x = 30,
+    y = npcStartingY,
+    anchorX = 0,
+    width = 150,
+    height = 30,
+    font = native.systemFont,
+    fontSize = 14,
+    align = "left"    
+    }    
 
     local npcNameLabel = display.newText(textOptions)
     --pcNameLabel:setFillColor(0,0,0)    
@@ -1787,7 +3164,8 @@ function scene:MakeLabels(myScene)
     npcHPLabel = display.newText(textOptions)
     
     -- AP Label
-    textOptions["y"] = npcStartingY * 3
+    textOptions["y"] = npcStartingY * 2
+    textOptions["x"] = 115
     textOptions["text"] = "AP: "..npcStats["ap"].."/"..npcStats["ap"]
     
     npcAPLabel = display.newText(textOptions)  
@@ -1795,35 +3173,75 @@ function scene:MakeLabels(myScene)
     -- images
     npcCrampImg = display.newImage("images/cramp.png", system.ResourceDirectory)
     npcCrampImg.x = -36
-    npcCrampImg.y = npcStartingY * 4
+    npcCrampImg.y = npcStartingY * 3
     
     npcCrippleImg = display.newImage("images/cripple.png", system.ResourceDirectory)    
     npcCrippleImg.x = -12
-    npcCrippleImg.y = npcStartingY * 4    
+    npcCrippleImg.y = npcStartingY * 3    
     
     npcMindBreakImg = display.newImage("images/mindbreak.png", system.ResourceDirectory)    
     npcMindBreakImg.x = 12
-    npcMindBreakImg.y = npcStartingY * 4        
+    npcMindBreakImg.y = npcStartingY * 3        
     
     npcDeludeImg = display.newImage("images/delude.png", system.ResourceDirectory)    
     npcDeludeImg.x = 36
-    npcDeludeImg.y = npcStartingY * 4   
+    npcDeludeImg.y = npcStartingY * 3   
+    
+    npcBlindImg = display.newImage("images/blind.png", system.ResourceDirectory)    
+    npcBlindImg.x = 60
+    npcBlindImg.y = npcStartingY * 3     
+    
+    npcSilenceImg = display.newImage("images/silence.png", system.ResourceDirectory)    
+    npcSilenceImg.x = 84
+    npcSilenceImg.y = npcStartingY * 3     
     
     npcPoisonImg = display.newImage("images/poison.png", system.ResourceDirectory)    
     npcPoisonImg.x = -36
-    npcPoisonImg.y = npcStartingY * 4 + 24       
-    
-    npcBlindImg = display.newImage("images/blind.png", system.ResourceDirectory)    
-    npcBlindImg.x = -12
-    npcBlindImg.y = npcStartingY * 4 + 24     
-    
-    npcSilenceImg = display.newImage("images/silence.png", system.ResourceDirectory)    
-    npcSilenceImg.x = 12
-    npcSilenceImg.y = npcStartingY * 4 + 24       
+    npcPoisonImg.y = npcStartingY * 3 + 24 
     
     npcLullImg = display.newImage("images/lull.png", system.ResourceDirectory)    
-    npcLullImg.x = 36
-    npcLullImg.y = npcStartingY * 4 + 24        
+    npcLullImg.x = -12
+    npcLullImg.y = npcStartingY * 3 + 24 
+    
+    npcHemorrhageImg = display.newImage("images/hemorrhage.png", system.ResourceDirectory)    
+    npcHemorrhageImg.x = 12
+    npcHemorrhageImg.y = npcStartingY * 3 + 24       
+    
+    npcHamstringImg = display.newImage("images/hamstring.png", system.ResourceDirectory)    
+    npcHamstringImg.x = 36
+    npcHamstringImg.y = npcStartingY * 3 + 24    
+    
+    npcIncinerateImg = display.newImage("images/incinerate.png", system.ResourceDirectory)    
+    npcIncinerateImg.x = 60
+    npcIncinerateImg.y = npcStartingY * 3 + 24      
+    
+    npcImbueImg = display.newImage("images/imbue.png", system.ResourceDirectory)    
+    npcImbueImg.x = 84
+    npcImbueImg.y = npcStartingY * 3 + 24    
+    
+    npcHasteImg = display.newImage("images/haste.png", system.ResourceDirectory)    
+    npcHasteImg.x = -36
+    npcHasteImg.y = npcStartingY * 3 + 48 
+    
+    npcRefShieldImg = display.newImage("images/reflectiveshield.png", system.ResourceDirectory)    
+    npcRefShieldImg.x = -12
+    npcRefShieldImg.y = npcStartingY * 3 + 48 
+    
+    npcValorImg = display.newImage("images/valor.png", system.ResourceDirectory)    
+    npcValorImg.x = 12
+    npcValorImg.y = npcStartingY * 3 + 48      
+    
+    npcElemResImg = display.newImage("images/elemresistance.png", system.ResourceDirectory)    
+    npcElemResImg.x = 36
+    npcElemResImg.y = npcStartingY * 3 + 48    
+    
+    npcVampEmbImg = display.newImage("images/vampembrace.png", system.ResourceDirectory)    
+    npcVampEmbImg.x = 60
+    npcVampEmbImg.y = npcStartingY * 3 + 48     
+    
+    npcReplenishImg = display.newImage("images/replenish.png", system.ResourceDirectory)    
+    npcReplenishImg.x = 84
+    npcReplenishImg.y = npcStartingY * 3 + 48       
     
     npcStatGroup:insert(npcNameLabel) 
     npcStatGroup:insert(npcHPLabel)
@@ -1835,21 +3253,39 @@ function scene:MakeLabels(myScene)
     npcStatGroup:insert(npcPoisonImg)
     npcStatGroup:insert(npcBlindImg)
     npcStatGroup:insert(npcSilenceImg)
-    npcStatGroup:insert(npcLullImg)      
-    
+    npcStatGroup:insert(npcLullImg)
+    npcStatGroup:insert(npcHasteImg)
+    npcStatGroup:insert(npcReplenishImg)
+    npcStatGroup:insert(npcRefShieldImg)
+    npcStatGroup:insert(npcValorImg)
+    npcStatGroup:insert(npcElemResImg)
+    npcStatGroup:insert(npcImbueImg)
+    npcStatGroup:insert(npcHemorrhageImg)
+    npcStatGroup:insert(npcIncinerateImg)
+    npcStatGroup:insert(npcVampEmbImg)
+    npcStatGroup:insert(npcHamstringImg)      
+end
+
+function scene:MakeNPCPetLabels(myScene)
     ------------------
     -- NPC PET LABELS
     ------------------
     local npcPetStartingY = 15
-    npcPetStatGroup = display.newContainer(300, 200) -- container for player stats on screen. could change to a regular group if there is a problem with the container
+    npcPetStatGroup = display.newContainer(300, 250) -- container for player stats on screen. could change to a regular group if there is a problem with the container
     npcPetStatGroup.x = GLOB.width - 100
-    npcPetStatGroup.y = 100
+    npcPetStatGroup.y = 110
     
-    -- the text label's center is point 0,0. this must be accounted for
-    -- label for player pet name
-    textOptions["x"] = 30
-    textOptions["y"] = npcPetStartingY    
-    textOptions["text"] = "NPC Pet Name"
+    local textOptions = {
+    text = "NPC Pet Name",
+    x = 30,
+    y = npcPetStartingY,
+    anchorX = 0,
+    width = 150,
+    height = 30,
+    font = native.systemFont,
+    fontSize = 14,
+    align = "left"    
+    }        
 
     npcPetNameLabel = display.newText(textOptions)
     --pcNameLabel:setFillColor(0,0,0)    
@@ -1862,7 +3298,8 @@ function scene:MakeLabels(myScene)
     npcPetHPLabel = display.newText(textOptions)
     
     -- AP Label
-    textOptions["y"] = npcPetStartingY * 3
+    textOptions["y"] = npcPetStartingY * 2
+    textOptions["x"] = 115
     textOptions["text"] = "AP: 0/0"
     
     npcPetAPLabel = display.newText(textOptions)  
@@ -1870,35 +3307,75 @@ function scene:MakeLabels(myScene)
     -- images
     npcPetCrampImg = display.newImage("images/cramp.png", system.ResourceDirectory)
     npcPetCrampImg.x = -36
-    npcPetCrampImg.y = npcPetStartingY * 4
+    npcPetCrampImg.y = npcPetStartingY * 3
     
     npcPetCrippleImg = display.newImage("images/cripple.png", system.ResourceDirectory)    
     npcPetCrippleImg.x = -12
-    npcPetCrippleImg.y = npcPetStartingY * 4    
+    npcPetCrippleImg.y = npcPetStartingY * 3    
     
     npcPetMindBreakImg = display.newImage("images/mindbreak.png", system.ResourceDirectory)    
     npcPetMindBreakImg.x = 12
-    npcPetMindBreakImg.y = npcPetStartingY * 4        
+    npcPetMindBreakImg.y = npcPetStartingY * 3        
     
     npcPetDeludeImg = display.newImage("images/delude.png", system.ResourceDirectory)    
     npcPetDeludeImg.x = 36
-    npcPetDeludeImg.y = npcPetStartingY * 4   
+    npcPetDeludeImg.y = npcPetStartingY * 3   
+    
+    npcPetBlindImg = display.newImage("images/blind.png", system.ResourceDirectory)    
+    npcPetBlindImg.x = 60
+    npcPetBlindImg.y = npcPetStartingY * 3     
+    
+    npcPetSilenceImg = display.newImage("images/silence.png", system.ResourceDirectory)    
+    npcPetSilenceImg.x = 84
+    npcPetSilenceImg.y = npcPetStartingY * 3     
     
     npcPetPoisonImg = display.newImage("images/poison.png", system.ResourceDirectory)    
     npcPetPoisonImg.x = -36
-    npcPetPoisonImg.y = npcPetStartingY * 4 + 24       
-    
-    npcPetBlindImg = display.newImage("images/blind.png", system.ResourceDirectory)    
-    npcPetBlindImg.x = -12
-    npcPetBlindImg.y = npcPetStartingY * 4 + 24     
-    
-    npcPetSilenceImg = display.newImage("images/silence.png", system.ResourceDirectory)    
-    npcPetSilenceImg.x = 12
-    npcPetSilenceImg.y = npcPetStartingY * 4 + 24       
+    npcPetPoisonImg.y = npcPetStartingY * 3 + 24 
     
     npcPetLullImg = display.newImage("images/lull.png", system.ResourceDirectory)    
-    npcPetLullImg.x = 36
-    npcPetLullImg.y = npcPetStartingY * 4 + 24        
+    npcPetLullImg.x = -12
+    npcPetLullImg.y = npcPetStartingY * 3 + 24 
+    
+    npcPetHemorrhageImg = display.newImage("images/hemorrhage.png", system.ResourceDirectory)    
+    npcPetHemorrhageImg.x = 12
+    npcPetHemorrhageImg.y = npcPetStartingY * 3 + 24       
+    
+    npcPetHamstringImg = display.newImage("images/hamstring.png", system.ResourceDirectory)    
+    npcPetHamstringImg.x = 36
+    npcPetHamstringImg.y = npcPetStartingY * 3 + 24    
+    
+    npcPetIncinerateImg = display.newImage("images/incinerate.png", system.ResourceDirectory)    
+    npcPetIncinerateImg.x = 60
+    npcPetIncinerateImg.y = npcPetStartingY * 3 + 24      
+    
+    npcPetImbueImg = display.newImage("images/imbue.png", system.ResourceDirectory)    
+    npcPetImbueImg.x = 84
+    npcPetImbueImg.y = npcPetStartingY * 3 + 24    
+    
+    npcPetHasteImg = display.newImage("images/haste.png", system.ResourceDirectory)    
+    npcPetHasteImg.x = -36
+    npcPetHasteImg.y = npcPetStartingY * 3 + 48 
+    
+    npcPetRefShieldImg = display.newImage("images/reflectiveshield.png", system.ResourceDirectory)    
+    npcPetRefShieldImg.x = -12
+    npcPetRefShieldImg.y = npcPetStartingY * 3 + 48 
+    
+    npcPetValorImg = display.newImage("images/valor.png", system.ResourceDirectory)    
+    npcPetValorImg.x = 12
+    npcPetValorImg.y = npcPetStartingY * 3 + 48      
+    
+    npcPetElemResImg = display.newImage("images/elemresistance.png", system.ResourceDirectory)    
+    npcPetElemResImg.x = 36
+    npcPetElemResImg.y = npcPetStartingY * 3 + 48    
+    
+    npcPetVampEmbImg = display.newImage("images/vampembrace.png", system.ResourceDirectory)    
+    npcPetVampEmbImg.x = 60
+    npcPetVampEmbImg.y = npcPetStartingY * 3 + 48     
+    
+    npcPetReplenishImg = display.newImage("images/replenish.png", system.ResourceDirectory)    
+    npcPetReplenishImg.x = 84
+    npcPetReplenishImg.y = npcPetStartingY * 3 + 48       
     
     npcPetStatGroup:insert(npcPetNameLabel) 
     npcPetStatGroup:insert(npcPetHPLabel)
@@ -1910,22 +3387,17 @@ function scene:MakeLabels(myScene)
     npcPetStatGroup:insert(npcPetPoisonImg)
     npcPetStatGroup:insert(npcPetBlindImg)
     npcPetStatGroup:insert(npcPetSilenceImg)
-    npcPetStatGroup:insert(npcPetLullImg)    
-    
-    -- add the containers to the main display group
-    myScene:insert(pcStatGroup)
-    myScene:insert(pcPetStatGroup)
-    myScene:insert(npcStatGroup)
-    myScene:insert(npcPetStatGroup)    
-    ---------------------
-    -- END LABELS --
-    ---------------------    
-
-    -- hide all the affliction images. can comment these all out to make sure they are in correct positions
-    scene:HideAfflictionImages("pc")
-    scene:HideAfflictionImages("pcPet")
-    scene:HideAfflictionImages("npc")
-    scene:HideAfflictionImages("npcPet")
+    npcPetStatGroup:insert(npcPetLullImg)
+    npcPetStatGroup:insert(npcPetHasteImg)
+    npcPetStatGroup:insert(npcPetReplenishImg)
+    npcPetStatGroup:insert(npcPetRefShieldImg)
+    npcPetStatGroup:insert(npcPetValorImg)
+    npcPetStatGroup:insert(npcPetElemResImg)
+    npcPetStatGroup:insert(npcPetImbueImg)
+    npcPetStatGroup:insert(npcPetHemorrhageImg)
+    npcPetStatGroup:insert(npcPetIncinerateImg)
+    npcPetStatGroup:insert(npcPetVampEmbImg)
+    npcPetStatGroup:insert(npcPetHamstringImg)    
 end
 
 function scene:MakeButtons(myScene)
@@ -2046,32 +3518,37 @@ function scene:MakeButtons(myScene)
     buttonXLoc = buttonOrigLoc
     options["label"] = "Abil7"
     options["x"] = buttonXLoc
-    options["onRelease"] = nil
+    options["onRelease"] = self.AbilitySevenClick
     abil7Button = widget.newButton(options)
     
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Abil8"
-    options["x"] = buttonXLoc    
+    options["x"] = buttonXLoc  
+    options["onRelease"] = self.AbilityEightClick
     abil8Button = widget.newButton(options)    
     
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Abil9"
-    options["x"] = buttonXLoc    
+    options["x"] = buttonXLoc
+    options["onRelease"] = self.AbilityNineClick
     abil9Button = widget.newButton(options)  
     
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Abil10"
-    options["x"] = buttonXLoc    
+    options["x"] = buttonXLoc  
+    options["onRelease"] = self.AbilityTenClick
     abil10Button = widget.newButton(options)  
     
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Abil11"
-    options["x"] = buttonXLoc    
+    options["x"] = buttonXLoc   
+    options["onRelease"] = self.AbilityElevenClick
     abil11Button = widget.newButton(options)  
     
     buttonXLoc = buttonXLoc + 125
     options["label"] = "Abil12"
-    options["x"] = buttonXLoc    
+    options["x"] = buttonXLoc   
+    options["onRelease"] = self.AbilityTwelveClick
     abil12Button = widget.newButton(options)      
     
     abil1Button.isVisible = false
@@ -2182,7 +3659,26 @@ function scene:create(event)
     ---------------------
     --  MAKE CONTROLS --
     ---------------------
-    scene:MakeLabels(sceneGroup)
+    -- add the containers to the main display group
+
+    scene:MakePlayerLabels(sceneGroup)
+    scene:MakePlayerPetLabels(sceneGroup)
+    scene:MakeNPCLabels(sceneGroup)
+    scene:MakeNPCPetLabels(sceneGroup)
+    sceneGroup:insert(pcStatGroup)
+    sceneGroup:insert(pcPetStatGroup)
+    sceneGroup:insert(npcStatGroup)
+    sceneGroup:insert(npcPetStatGroup)       
+    
+    
+    
+    -- hide all the affliction images. can comment these all out to make sure they are in correct positions
+    scene:HideAfflictionImages("pc", true)
+    scene:HideAfflictionImages("pcPet", true)
+    scene:HideAfflictionImages("npc", true)
+    scene:HideAfflictionImages("npcPet", true)    
+    
+    
     scene:MakeButtons(sceneGroup)
     scene:MakeScroller(sceneGroup)  
 
