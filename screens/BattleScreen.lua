@@ -98,20 +98,26 @@ local newScrollHeight = 0
 ---------------------  
 function scene:LoadToons()
 
-    -- todo: explicitely set all dots, debuffs and their damage to default values so they are safe to use in comparison operators
-    -- it should be ok to not do this but needs tested
-
     -- pick an enemy and load in their stats. something could be passed in to pick a specific one or could just pick a random
     -- todo could add a field to npc excel table for enemy type: dot, boss, special, etc.
     
+    local pickNPC
+    
+    -- can use pool to skip npcs that we might be using for testing, otherwise just use the table size
+    local pool
+    pool = table.getn(GLOB.npcs) - 1
+    -- can comment this out and hardcode a value to bring up a certain npc
+    pickNPC = utilities:RNG(pool)
+    
+    
     -- load base stats
     -- todo do we need to differentiate npc base stats vs geared stats?
-    npcStats["baseHp"] = GLOB.npcs[1]["HP"]
-    npcStats["baseStr"] = GLOB.npcs[1]["Str"]
-    npcStats["baseDef"] = GLOB.npcs[1]["Def"]
-    npcStats["baseAp"] = GLOB.npcs[1]["AP"]
-    npcStats["baseInt"] = GLOB.npcs[1]["Int"]
-    npcStats["baseWill"] = GLOB.npcs[1]["Will"]
+    npcStats["baseHp"] = GLOB.npcs[pickNPC]["HP"]
+    npcStats["baseStr"] = GLOB.npcs[pickNPC]["Str"]
+    npcStats["baseDef"] = GLOB.npcs[pickNPC]["Def"]
+    npcStats["baseAp"] = GLOB.npcs[pickNPC]["AP"]
+    npcStats["baseInt"] = GLOB.npcs[pickNPC]["Int"]
+    npcStats["baseWill"] = GLOB.npcs[pickNPC]["Will"]
     
     -- for now assign stats the same as base stats for npc
     -- todo change this perhaps to factor in their equipment. see how i did it in paper version
@@ -123,12 +129,12 @@ function scene:LoadToons()
     npcStats["will"] = npcStats["baseWill"]
     
     -- npc elem resistances
-    npcStats["baseLightning"] = GLOB.npcs[1]["Lightning"]
-    npcStats["basePoison"] = GLOB.npcs[1]["Poison"]
-    npcStats["baseIce"] = GLOB.npcs[1]["Ice"]
-    npcStats["baseDisease"] = GLOB.npcs[1]["Disease"]
-    npcStats["baseEarth"] = GLOB.npcs[1]["Earth"]
-    npcStats["baseFire"] = GLOB.npcs[1]["Fire"]
+    npcStats["baseLightning"] = GLOB.npcs[pickNPC]["Lightning"]
+    npcStats["basePoison"] = GLOB.npcs[pickNPC]["Poison"]
+    npcStats["baseIce"] = GLOB.npcs[pickNPC]["Ice"]
+    npcStats["baseDisease"] = GLOB.npcs[pickNPC]["Disease"]
+    npcStats["baseEarth"] = GLOB.npcs[pickNPC]["Earth"]
+    npcStats["baseFire"] = GLOB.npcs[pickNPC]["Fire"]
     
     npcStats["lightning"] = npcStats["baseLightning"]
     npcStats["poison"] = npcStats["basePoison"]
@@ -139,33 +145,33 @@ function scene:LoadToons()
     
     --todo load these in from json
     -- npc abilities
-    npcStats["abil1"] = 1
-    npcStats["abil2"] = 4
-    npcStats["abil3"] = 7
-    npcStats["abil4"] = 8
-    npcStats["abil5"] = 22
-    npcStats["abil6"] = 26
-    npcStats["abil7"] = nil
-    npcStats["abil8"] = nil
-    npcStats["abil9"] = nil
-    npcStats["abil10"] = nil
-    npcStats["abil11"] = nil
-    npcStats["abil12"] = nil   
+    npcStats["abil1"] = GLOB.npcs[pickNPC]["Abil1"]
+    npcStats["abil2"] = GLOB.npcs[pickNPC]["Abil2"]
+    npcStats["abil3"] = GLOB.npcs[pickNPC]["Abil3"]
+    npcStats["abil4"] = GLOB.npcs[pickNPC]["Abil4"]
+    npcStats["abil5"] = GLOB.npcs[pickNPC]["Abil5"]
+    npcStats["abil6"] = GLOB.npcs[pickNPC]["Abil6"]
+    npcStats["abil7"] = GLOB.npcs[pickNPC]["Abil7"]
+    npcStats["abil8"] = GLOB.npcs[pickNPC]["Abil8"]
+    npcStats["abil9"] = GLOB.npcs[pickNPC]["Abil9"]
+    npcStats["abil10"] = GLOB.npcs[pickNPC]["Abil10"]
+    npcStats["abil11"] = GLOB.npcs[pickNPC]["Abil11"]
+    npcStats["abil12"] = GLOB.npcs[pickNPC]["Abil12"]  
     
     -- npc misc stats
-    npcStats["name"] = GLOB.npcs[1]["Name"]
-    npcStats["type"] = GLOB.npcs[1]["Type"]
-    npcStats["level"] = GLOB.npcs[1]["Level"]
+    npcStats["name"] = GLOB.npcs[pickNPC]["Name"]
+    npcStats["type"] = GLOB.npcs[pickNPC]["Type"]
+    npcStats["level"] = GLOB.npcs[pickNPC]["Level"]
     npcStats["currentHp"] = npcStats["hp"]
     npcStats["currentAp"] = npcStats["ap"]    
     
     -- for now just hard coding player stats
     -- todo change this
-    pcStats["baseHp"] = 50
+    pcStats["baseHp"] = 10
     pcStats["baseStr"] = 4
     pcStats["baseDef"] = 3
-    pcStats["baseAp"] = 50
-    pcStats["baseInt"] = 3
+    pcStats["baseAp"] = 5
+    pcStats["baseInt"] = 0
     pcStats["baseWill"] = 1
     
     pcStats["hp"] = pcStats["baseHp"]
@@ -189,18 +195,18 @@ function scene:LoadToons()
     pcStats["earth"] = 2
     pcStats["fire"] = 0    
     
-    pcStats["abil1"] = 55
-    pcStats["abil2"] = 56
-    pcStats["abil3"] = 57
-    pcStats["abil4"] = 58
-    pcStats["abil5"] = 59
-    pcStats["abil6"] = 60
-    pcStats["abil7"] = 49
-    pcStats["abil8"] = 42
-    pcStats["abil9"] = 51
-    pcStats["abil10"] = 52
-    pcStats["abil11"] = 53
-    pcStats["abil12"] = 54
+    pcStats["abil1"] = 4
+    pcStats["abil2"] = 1
+    pcStats["abil3"] = nil--57
+    pcStats["abil4"] = nil--58
+    pcStats["abil5"] = nil--59
+    pcStats["abil6"] = nil--60
+    pcStats["abil7"] = nil--49
+    pcStats["abil8"] = nil--42
+    pcStats["abil9"] = nil--51
+    pcStats["abil10"] = nil--52
+    pcStats["abil11"] = nil--53
+    pcStats["abil12"] = nil--54
 
     pcStats["name"] = "Jack"
     pcStats["type"] = "pc"
@@ -885,9 +891,7 @@ end
 -- parameters will be passed into the ability based on whose turn it is and who is active in battle
 -- this function will be called from the ability buttons by the player or by the ai function
 -- any checks such as if a pet is already active or if an affliction is already active are done before this is called
-function scene:ExecuteAbility(abilIndex)    
-    -- todo make sure this works right doing it this way
-    
+function scene:ExecuteAbility(abilIndex)     
     local attacker, defender, pet, matchup
     local attack = nil
     local refShieldTarget = false
@@ -1491,7 +1495,7 @@ function scene:EndTurnClick()
 end
 
 function scene:EndTurn()
-    turnLost = false -- explicitely set this back to false. todo make sure this is where this should be
+    turnLost = false -- explicitely set this back to false.
     
     --check for deaths, make hp 0 if < 0
     scene:Die()
@@ -1879,7 +1883,7 @@ function scene:TickStatus(condition, attacker)
             
             scene:BattleLogAdd(toonName.." is no longer "..condition..".")
         end                     
-    elseif condition == "Mirror Mania" and attacker["petMirrorMania"] then -- todo make sure this is working correctly
+    elseif condition == "Mirror Mania" and attacker["petMirrorMania"] then 
         if attacker["tickPetMirrorMania"] ~= 3 then
             attacker["tickPetMirrorMania"] = attacker["tickPetMirrorMania"] + 1
         else
@@ -2163,7 +2167,6 @@ function scene:TickMultiTurnMoves(attacker, defender)
 end
 
 -- determine if anyone has died
--- todo end the battle if npc or pc have died
 function scene:Die()
     if pcStats["currentHp"] < 1 then
         pcStats["currentHp"] = 0
@@ -2263,7 +2266,7 @@ function scene:Initialize()
     pcPetStatGroup.isVisible = false
     npcPetStatGroup.isVisible = false
     
-    -- todo add initiative roll here. also output text to scroller for whose turn it is
+    -- roll for initiative
     local roll = utilities:RNG(2)
     
     if roll == 2 then -- player gets first turn
