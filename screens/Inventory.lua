@@ -510,11 +510,7 @@ function scene:create(event)
         {
             id = "All",
             label = "All",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            defaultFile = "images/default.png",
-            overFile = "images/over.png",
-            defaultFile = "images/default.png",
-            overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 16,
             selected = true,
@@ -523,8 +519,7 @@ function scene:create(event)
         {
             id = "Equipment",
             label = "Equipment",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        
-            defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 16,
             selected = false,
@@ -533,8 +528,7 @@ function scene:create(event)
         {
             id = "Items",
             label = "Items",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        
-            defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 16,
             selected = false,
@@ -543,8 +537,7 @@ function scene:create(event)
         {
             id = "Crafting",
             label = "Crafting",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        
-            defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 16,
             selected = false,
@@ -560,8 +553,7 @@ function scene:create(event)
         {
             id = "Weapons",
             label = "Weapons",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        
-            defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 14,
             selected = false,
@@ -570,8 +562,7 @@ function scene:create(event)
         {
             id = "Body Armor",
             label = "Body Armor",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        
-            defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 14,
             selected = false,
@@ -580,8 +571,7 @@ function scene:create(event)
         {
             id = "Head Armor",
             label = "Head Armor",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        
-            defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 14,
             selected = false,
@@ -590,8 +580,7 @@ function scene:create(event)
         {
             id = "Feet Armor",
             label = "Feet Armor",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        
-            defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 14,
             selected = false,
@@ -600,8 +589,7 @@ function scene:create(event)
         {
             id = "Accessory Armor",
             label = "Accessories",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        
-            defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 14,
             selected = false,
@@ -610,8 +598,7 @@ function scene:create(event)
         {
             id = "Off Hand Item",
             label = "Off Hand",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        
-            defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 14,
             selected = false,
@@ -623,8 +610,7 @@ function scene:create(event)
         {
             id = "Goods",
             label = "Goods",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        
-            defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 14,
             selected = false,
@@ -633,8 +619,7 @@ function scene:create(event)
         {
             id = "Treasure",
             label = "Treasure",
-            --labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        
-            defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 14,
             selected = false,
@@ -643,7 +628,7 @@ function scene:create(event)
         {
             id = "Foods",
             label = "Foods",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 14,
             selected = false,
@@ -655,7 +640,7 @@ function scene:create(event)
         {
             id = "Resources",
             label = "Resources",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 14,
             selected = false,
@@ -664,7 +649,7 @@ function scene:create(event)
         {
             id = "Ingredients",
             label = "Ingredients",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 14,
             selected = false,
@@ -673,7 +658,7 @@ function scene:create(event)
         {
             id = "Alchemy",
             label = "Alchemy",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 14,
             selected = false,
@@ -682,7 +667,7 @@ function scene:create(event)
         {
             id = "Template",
             label = "Template",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 14,
             selected = false,
@@ -698,7 +683,7 @@ function scene:create(event)
         {
             id = "Sword",
             label = "Sword",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -707,7 +692,7 @@ function scene:create(event)
         {
             id = "Club",
             label = "Club",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -716,7 +701,7 @@ function scene:create(event)
         {
             id = "Fist Wraps",
             label = "Fist Wraps",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -725,7 +710,7 @@ function scene:create(event)
         {
             id = "Staff",
             label = "Staff",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -734,7 +719,7 @@ function scene:create(event)
         {
             id = "Dagger",
             label = "Dagger",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -743,7 +728,7 @@ function scene:create(event)
         {
             id = "Whip",
             label = "Whip",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -755,7 +740,7 @@ function scene:create(event)
         {
             id = "Robe",
             label = "Robe",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -764,7 +749,7 @@ function scene:create(event)
         {
             id = "Coat",
             label = "Coat",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -773,7 +758,7 @@ function scene:create(event)
         {
             id = "Mail",
             label = "Mail",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -782,7 +767,7 @@ function scene:create(event)
         {
             id = "Chain Mail",
             label = "Chain Mail",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -791,7 +776,7 @@ function scene:create(event)
         {
             id = "Tunic",
             label = "Tunic",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -800,7 +785,7 @@ function scene:create(event)
         {
             id = "Cuirass",
             label = "Cuirass",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -812,7 +797,7 @@ function scene:create(event)
         {
             id = "Kettle Helm",
             label = "Kettle Helm",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -821,7 +806,7 @@ function scene:create(event)
         {
             id = "Rawhide Cap",
             label = "Rawhide Cap",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -830,7 +815,7 @@ function scene:create(event)
         {
             id = "Barbute",
             label = "Barbute",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -839,7 +824,7 @@ function scene:create(event)
         {
             id = "Headband",
             label = "Headband",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -848,7 +833,7 @@ function scene:create(event)
         {
             id = "Crown",
             label = "Crown",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -857,7 +842,7 @@ function scene:create(event)
         {
             id = "Hood",
             label = "Hood",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -869,7 +854,7 @@ function scene:create(event)
         {
             id = "Slippers",
             label = "Slippers",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -878,7 +863,7 @@ function scene:create(event)
         {
             id = "Kneehigh Boots",
             label = "Kneehigh Boots",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -887,7 +872,7 @@ function scene:create(event)
         {
             id = "Clogs",
             label = "Clogs",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -896,7 +881,7 @@ function scene:create(event)
         {
             id = "Plated Boots",
             label = "Plated Boots",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -905,7 +890,7 @@ function scene:create(event)
         {
             id = "Buckled Boots",
             label = "Buckled Boots",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -914,7 +899,7 @@ function scene:create(event)
         {
             id = "Sandals",
             label = "Sandals",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -926,7 +911,7 @@ function scene:create(event)
         {
             id = "Skull Ring",
             label = "Skull Ring",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -935,7 +920,7 @@ function scene:create(event)
         {
             id = "Stone Armband",
             label = "Stone Armband",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -944,7 +929,7 @@ function scene:create(event)
         {
             id = "Shiny Gorget",
             label = "Shiny Gorget",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -953,7 +938,7 @@ function scene:create(event)
         {
             id = "Hypnotic Necklace",
             label = "Necklace",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -962,7 +947,7 @@ function scene:create(event)
         {
             id = "Dazzling Earring",
             label = "Dazzling Earring",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -971,7 +956,7 @@ function scene:create(event)
         {
             id = "Foppish Bracelet",
             label = "Bracelet",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -983,7 +968,7 @@ function scene:create(event)
         {
             id = "Holy Idol",
             label = "Holy Idol",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -992,7 +977,7 @@ function scene:create(event)
         {
             id = "Evil Idol",
             label = "Evil Idol",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -1001,7 +986,7 @@ function scene:create(event)
         {
             id = "Earthly Idol",
             label = "Earthly Idol",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1010,7 +995,7 @@ function scene:create(event)
         {
             id = "Lute",
             label = "Lute",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1019,7 +1004,7 @@ function scene:create(event)
         {
             id = "Shield",
             label = "Shield",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1028,7 +1013,7 @@ function scene:create(event)
         {
             id = "Tome",
             label = "Tome",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1040,7 +1025,7 @@ function scene:create(event)
         {
             id = "Vial of Acid",
             label = "Vial",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1049,7 +1034,7 @@ function scene:create(event)
         {
             id = "Quikfire",
             label = "Quikfire",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -1058,7 +1043,7 @@ function scene:create(event)
         {
             id = "Shining Force",
             label = "S. Force",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1067,7 +1052,7 @@ function scene:create(event)
         {
             id = "Blighted Vigor",
             label = "B. Vigor",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1076,7 +1061,7 @@ function scene:create(event)
         {
             id = "Minion Summon",
             label = "Minion",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1085,7 +1070,7 @@ function scene:create(event)
         {
             id = "Demon Summon",
             label = "Demon",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1094,7 +1079,7 @@ function scene:create(event)
         {
             id = "Phoenix Summon",
             label = "Phoenix",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1103,7 +1088,7 @@ function scene:create(event)
         {
             id = "Scroll of",
             label = "Scroll",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1112,7 +1097,7 @@ function scene:create(event)
         {
             id = "Compendium of",
             label = "Compendium",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1121,7 +1106,7 @@ function scene:create(event)
         {
             id = "Utility",
             label = "Utility",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1133,7 +1118,7 @@ function scene:create(event)
         {
             id = "Ornate Vase",
             label = "Ornate Vase",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1142,7 +1127,7 @@ function scene:create(event)
         {
             id = "Wooden Trinket",
             label = "Wooden Trinket",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -1151,7 +1136,7 @@ function scene:create(event)
         {
             id = "Bone Carving",
             label = "Bone Carving",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1160,7 +1145,7 @@ function scene:create(event)
         {
             id = "Gaudy Chalice",
             label = "Gaudy Chalice",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1169,7 +1154,7 @@ function scene:create(event)
         {
             id = "Goddess Statue",
             label = "Goddess Statue",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1178,7 +1163,7 @@ function scene:create(event)
         {
             id = "Animistic Figurine",
             label = "Animistic Figurine",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1190,7 +1175,7 @@ function scene:create(event)
         {
             id = "Snack",
             label = "Snack",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1199,7 +1184,7 @@ function scene:create(event)
         {
             id = "Meal",
             label = "Meal",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -1208,7 +1193,7 @@ function scene:create(event)
         {
             id = "Treat",
             label = "Treat",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1217,7 +1202,7 @@ function scene:create(event)
         {
             id = "Dessert",
             label = "Dessert",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1226,7 +1211,7 @@ function scene:create(event)
         {
             id = "Smoothie",
             label = "Smoothie",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1235,7 +1220,7 @@ function scene:create(event)
         {
             id = "Soda",
             label = "Soda",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1247,7 +1232,7 @@ function scene:create(event)
         {
             id = "Textile",
             label = "Textile",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1256,7 +1241,7 @@ function scene:create(event)
         {
             id = "Leather",
             label = "Leather",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -1265,7 +1250,7 @@ function scene:create(event)
         {
             id = "Wood",
             label = "Wood",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1274,7 +1259,7 @@ function scene:create(event)
         {
             id = "Gem",
             label = "Gem",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1283,7 +1268,7 @@ function scene:create(event)
         {
             id = "Stone",
             label = "Stone",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1292,7 +1277,7 @@ function scene:create(event)
         {
             id = "Metal",
             label = "Metal",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1304,7 +1289,7 @@ function scene:create(event)
         {
             id = "Meat",
             label = "Meat",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1313,7 +1298,7 @@ function scene:create(event)
         {
             id = "Veggie",
             label = "Veggie",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -1322,7 +1307,7 @@ function scene:create(event)
         {
             id = "Fruit",
             label = "Fruit",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1331,7 +1316,7 @@ function scene:create(event)
         {
             id = "Cream",
             label = "Cream",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1340,7 +1325,7 @@ function scene:create(event)
         {
             id = "Sugar",
             label = "Sugar",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1349,7 +1334,7 @@ function scene:create(event)
         {
             id = "Grain",
             label = "Grain",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1361,7 +1346,7 @@ function scene:create(event)
         {
             id = "Oil of Vitriol",
             label = "Oil of Vitriol",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1370,7 +1355,7 @@ function scene:create(event)
         {
             id = "Decanter",
             label = "Decanter",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -1379,7 +1364,7 @@ function scene:create(event)
         {
             id = "Nitrum Flammans",
             label = "Nitrum Flammans",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1388,7 +1373,7 @@ function scene:create(event)
         {
             id = "Spirit Essence",
             label = "Spirit Essence",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1397,7 +1382,7 @@ function scene:create(event)
         {
             id = "Magical Jewel",
             label = "Magical Jewel",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1406,7 +1391,7 @@ function scene:create(event)
         {
             id = "Inscription",
             label = "Inscription",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1418,7 +1403,7 @@ function scene:create(event)
         {
             id = "Tier 1 Template",
             label = "Tier 1 Template",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1427,7 +1412,7 @@ function scene:create(event)
         {
             id = "Tier 2 Template",
             label = "Tier 2 Template",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,            
             size = 12,
             selected = false,
@@ -1436,7 +1421,7 @@ function scene:create(event)
         {
             id = "Tier 3 Template",
             label = "Tier 3 Template",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1445,7 +1430,7 @@ function scene:create(event)
         {
             id = "Tier 4 Template",
             label = "Tier 4 Template",
-            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},        defaultFile = "images/default.png",        overFile = "images/over.png",
+            labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
             size = 12,
             selected = false,
@@ -1458,160 +1443,154 @@ function scene:create(event)
     --------------------
 
     local masterTabOptions = {
-        width = 600,
-        id = "tabbar",    
-        backgroundFile = "images/default.png",    
-        tabSelectedLeftFile = "images/default.png",    
-        tabSelectedRightFile = "images/default.png",    
-        tabSelectedMiddleFile = "images/default.png",    
-        tabSelectedFrameWidth = 40,    
-        tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 50,        
+        top = 50,
+        width = 600,
         height = 20,
         buttons = masterTabButtons
     }
     
     local mainTabOptions1 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 70,        
+        top = 70,
+        width = 600,
         height = 20,
         buttons = mainTabButtons1
     }    
     
     local mainTabOptions2 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 70,        
+        top = 70,
+        width = 600,
         height = 20,
         buttons = mainTabButtons2
     }       
     
     local mainTabOptions3 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 70,        
+        top = 70,
+        width = 600,
         height = 20,
         buttons = mainTabButtons3
     }         
     
     local subTabOptions1 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons1
     }       
     
     local subTabOptions2 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons2
     }    
     
     local subTabOptions3 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons3
     }       
     
     local subTabOptions4 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons4
     }       
     
     local subTabOptions5 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons5
     }       
     
     local subTabOptions6 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons6
     }       
     
     local subTabOptions7 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons7
     }       
     
     local subTabOptions8 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons8
     }       
     
     local subTabOptions9 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons9
     }       
     
     local subTabOptions10 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons10
     }       
     
     local subTabOptions11 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons11
     }       
     
     local subTabOptions12 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons12
     }       
     
     local subTabOptions13 = {
-        width = 600,
-        id = "tabbar",    backgroundFile = "images/default.png",    tabSelectedLeftFile = "images/default.png",    tabSelectedRightFile = "images/default.png",    tabSelectedMiddleFile = "images/default.png",    tabSelectedFrameWidth = 40,    tabSelectedFrameHeight = 20,
+        id = "tabbar",
         left = 100,
-        top = 90,        
+        top = 90,
+        width = 600,
         height = 20,
         buttons = subTabButtons13
     }           
