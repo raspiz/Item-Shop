@@ -197,16 +197,16 @@ function scene:LoadToons()
     
     pcStats["abil1"] = 4
     pcStats["abil2"] = 1
-    pcStats["abil3"] = nil--57
-    pcStats["abil4"] = nil--58
-    pcStats["abil5"] = nil--59
-    pcStats["abil6"] = nil--60
-    pcStats["abil7"] = nil--49
-    pcStats["abil8"] = nil--42
-    pcStats["abil9"] = nil--51
-    pcStats["abil10"] = nil--52
-    pcStats["abil11"] = nil--53
-    pcStats["abil12"] = nil--54
+    pcStats["abil3"] = 26
+    pcStats["abil4"] = 58
+    pcStats["abil5"] = 59
+    pcStats["abil6"] = 60
+    pcStats["abil7"] = 49
+    pcStats["abil8"] = 42
+    pcStats["abil9"] = 51
+    pcStats["abil10"] = 52
+    pcStats["abil11"] = 53
+    pcStats["abil12"] = 54
 
     pcStats["name"] = "Jack"
     pcStats["type"] = "pc"
@@ -2293,6 +2293,7 @@ end
 -- add a battle event to the scroller log
 function scene:BattleLogAdd(logText)
     -- multiline text will be split and looped through, adding a max number of characters each line until completion
+    -- todo make multiline text break at whole words rather than just split it
     
     local strMaxLen = 110
     local textWidth = scrollRectWidth

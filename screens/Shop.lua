@@ -279,6 +279,10 @@ end
 function scene:create(event)
     local sceneGroup = self.view
     
+    local merchWidth = 75
+    local merchHeight = 75
+    local merchX = merchWidth / 2
+    local merchY = merchHeight / 2 + 5    
     --------------------
     -- DISPLAY CASES
     --------------------
@@ -292,17 +296,12 @@ function scene:create(event)
     merchLblGroup1.y = 0     
     
     merchBtnGroup2 = display.newGroup()
-    merchBtnGroup2.x = GLOB.width - 80
+    merchBtnGroup2.x = GLOB.width - merchWidth * 2
     merchBtnGroup2.y = 75 
     
     merchLblGroup2 = display.newGroup()
-    merchLblGroup2.x = GLOB.width - 80
-    merchLblGroup2.y = 75         
-    
-    local merchWidth = 75
-    local merchHeight = 75
-    local merchX = merchWidth / 2
-    local merchY = merchHeight / 2 + 5
+    merchLblGroup2.x = GLOB.width - merchWidth * 2
+    merchLblGroup2.y = 75   
     
     local merchOptions = {
         label = "",
@@ -670,8 +669,10 @@ function scene:create(event)
         labelColor = { default={ 0, 0, 0, 1 }, over={ 0, 0, 0, 1 } },
         onEvent = function(event)
             if ( "ended" == event.phase ) then
-                GLOB.transactionType = "sell"
-                composer.gotoScene("screens.Barter")
+                if goodsToSell then 
+                    GLOB.transactionType = "sell"                
+                    composer.gotoScene("screens.Barter")
+                end
             end 
         end                 
     }
