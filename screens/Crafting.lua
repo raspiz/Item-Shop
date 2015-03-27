@@ -340,6 +340,49 @@ function scene:AddItems(id)
             -- remove crafting components used in creation
             scene:RemoveResource(self.item["Primary"])
             scene:RemoveResource(self.item["Secondary"])
+            
+            --variable in ms for crafting delay
+            local craftingDelay = 2700
+            
+            --"crafting..." text
+            textOptions["x"] = 800
+            textOptions["text"] = "Crafting..."
+            textOptions["fontSize"] = 16
+            textOptions["y"] = 150
+            textOptions["height"] = 20
+            craftingLabel = display.newText(textOptions)
+            craftingLabel:setFillColor(0,0,0)
+            --label of item that is being crafted, placed under "crafting..."
+            textOptions["text"] = self.item["Primary"].." "..self.item["Secondary"].." "..self.item["Name"].." "..(self.item["Mod"] or "")
+            textOptions["y"] = 180
+            textOptions["width"] = 300
+            textOptions["x"] = 720 - textOptions["width"]/2
+            craftingItemLabel = display.newText(textOptions)
+            craftingItemLabel:setFillColor(0,0,0)
+            --empty label to display the result of crafting
+            textOptions["text"] = ""
+            textOptions["x"] = 800
+            textOptions["width"] = 600
+            textOptions["y"] = 210
+            resultLabel = display.newText(textOptions)
+            local result
+            
+            --function to roll success/failure of crafting             
+            local function displayResult()
+                local num = utilities:RNG(10,1)
+                if(num > 5) then
+                resultLabel["text"] = "SUCCESS"
+                result = "success"
+                resultLabel:setFillColor(0,1,0)
+                else
+                resultLabel["text"] = "FAILURE"
+                resultLabel:setFillColor(1,0,0)  
+                end
+            end
+            
+            --half of delay spent "crafting..." other half seeing success/failure, so display result after half the delay
+            timer.performWithDelay(craftingDelay/2, displayResult)       
+
 
             -- remove template if it's equipment
             if self.item["MasterCat"] == "Equipment" then
@@ -389,7 +432,18 @@ function scene:AddItems(id)
             end 
 
             -- update merch displays in case an on display item was used then close overlay
-            composer.gotoScene("screens.Shop")
+            
+            --refresh the item list after crafting an item, remove crafting progress/result labels
+            local function DisplayCrafting()
+               scene:AddItems(id)
+               craftingLabel:removeSelf()
+               resultLabel:removeSelf()
+               craftingItemLabel:removeSelf()
+            end
+            
+            --delay item list refreshing
+          timer.performWithDelay(craftingDelay, DisplayCrafting)
+           
         end           
 
         itemLabel:addEventListener("tap", itemLabel)
