@@ -554,7 +554,7 @@ function scene:create(event)
     customerMood:setFillColor(0,0,0)
     
     textOptions["text"] = "Customer Response:"
-    textOptions["x"] = GLOB.width - 125
+    textOptions["x"] = GLOB.width - 200
     textOptions["y"] = 75
     textOptions["height"] = 50
     textOptions["width"] = 200    
@@ -562,14 +562,14 @@ function scene:create(event)
     responseLabel:setFillColor(0,0,0)
     
     textOptions["text"] = setupText[2]
-    textOptions["x"] = GLOB.width - 125
+    textOptions["x"] = GLOB.width - 200
     textOptions["y"] = 125
     textOptions["height"] = 100
     textOptions["width"] = 200    
     customerResponse = display.newText(textOptions) -- customer info 
     customerResponse:setFillColor(0,0,0)        
 
-    local overlayBackground = background.new(0,0, 1600,960)-- GLOB.width, GLOB.height) -- had to make this double size for some reason?
+    local overlayBackground = background.new(0,0, 2100,1280)-- GLOB.width, GLOB.height) -- had to make this double size for some reason?
     
     if GLOB.transactionType == "sell" then
         overlayBackground.bg:setFillColor(107/255,239/255,95/255)

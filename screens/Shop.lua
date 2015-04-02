@@ -21,14 +21,6 @@ local merchLblGroup1
 local merchLblGroup2
 local merchBtnGroup1
 local merchBtnGroup2
-local merchLabel1
-local merchLabel2
-local merchLabel3
-local merchLabel4
-local merchLabel5
-local merchLabel6
-local merchLabel7
-local merchLabel8
 local vendingLblGroup
 local vendingBtnGroup
 local vendingLabel1
@@ -37,6 +29,16 @@ local vendingLabel3
 local vendingLabel4
 local vendingLabel5
 local vendingLabel6
+
+local merchImg1
+local merchImg2
+local merchImg3
+local merchImg4
+local merchImg5
+local merchImg6
+local merchImg7
+local merchImg8
+
 
 local openShopButton
 local inventoryButton
@@ -55,26 +57,37 @@ local pickItem
 
 -- All code outside of the listener functions will only be executed ONCE unless "composer.removeScene()" is called.
 
-
 function scene:UpdateMerch()
     local displayItem = {}
-    local name = ""  
+    local name = ""
+    local paint
     
     -- output text names to display boxes
     for i = 1, 8 do
         displayItem = GLOB.merch[tostring(i)]       
         
         if displayItem ~= "" then
-            name = general:BuildName(displayItem)
+            local myFile = "images/"..displayItem["SubCat"]..".png"--"images/barbute.png"
+
+            paint = {
+            type = "image",
+            filename = myFile
+            }    
         else
-            name = "+"
+            paint = {
+            type = "image",
+            filename = "images/noItem.png"
+            }                 
         end 
         
         if i <= 4 then -- first 4 boxes
-            merchLblGroup1[i].text = name 
+            --merchLblGroup1[i].text = name 
+            merchLblGroup1[i].fill = paint
+        
         elseif i > 4 then -- second set of boxes (5-8)
             local index = i - 4 -- subtract 4 from i for numbers 5-8 since they are indexed in the group as 1-4
-            merchLblGroup2[index].text = name 
+            --merchLblGroup2[index].text = name
+            merchLblGroup2[index].fill = paint            
         end
     end 
     
@@ -89,6 +102,7 @@ function scene:UpdateMerch()
         end 
         
         vendingLblGroup[i].text = name
+        
     end        
     
 end
@@ -100,12 +114,10 @@ local OpenShop = function(event)
     -- if no transaction, resume timer
     -- if no items to sell, don't try to sell
     -- if buying, determine if buying single item or collection
-    -- if selling, determine if selling display item or special request   
-    
+    -- if selling, determine if selling display item or special request       
     
     GLOB.currentShopIterations = event.count -- get current tick of timer
-    timer.pause(GLOB.shopTimer) -- pause the timer while action is taken
-    
+    timer.pause(GLOB.shopTimer) -- pause the timer while action is taken    
 
     -- determine type of transaction
     local trans = utilities:RNG(4)
@@ -173,8 +185,7 @@ local OpenShop = function(event)
             soldPrice = general:CalculateBasePrice(soldItem)            
             
             -- get paid
-            GLOB.stats["cash"] = GLOB.stats["cash"] + soldPrice
-            
+            GLOB.stats["cash"] = GLOB.stats["cash"] + soldPrice            
             
             if GLOB.inventory[pickItem]["Qty"] > 1 then
                 GLOB.inventory[pickItem]["Qty"] = GLOB.inventory[pickItem]["Qty"] - 1 -- more than one in inventory, reduce quantity
@@ -278,6 +289,7 @@ end
 
 function scene:create(event)
     local sceneGroup = self.view
+    scene._globalSceneObj = sceneGroup -- a reference to the scene that can be used outside create
     
     local merchWidth = 75
     local merchHeight = 75
@@ -363,33 +375,6 @@ function scene:create(event)
     end   
     
     local merchButton4 = widget.newButton(merchOptions)        
-    
-    local labelOptions = {
-        text = "+",
-        x = merchWidth + 2,
-        y = merchY + 5,
-        width = merchWidth - 5,
-        height = merchHeight,
-        font = native.systemFont,
-        fontSize = 12,
-        align = "center"    
-    }    
-    
-    merchLabel1 = display.newText(labelOptions) -- item description
-    merchLabel1:setFillColor(0,0,0)        
-    
-    labelOptions["x"] = merchWidth * 2 + 2
-    merchLabel2 = display.newText(labelOptions) -- item description
-    merchLabel2:setFillColor(0,0,0)     
-    
-    labelOptions["x"] = merchWidth * 3 + 2
-    merchLabel3 = display.newText(labelOptions) -- item description
-    merchLabel3:setFillColor(0,0,0)  
-    
-    labelOptions["x"] = merchWidth * 4 + 2
-    merchLabel4 = display.newText(labelOptions) -- item description
-    merchLabel4:setFillColor(0,0,0)      
-    
     -- end first set of display cases
     
     -- start second set of display cases
@@ -443,42 +428,39 @@ function scene:create(event)
     
     local merchButton8 = widget.newButton(merchOptions)      
     
-    labelOptions["x"] = merchWidth / 2 + 2
-    labelOptions["y"] = merchHeight + 5
-    merchLabel5 = display.newText(labelOptions) -- item description
-    merchLabel5:setFillColor(0,0,0)        
-    
-    labelOptions["y"] = merchHeight * 2 + 5
-    merchLabel6 = display.newText(labelOptions) -- item description
-    merchLabel6:setFillColor(0,0,0)     
-    
-    labelOptions["y"] = merchHeight * 3 + 5
-    merchLabel7 = display.newText(labelOptions) -- item description
-    merchLabel7:setFillColor(0,0,0)  
-    
-    labelOptions["y"] = merchHeight * 4 + 5
-    merchLabel8 = display.newText(labelOptions) -- item description
-    merchLabel8:setFillColor(0,0,0)       
-    
     -- end second set of display cases
+    
+    -- display case images
+    merchImg1 = display.newRect(merchWidth,merchY + 1, 73, 73)
+    merchImg2 = display.newRect(merchWidth * 2,merchY + 1, 73, 73)
+    merchImg3 = display.newRect(merchWidth * 3,merchY + 1, 73, 73)
+    merchImg4 = display.newRect(merchWidth * 4,merchY + 1, 73, 73)
+    
+    local xLoc = merchWidth / 2
+    
+    merchImg5 = display.newRect(xLoc,merchHeight + 2, 73, 73)
+    merchImg6 = display.newRect(xLoc,merchHeight * 2 + 2, 73, 73)
+    merchImg7 = display.newRect(xLoc,merchHeight * 3 + 2, 73, 73)
+    merchImg8 = display.newRect(xLoc,merchHeight * 4 + 2, 73, 73)
+    
     
     -- add merch buttons and labels to merch groups and merch groups to scene group
     merchBtnGroup1:insert(merchButton1)
     merchBtnGroup1:insert(merchButton2)
     merchBtnGroup1:insert(merchButton3)
     merchBtnGroup1:insert(merchButton4)
-    merchLblGroup1:insert(merchLabel1)
-    merchLblGroup1:insert(merchLabel2)
-    merchLblGroup1:insert(merchLabel3)
-    merchLblGroup1:insert(merchLabel4)
+    merchLblGroup1:insert(merchImg1)
+    merchLblGroup1:insert(merchImg2)
+    merchLblGroup1:insert(merchImg3)
+    merchLblGroup1:insert(merchImg4)
     merchBtnGroup2:insert(merchButton5)
     merchBtnGroup2:insert(merchButton6)
     merchBtnGroup2:insert(merchButton7)
     merchBtnGroup2:insert(merchButton8)
-    merchLblGroup2:insert(merchLabel5)
-    merchLblGroup2:insert(merchLabel6)
-    merchLblGroup2:insert(merchLabel7)
-    merchLblGroup2:insert(merchLabel8)
+    merchLblGroup2:insert(merchImg5)
+    merchLblGroup2:insert(merchImg6)
+    merchLblGroup2:insert(merchImg7)
+    merchLblGroup2:insert(merchImg8)
     sceneGroup:insert(merchBtnGroup1)
     sceneGroup:insert(merchBtnGroup2)
     sceneGroup:insert(merchLblGroup1)
@@ -828,7 +810,7 @@ function scene:create(event)
     statGroup.y = 0
     
     -- background
-    floorBG = background.new(0,0, 1600,960)
+    floorBG = background.new(0,0, 2100,1280)
     floorBG.bg:setFillColor(206/255,169/255,74/255,0.8)
     
     
