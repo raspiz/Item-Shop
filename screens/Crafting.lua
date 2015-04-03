@@ -376,6 +376,7 @@ function scene:AddItems(id)
                 resultLabel:setFillColor(0,1,0)
                 else
                 resultLabel["text"] = "FAILURE"
+                result = "failure"
                 resultLabel:setFillColor(1,0,0)  
                 end
             end
@@ -409,29 +410,33 @@ function scene:AddItems(id)
                     end
                 end 
             end
+            
+            local function generateItem()
+                -- add a mod
+                self.item["Mod"] = general:ChooseMod(self.item)
 
-            -- add a mod
-            self.item["Mod"] = general:ChooseMod(self.item)
+                -- see if the item exists already
+                local incQty = false
 
-            -- see if the item exists already
-            local incQty = false
+                -- see if the item exists in inventory already. must match ItemID and Mod. if so increase Qty and break loop
+                for k,v in pairs(GLOB.inventory) do
+                    if v["ItemID"] == self.item["ItemID"] and v["Mod"] == self.item["Mod"] then
+                        v["Qty"] = v["Qty"] + 1
+                        incQty = true
+                        break
+                    end                    
+                end
 
-            -- see if the item exists in inventory already. must match ItemID and Mod. if so increase Qty and break loop
-            for k,v in pairs(GLOB.inventory) do
-                if v["ItemID"] == self.item["ItemID"] and v["Mod"] == self.item["Mod"] then
-                    v["Qty"] = v["Qty"] + 1
-                    incQty = true
-                    break
-                end                    
+                -- if it's a new item just add to inv
+                if not incQty then
+                    self.item["Qty"] = 1
+                    GLOB.inventory[#GLOB.inventory + 1] = self.item -- add the item to the end of the player inventory table
+                end 
             end
-
-            -- if it's a new item just add to inv
-            if not incQty then
-                self.item["Qty"] = 1
-                GLOB.inventory[#GLOB.inventory + 1] = self.item -- add the item to the end of the player inventory table
-            end 
-
-            -- update merch displays in case an on display item was used then close overlay
+                
+                if(result == "success")then
+                    generateItem()
+                end
             
             --refresh the item list after crafting an item, remove crafting progress/result labels
             local function DisplayCrafting()

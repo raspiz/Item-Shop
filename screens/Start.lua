@@ -66,22 +66,35 @@ function scene:create(event)
     
     local newGameButton = widget.newButton(options)
     
-    -- options for rpg mode button. debug feature for now
-    -- todo: keep or remove this
-    options["label"] = "RPG Mode"
+    -- tutorial button
+    -- launches into a gameplay tutorial
+    options["label"] = "Tutorial"
     options["y"] = 350
     options["onEvent"] = function(event)
         if ( "ended" == event.phase ) then            
-            composer.gotoScene("screens.BattleScreen")
+            composer.gotoScene("screens.Tutorial")
         end 
     end  
     
-    local rpgModeButton = widget.newButton(options)    
+    local tutorialButton = widget.newButton(options)
+    
+    -- credits  button
+    -- launches into a brief credits/info list
+    options["label"] = "Credits"
+    options["y"] = 450
+    options["onEvent"] = function(event)
+        if ( "ended" == event.phase ) then            
+            composer.gotoScene("screens.Credits")
+        end 
+    end  
+    
+    local creditsButton = widget.newButton(options)    
     
     -- add controls to group
     sceneGroup:insert(continueButton)
     sceneGroup:insert(newGameButton)
-    sceneGroup:insert(rpgModeButton)
+    sceneGroup:insert(tutorialButton)
+    sceneGroup:insert(creditsButton)
     
 end
 
