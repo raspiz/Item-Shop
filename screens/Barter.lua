@@ -592,10 +592,10 @@ function scene:create(event)
         width = 100,
         height = 50,
         cornerRadius = 2,
-        fillColor = { default={ 1, 0, 0, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
-        strokeColor = { default={ 1, 0.4, 0, 1 }, over={ 0.8, 0.8, 1, 1 } },
+        fillColor = { default={ .1, 0, .9, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
+        strokeColor = { default={ .3, .3, .3, 1 }, over={ 0.8, 0.8, 1, 1 } },
         strokeWidth = 4,
-        labelColor = { default={ 0, 0, 0, 1 }, over={ 0, 0, 0, 1 } },
+        labelColor = { default={ .9, .9, .9, 1 }, over={ .9, .9, .9, 1 } },  
         onPress = self.ChangeValue     
     }
 
@@ -669,7 +669,7 @@ function scene:create(event)
     submitButton = widget.newButton(options)
     
     -- cash label
-    textOptions["text"] = "Cash: "..GLOB.stats["cash"]
+    textOptions["text"] = "Gold: "..GLOB.stats["cash"]
     textOptions["x"] = 100
     textOptions["y"] = 10
     textOptions["width"] = 200

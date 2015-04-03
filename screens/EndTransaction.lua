@@ -21,7 +21,7 @@ function scene:create(event)
     -- Example: add display objects to "sceneGroup", add touch listeners, etc.    
     
     -- semi transparent background
-    local overlayBackground = background.new(0,0, 1600,960)
+    local overlayBackground = background.new(0,0, 2100,1280)
     overlayBackground.bg:setFillColor(0,0,0,0.8)
    
     local labelHeight = GLOB.height - 75
@@ -33,7 +33,7 @@ function scene:create(event)
         width = 400,
         height = labelHeight,
         font = native.systemFont,
-        fontSize = 14,
+        fontSize = 20,
         align = "center"    
     }    
     
@@ -55,10 +55,10 @@ function scene:create(event)
         width = 100,
         height = 50,
         cornerRadius = 2,
-        fillColor = { default={ 1, 0, 0, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
-        strokeColor = { default={ 1, 0.4, 0, 1 }, over={ 0.8, 0.8, 1, 1 } },
+        fillColor = { default={ .1, 0, .9, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
+        strokeColor = { default={ .3, .3, .3, 1 }, over={ 0.8, 0.8, 1, 1 } },
         strokeWidth = 4,
-        labelColor = { default={ 0, 0, 0, 1 }, over={ 0, 0, 0, 1 } },
+        labelColor = { default={ .9, .9, .9, 1 }, over={ .9, .9, .9, 1 } },  
         onRelease = DoneButtonEvent
     }
     

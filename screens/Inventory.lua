@@ -38,7 +38,7 @@ local sortValueLabel
 local sortNameLabel
 local sortTierLabel
 
-local asc = true -- default to sort ascending
+local asc = false -- default to sort ascending
 local sorting = "Value" -- default to sort by value
 local currentID = ""
 
@@ -512,6 +512,10 @@ function scene:create(event)
             label = "All",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50,
+            height = 20,
             size = 16,
             selected = true,
             onPress = masterTabButtonEvent
@@ -520,7 +524,11 @@ function scene:create(event)
             id = "Equipment",
             label = "Equipment",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,    
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50,  
+            height = 20,            
             size = 16,
             selected = false,
             onPress = masterTabButtonEvent -- or onEvent
@@ -530,6 +538,10 @@ function scene:create(event)
             label = "Items",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50,   
+            height = 20,            
             size = 16,
             selected = false,
             onPress = masterTabButtonEvent -- or onEvent
@@ -539,6 +551,10 @@ function scene:create(event)
             label = "Crafting",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,            
             size = 16,
             selected = false,
             onPress = masterTabButtonEvent -- or onEvent
@@ -555,6 +571,10 @@ function scene:create(event)
             label = "Weapons",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,              
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -563,7 +583,11 @@ function scene:create(event)
             id = "Body Armor",
             label = "Body Armor",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,  
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -573,6 +597,10 @@ function scene:create(event)
             label = "Head Armor",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -582,6 +610,10 @@ function scene:create(event)
             label = "Feet Armor",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -591,6 +623,10 @@ function scene:create(event)
             label = "Accessories",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -600,6 +636,10 @@ function scene:create(event)
             label = "Off Hand",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -612,6 +652,10 @@ function scene:create(event)
             label = "Goods",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -620,7 +664,11 @@ function scene:create(event)
             id = "Treasure",
             label = "Treasure",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont, 
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -630,6 +678,10 @@ function scene:create(event)
             label = "Foods",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -642,6 +694,10 @@ function scene:create(event)
             label = "Resources",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -650,7 +706,11 @@ function scene:create(event)
             id = "Ingredients",
             label = "Ingredients",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,  
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -660,6 +720,10 @@ function scene:create(event)
             label = "Alchemy",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -669,6 +733,10 @@ function scene:create(event)
             label = "Template",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 14,
             selected = false,
             onPress = mainTabButtonEvent
@@ -685,6 +753,10 @@ function scene:create(event)
             label = "Sword",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -693,7 +765,11 @@ function scene:create(event)
             id = "Club",
             label = "Club",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,  
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -703,6 +779,10 @@ function scene:create(event)
             label = "Fist Wraps",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -712,6 +792,10 @@ function scene:create(event)
             label = "Staff",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -721,6 +805,10 @@ function scene:create(event)
             label = "Dagger",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -730,6 +818,10 @@ function scene:create(event)
             label = "Whip",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -742,6 +834,10 @@ function scene:create(event)
             label = "Robe",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -750,7 +846,11 @@ function scene:create(event)
             id = "Coat",
             label = "Coat",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,   
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -760,6 +860,10 @@ function scene:create(event)
             label = "Mail",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -769,6 +873,10 @@ function scene:create(event)
             label = "Chain Mail",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -778,6 +886,10 @@ function scene:create(event)
             label = "Tunic",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -787,6 +899,10 @@ function scene:create(event)
             label = "Cuirass",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -799,6 +915,10 @@ function scene:create(event)
             label = "Kettle Helm",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -807,7 +927,11 @@ function scene:create(event)
             id = "Rawhide Cap",
             label = "Rawhide Cap",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont, 
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -817,6 +941,10 @@ function scene:create(event)
             label = "Barbute",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -826,6 +954,10 @@ function scene:create(event)
             label = "Headband",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -835,6 +967,10 @@ function scene:create(event)
             label = "Crown",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -844,6 +980,10 @@ function scene:create(event)
             label = "Hood",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -856,6 +996,10 @@ function scene:create(event)
             label = "Slippers",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -864,7 +1008,11 @@ function scene:create(event)
             id = "Kneehigh Boots",
             label = "Kneehigh Boots",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,  
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -874,6 +1022,10 @@ function scene:create(event)
             label = "Clogs",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -883,6 +1035,10 @@ function scene:create(event)
             label = "Plated Boots",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -892,6 +1048,10 @@ function scene:create(event)
             label = "Buckled Boots",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -901,6 +1061,10 @@ function scene:create(event)
             label = "Sandals",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -913,6 +1077,10 @@ function scene:create(event)
             label = "Skull Ring",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -921,7 +1089,11 @@ function scene:create(event)
             id = "Stone Armband",
             label = "Stone Armband",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,  
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -931,6 +1103,10 @@ function scene:create(event)
             label = "Shiny Gorget",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -940,6 +1116,10 @@ function scene:create(event)
             label = "Necklace",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -949,6 +1129,10 @@ function scene:create(event)
             label = "Dazzling Earring",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -958,6 +1142,10 @@ function scene:create(event)
             label = "Bracelet",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -970,6 +1158,10 @@ function scene:create(event)
             label = "Holy Idol",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -978,7 +1170,11 @@ function scene:create(event)
             id = "Evil Idol",
             label = "Evil Idol",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,   
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -988,6 +1184,10 @@ function scene:create(event)
             label = "Earthly Idol",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -997,6 +1197,10 @@ function scene:create(event)
             label = "Lute",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1006,6 +1210,10 @@ function scene:create(event)
             label = "Shield",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1015,6 +1223,10 @@ function scene:create(event)
             label = "Tome",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1027,6 +1239,10 @@ function scene:create(event)
             label = "Vial",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1035,7 +1251,11 @@ function scene:create(event)
             id = "Quikfire",
             label = "Quikfire",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,    
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1045,6 +1265,10 @@ function scene:create(event)
             label = "S. Force",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1054,6 +1278,10 @@ function scene:create(event)
             label = "B. Vigor",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1063,6 +1291,10 @@ function scene:create(event)
             label = "Minion",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1072,6 +1304,10 @@ function scene:create(event)
             label = "Demon",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1081,6 +1317,10 @@ function scene:create(event)
             label = "Phoenix",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1090,6 +1330,10 @@ function scene:create(event)
             label = "Scroll",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1099,6 +1343,10 @@ function scene:create(event)
             label = "Compendium",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1108,6 +1356,10 @@ function scene:create(event)
             label = "Utility",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1120,6 +1372,10 @@ function scene:create(event)
             label = "Ornate Vase",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1128,7 +1384,11 @@ function scene:create(event)
             id = "Wooden Trinket",
             label = "Wooden Trinket",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,     
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1138,6 +1398,10 @@ function scene:create(event)
             label = "Bone Carving",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1147,6 +1411,10 @@ function scene:create(event)
             label = "Gaudy Chalice",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1156,6 +1424,10 @@ function scene:create(event)
             label = "Goddess Statue",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1165,6 +1437,10 @@ function scene:create(event)
             label = "Animistic Figurine",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1177,6 +1453,10 @@ function scene:create(event)
             label = "Snack",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1185,7 +1465,11 @@ function scene:create(event)
             id = "Meal",
             label = "Meal",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,   
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1195,6 +1479,10 @@ function scene:create(event)
             label = "Treat",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1204,6 +1492,10 @@ function scene:create(event)
             label = "Dessert",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1213,6 +1505,10 @@ function scene:create(event)
             label = "Smoothie",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1222,6 +1518,10 @@ function scene:create(event)
             label = "Soda",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1234,6 +1534,10 @@ function scene:create(event)
             label = "Textile",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,               
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1242,7 +1546,11 @@ function scene:create(event)
             id = "Leather",
             label = "Leather",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,           
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1252,6 +1560,10 @@ function scene:create(event)
             label = "Wood",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1261,6 +1573,10 @@ function scene:create(event)
             label = "Gem",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1270,6 +1586,10 @@ function scene:create(event)
             label = "Stone",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1279,6 +1599,10 @@ function scene:create(event)
             label = "Metal",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1291,6 +1615,10 @@ function scene:create(event)
             label = "Meat",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1299,7 +1627,11 @@ function scene:create(event)
             id = "Veggie",
             label = "Veggie",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,    
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1309,6 +1641,10 @@ function scene:create(event)
             label = "Fruit",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1318,6 +1654,10 @@ function scene:create(event)
             label = "Cream",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1327,6 +1667,10 @@ function scene:create(event)
             label = "Sugar",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1336,6 +1680,10 @@ function scene:create(event)
             label = "Grain",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1348,6 +1696,10 @@ function scene:create(event)
             label = "Oil of Vitriol",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1356,7 +1708,11 @@ function scene:create(event)
             id = "Decanter",
             label = "Decanter",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,    
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1366,6 +1722,10 @@ function scene:create(event)
             label = "Nitrum Flammans",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1375,6 +1735,10 @@ function scene:create(event)
             label = "Spirit Essence",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1384,6 +1748,10 @@ function scene:create(event)
             label = "Magical Jewel",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1393,6 +1761,10 @@ function scene:create(event)
             label = "Inscription",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1405,6 +1777,10 @@ function scene:create(event)
             label = "Tier 1 Template",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1413,7 +1789,11 @@ function scene:create(event)
             id = "Tier 2 Template",
             label = "Tier 2 Template",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
-            font = native.systemFont,            
+            font = native.systemFont,  
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1423,6 +1803,10 @@ function scene:create(event)
             label = "Tier 3 Template",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1432,6 +1816,10 @@ function scene:create(event)
             label = "Tier 4 Template",
             labelColor = {default={.5,.5,.5}, over={.3,.3,.3}},
             font = native.systemFont,
+            defaultFile = "images/default.png",
+            overFile = "images/default.png",
+            width = 50, 
+            height = 20,             
             size = 12,
             selected = false,
             onPress = subTabButtonEvent
@@ -1448,6 +1836,12 @@ function scene:create(event)
         top = 50,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,
         buttons = masterTabButtons
     }
     
@@ -1457,6 +1851,12 @@ function scene:create(event)
         top = 70,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = mainTabButtons1
     }    
     
@@ -1466,6 +1866,12 @@ function scene:create(event)
         top = 70,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = mainTabButtons2
     }       
     
@@ -1475,6 +1881,12 @@ function scene:create(event)
         top = 70,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = mainTabButtons3
     }         
     
@@ -1484,6 +1896,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons1
     }       
     
@@ -1493,6 +1911,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons2
     }    
     
@@ -1502,6 +1926,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons3
     }       
     
@@ -1511,6 +1941,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons4
     }       
     
@@ -1520,6 +1956,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons5
     }       
     
@@ -1529,6 +1971,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons6
     }       
     
@@ -1538,6 +1986,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons7
     }       
     
@@ -1547,6 +2001,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons8
     }       
     
@@ -1556,6 +2016,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons9
     }       
     
@@ -1565,6 +2031,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons10
     }       
     
@@ -1574,6 +2046,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons11
     }       
     
@@ -1583,6 +2061,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons12
     }       
     
@@ -1592,6 +2076,12 @@ function scene:create(event)
         top = 90,
         width = 600,
         height = 20,
+        backgroundFile = "images/default.png",
+        tabSelectedLeftFile = "images/default.png",
+        tabSelectedRightFile = "images/default.png",
+        tabSelectedMiddleFile = "images/default.png",
+        tabSelectedFrameWidth = 40,
+        tabSelectedFrameHeight = 10,        
         buttons = subTabButtons13
     }           
     
@@ -1816,10 +2306,10 @@ function scene:show(event)
     
 
     if phase == "will" then
-        filter = "master"
+        --filter = "master"
         --scene:AddItems("All") -- show all items by default when loading
         
-        scene:SetMasterFilter("Equipment")
+        scene:SetMasterFilter("All")
         -- Called when the scene is still off screen (but is about to come on screen).      
     elseif phase == "did" then        
         -- Called when the scene is now on screen.

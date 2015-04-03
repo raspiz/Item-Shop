@@ -23,12 +23,12 @@ local merchBtnGroup1
 local merchBtnGroup2
 local vendingLblGroup
 local vendingBtnGroup
-local vendingLabel1
-local vendingLabel2
-local vendingLabel3
-local vendingLabel4
-local vendingLabel5
-local vendingLabel6
+local vendingImg1
+local vendingImg2
+local vendingImg3
+local vendingImg4
+local vendingImg5
+local vendingImg6
 
 local merchImg1
 local merchImg2
@@ -49,6 +49,7 @@ local timeLabel
 local dayLabel
 local closedLabel
 local cashLabel
+local messageLabel
 local statGroup
 local floorBG
 
@@ -59,7 +60,6 @@ local pickItem
 
 function scene:UpdateMerch()
     local displayItem = {}
-    local name = ""
     local paint
     
     -- output text names to display boxes
@@ -96,12 +96,20 @@ function scene:UpdateMerch()
         displayItem = GLOB.vending[tostring(i)]       
         
         if displayItem ~= "" then
-            name = general:BuildName(displayItem)
+            local myFile = "images/"..displayItem["SubCat"]..".png"--"images/barbute.png"
+
+            paint = {
+            type = "image",
+            filename = myFile
+            } 
         else
-            name = "+"
+            paint = {
+            type = "image",
+            filename = "images/noItem.png"
+            }   
         end 
         
-        vendingLblGroup[i].text = name
+        vendingLblGroup[i].fill = paint
         
     end        
     
@@ -264,7 +272,19 @@ function scene:AdvanceTime()
     
     -- advance day if time period is now 1
     if GLOB.stats["time"] == 1 then
-       GLOB.stats["day"] = GLOB.stats["day"] + 1
+        GLOB.stats["day"] = GLOB.stats["day"] + 1
+        -- charge rent each day
+        local rent = (GLOB.stats["level"] * 100)
+        GLOB.stats["cash"] = GLOB.stats["cash"] - rent
+
+        if GLOB.stats["cash"] < 0 then
+            GLOB.stats["cash"] = 0
+            rent = 0
+        end
+        
+        messageLabel.text = rent.." rent deducted"
+    else
+       messageLabel.text = ""
     end
 end
 
@@ -431,17 +451,17 @@ function scene:create(event)
     -- end second set of display cases
     
     -- display case images
-    merchImg1 = display.newRect(merchWidth,merchY + 1, 73, 73)
-    merchImg2 = display.newRect(merchWidth * 2,merchY + 1, 73, 73)
-    merchImg3 = display.newRect(merchWidth * 3,merchY + 1, 73, 73)
-    merchImg4 = display.newRect(merchWidth * 4,merchY + 1, 73, 73)
+    merchImg1 = display.newRect(merchWidth,merchY, 72, 72)
+    merchImg2 = display.newRect(merchWidth * 2,merchY, 72, 72)
+    merchImg3 = display.newRect(merchWidth * 3,merchY, 72, 72)
+    merchImg4 = display.newRect(merchWidth * 4,merchY, 72, 72)
     
     local xLoc = merchWidth / 2
     
-    merchImg5 = display.newRect(xLoc,merchHeight + 2, 73, 73)
-    merchImg6 = display.newRect(xLoc,merchHeight * 2 + 2, 73, 73)
-    merchImg7 = display.newRect(xLoc,merchHeight * 3 + 2, 73, 73)
-    merchImg8 = display.newRect(xLoc,merchHeight * 4 + 2, 73, 73)
+    merchImg5 = display.newRect(xLoc,merchHeight + 1, 72, 72)
+    merchImg6 = display.newRect(xLoc,merchHeight * 2 + 1, 72, 72)
+    merchImg7 = display.newRect(xLoc,merchHeight * 3 + 1, 72, 72)
+    merchImg8 = display.newRect(xLoc,merchHeight * 4 + 1, 72, 72)
     
     
     -- add merch buttons and labels to merch groups and merch groups to scene group
@@ -511,7 +531,6 @@ function scene:create(event)
     }    
     
     local vendingButton1 = widget.newButton(vendingOptions)  
-
     
     vendingOptions["x"] = vendingWidth * 2
     vendingOptions["onEvent"] = function(event)
@@ -573,41 +592,13 @@ function scene:create(event)
     end   
     
     local vendingButton6 = widget.newButton(vendingOptions)          
-    
-    local vendingLabelOptions = {
-        text = "+",
-        x = vendingWidth + 2,
-        y = vendingY + 5,
-        width = vendingWidth - 5,
-        height = vendingHeight,
-        font = native.systemFont,
-        fontSize = 9,
-        align = "center"    
-    }        
-    
-    vendingLabel1 = display.newText(vendingLabelOptions) -- item description
-    vendingLabel1:setFillColor(0,0,0)        
-    
-    vendingLabelOptions["x"] = vendingWidth * 2 + 2
-    vendingLabel2 = display.newText(vendingLabelOptions) -- item description
-    vendingLabel2:setFillColor(0,0,0)     
-    
-    vendingLabelOptions["x"] = vendingWidth * 3 + 2
-    vendingLabel3 = display.newText(vendingLabelOptions) -- item description
-    vendingLabel3:setFillColor(0,0,0)  
-    
-    vendingLabelOptions["x"] = vendingWidth + 2
-    vendingLabelOptions["y"] = vendingY + vendingHeight + 5
-    vendingLabel4 = display.newText(vendingLabelOptions) -- item description
-    vendingLabel4:setFillColor(0,0,0)      
-        
-    vendingLabelOptions["x"] = vendingWidth * 2 + 2
-    vendingLabel5 = display.newText(vendingLabelOptions) -- item description
-    vendingLabel5:setFillColor(0,0,0)  
-    
-    vendingLabelOptions["x"] = vendingWidth * 3 + 2
-    vendingLabel6 = display.newText(vendingLabelOptions) -- item description
-    vendingLabel6:setFillColor(0,0,0)      
+            
+    vendingImg1 = display.newRect(vendingWidth,vendingY, 47, 47)
+    vendingImg2 = display.newRect(vendingWidth * 2,vendingY, 47, 47)
+    vendingImg3 = display.newRect(vendingWidth * 3,vendingY, 47, 47)
+    vendingImg4 = display.newRect(vendingWidth,vendingY + vendingHeight, 47, 47)
+    vendingImg5 = display.newRect(vendingWidth * 2,vendingY + vendingHeight, 47, 47)
+    vendingImg6 = display.newRect(vendingWidth * 3,vendingY + vendingHeight, 47, 47) 
     
     vendingBtnGroup:insert(vendingButton1)
     vendingBtnGroup:insert(vendingButton2)
@@ -615,12 +606,12 @@ function scene:create(event)
     vendingBtnGroup:insert(vendingButton4)
     vendingBtnGroup:insert(vendingButton5)
     vendingBtnGroup:insert(vendingButton6)
-    vendingLblGroup:insert(vendingLabel1)
-    vendingLblGroup:insert(vendingLabel2)
-    vendingLblGroup:insert(vendingLabel3)
-    vendingLblGroup:insert(vendingLabel4)
-    vendingLblGroup:insert(vendingLabel5)
-    vendingLblGroup:insert(vendingLabel6)
+    vendingLblGroup:insert(vendingImg1)
+    vendingLblGroup:insert(vendingImg2)
+    vendingLblGroup:insert(vendingImg3)
+    vendingLblGroup:insert(vendingImg4)
+    vendingLblGroup:insert(vendingImg5)
+    vendingLblGroup:insert(vendingImg6)
     sceneGroup:insert(vendingBtnGroup)
     sceneGroup:insert(vendingLblGroup)  
     
@@ -637,7 +628,7 @@ function scene:create(event)
     scene:UpdateMerch()    
     
     local options = {
-        label = "Sell",
+        label = "Open Shop",
         emboss = false,
         shape = "roundedRect",
         x = 100,
@@ -645,26 +636,13 @@ function scene:create(event)
         width = 100,
         height = 50,
         cornerRadius = 2,
-        fillColor = { default={ 1, 0, 0, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
-        strokeColor = { default={ 1, 0.4, 0, 1 }, over={ 0.8, 0.8, 1, 1 } },
+        fillColor = { default={ .1, 0, .9, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
+        strokeColor = { default={ .3, .3, .3, 1 }, over={ 0.8, 0.8, 1, 1 } },
         strokeWidth = 4,
-        labelColor = { default={ 0, 0, 0, 1 }, over={ 0, 0, 0, 1 } },
-        onEvent = function(event)
-            if ( "ended" == event.phase ) then
-                if goodsToSell then 
-                    GLOB.transactionType = "sell"                
-                    composer.gotoScene("screens.Barter")
-                end
-            end 
-        end                 
+        labelColor = { default={ .9, .9, .9, 1 }, over={ .9, .9, .9, 1 } },            
     }
-
-    local sellButton = widget.newButton(options)     
-    --sellButton:setEnabled(false)
     
     -- options for buy button
-    options["label"] = "Open Shop"
-    options["y"] = GLOB.height - 125
     options["onEvent"] = function(event)
         if ( "ended" == event.phase ) then
             
@@ -703,24 +681,10 @@ function scene:create(event)
     end  
     
     openShopButton = widget.newButton(options)    
-        
-    -- options for buy button
-    options["label"] = "Buy"
-    options["x"] = 225
-    options["y"] = GLOB.height - 50
-    options["onEvent"] = function(event)
-        if ( "ended" == event.phase ) then
-            GLOB.transactionType = "buy"
-            composer.gotoScene("screens.Barter")
-        end 
-    end  
-    
-    local buyButton = widget.newButton(options)
-   -- buyButton:setEnabled(false)
     
     -- options for inventory
     options["label"] = "Inventory"
-    options["x"] = 350
+    options["x"] = 225
     options["onEvent"] = function(event)
         if ( "ended" == event.phase ) then
             composer.gotoScene("screens.Inventory")
@@ -731,7 +695,7 @@ function scene:create(event)
     
     -- options for inventory
     options["label"] = "Crafting"
-    options["x"] = 475
+    options["x"] = 350
     options["onEvent"] = function(event)
         if ( "ended" == event.phase ) then
             composer.gotoScene("screens.Crafting")
@@ -742,7 +706,7 @@ function scene:create(event)
     
     -- options for save button. the attached event will encode the save data into a string and then be written to a json file
     options["label"] = "Save"
-    options["x"] = 600
+    options["x"] = 475
     options["onEvent"] = function(event)
         if ( "ended" == event.phase ) then
             local saveGame = {}
@@ -763,7 +727,7 @@ function scene:create(event)
     local textHeight = 25
     
     local textOptions = {
-        text = "Cash: "..GLOB.stats["cash"],
+        text = "Gold: "..GLOB.stats["cash"],
         x = textWidth / 2,
         y = textHeight / 2,
         width = textWidth,
@@ -805,6 +769,12 @@ function scene:create(event)
     closedLabel = display.newText(textOptions) -- item description
     closedLabel:setFillColor(255/255,0,0)
     
+    textOptions["x"] = 103
+    textOptions["y"] = textHeight / 2 + 100
+    textOptions["text"] = ""
+    messageLabel = display.newText(textOptions) -- item description
+    messageLabel:setFillColor(0,0,255/255)
+    
     statGroup = display.newGroup()
     statGroup.x = 0
     statGroup.y = 0
@@ -816,9 +786,7 @@ function scene:create(event)
     
     -- add controls to group
     sceneGroup:insert(floorBG.bg)
-    sceneGroup:insert(sellButton)
     sceneGroup:insert(openShopButton)
-    sceneGroup:insert(buyButton)
     sceneGroup:insert(saveButton)
     sceneGroup:insert(craftingButton)
     sceneGroup:insert(inventoryButton)    
@@ -829,6 +797,7 @@ function scene:create(event)
     statGroup:insert(levelLabel)
     statGroup:insert(xpLabel) 
     statGroup:insert(closedLabel)
+    statGroup:insert(messageLabel)
     
     floorBG.bg:toBack()
     
@@ -894,7 +863,7 @@ function scene:show(event)
             closedLabel:setFillColor(0,255/255,0)   
             floorBG.bg:setFillColor(206/255,169/255,74/255)
         end
-        cashLabel.text = "Cash: "..GLOB.stats["cash"]
+        cashLabel.text = "Gold: "..GLOB.stats["cash"]
         scene:UpdateMerch()
         print("shop scene started")
     end
