@@ -1,4 +1,4 @@
--- An overlay that will show the outcome of a transaction
+-- An overlay that will show the game has been lost
 
 local composer = require "composer"
 local GLOB = require "globals"
@@ -27,9 +27,9 @@ function scene:create(event)
     local labelHeight = GLOB.height - 75
    
     local textOptions = {
-        text = "",
+        text = "You have failed to pay rent for 3 days in a row. You are a disappointment and you should feel bad. Your shop has been forclosed. You are out of business. Game over...",
         x = GLOB.middleX,
-        y = (GLOB.height - 75)/ 2 + 10,
+        y = GLOB.middleY + 100,
         width = 400,
         height = labelHeight,
         font = native.systemFont,
@@ -37,12 +37,12 @@ function scene:create(event)
         align = "center"    
     }    
     
-    outcomeLabel = display.newText(textOptions) -- item description
+    outcomeLabel = display.newText(textOptions)
     outcomeLabel:setFillColor(1,1,1)
     
     local function DoneButtonEvent(event)
         composer.hideOverlay() 
-        composer.gotoScene("screens.Shop")    
+        composer.gotoScene("screens.Start")    
     end
     
     local options = {
@@ -51,7 +51,7 @@ function scene:create(event)
         shape = "roundedRect",
         id = "BtnOK",
         x = GLOB.middleX,
-        y = GLOB.middleY + 275,
+        y = GLOB.middleY + 200,
         width = 100,
         height = 50,
         cornerRadius = 2,
@@ -77,8 +77,7 @@ function scene:show(event)
     local parent = event.parent
     
     if phase == "will" then
-        -- Called when the scene is still off screen (but is about to come on screen).
-        outcomeLabel.text = parent:GetOutcomeText()        
+        -- Called when the scene is still off screen (but is about to come on screen).     
     elseif phase == "did" then
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.
@@ -116,5 +115,7 @@ scene:addEventListener("hide", scene)
 scene:addEventListener("destroy", scene)
 
 return scene
+
+
 
 

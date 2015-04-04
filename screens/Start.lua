@@ -111,6 +111,8 @@ function scene:show(event)
         -- Example: start timers, begin animation, play audio, etc.
         composer.removeScene("screens.BattleScreen") 
         composer.removeScene("screens.Tutorial") 
+        composer.removeScene("screens.Shop") 
+        composer.removeScene("screens.GameOver") 
         print("shop scene started")
     end
 end
