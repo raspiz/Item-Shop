@@ -13,6 +13,7 @@ local scene = composer.newScene()
 
 -- local forward references here
 --labels
+local tutorialStep = 0
 local merchLabel1
 local merchLabel2
 local merchLabel3
@@ -43,6 +44,10 @@ local cashLabel
 local statGroup
 local floorBG
 
+--tutorial pieces
+local tutorialDisplay
+local tutorialArrow
+
 local pickItem
 
 
@@ -65,9 +70,6 @@ function scene:UpdateMerch()
         
         if i <= 4 then -- first 4 boxes
             merchLblGroup1[i].text = name 
-        elseif i > 4 then -- second set of boxes (5-8)
-            local index = i - 4 -- subtract 4 from i for numbers 5-8 since they are indexed in the group as 1-4
-            merchLblGroup2[index].text = name 
         end
     end 
     
@@ -86,155 +88,14 @@ function scene:UpdateMerch()
     
 end
 
--- event listener that is fired when the shop has opened and will be called each tick of the timer
--- this will update timer count data and determine if a transaction will take place. barter screen is called from here
-local OpenShop = function(event)
-    -- determine what type of transaction, if any, will take place
-    -- if no transaction, resume timer
-    -- if no items to sell, don't try to sell
-    -- if buying, determine if buying single item or collection
-    -- if selling, determine if selling display item or special request   
-    
-    
-    GLOB.currentShopIterations = event.count -- get current tick of timer
-    timer.pause(GLOB.shopTimer) -- pause the timer while action is taken
-    
-
-    -- determine type of transaction
-    local trans = utilities:RNG(4)
-       
-    -- for testing   
-    --trans = 4
-    
-    -- todo: additional options could be put here, such as vending machine sale
-    if trans == 1 then -- no customer, resume timer or close shop if timer is done
-        if not scene:ResumeShop() then
-            -- close the shop. when the final tick of the timer has no transaction, special conditions must be taken
-            -- there were problems accessing the scene's controls after going through this function. kludged solution is call gotoScene for this screen
-            -- this will reload the current page with the labels properly updated
-            -- todo: could bring up another screen or something to show user store is closed again to make this more seamless            
-            composer.gotoScene("screens.Shop")
-        end
-    elseif trans == 2 then -- customer offering an item
-        GLOB.transactionType = "buy"
-        composer.gotoScene("screens.Barter")
-    elseif trans == 3 then  -- customer wishes to buy an item
-        -- check to make sure player has items to sell. if not, resume shop or close it
-        local goodsToSell = false
-        
-        for k,v in pairs(GLOB.merch) do -- run through mech displays to make sure at least 1 item is available for sale. if one is found, break the loop
-            if v ~= "" then
-                goodsToSell = true
-                break
-            end            
-        end
-        
-        if goodsToSell then -- there's something to sell
-            GLOB.transactionType = "sell"
-            composer.gotoScene("screens.Barter")               
-        else        -- there's no items to sell. try to resume shop or close shop
-            if not scene:ResumeShop() then
-                composer.gotoScene("screens.Shop")
-            end   
-            print("nothing to sell")
-        end
-    
-    elseif trans == 4 then -- customer buys a vending item
-        
-        -- first make sure there is at least 1 item in the vending machine
-        local stocked = false
-        local soldItem = {}
-        local soldName = ""
-        local soldPrice = 0
-        
-        for k,v in pairs(GLOB.vending) do
-            if v ~= "" then
-                stocked = true
-                break
-            end
-        end
-        
-        if stocked and GLOB.stats["level"] >= 5 then
-            
-            -- choose an item to sell
-            soldItem = scene:ChooseVendingItem()
-            
-            -- construct item's name. might not need
-            soldName = general:BuildName(soldItem)
-
-            -- set the price
-            soldPrice = general:CalculateBasePrice(soldItem)            
-            
-            -- get paid
-            GLOB.stats["cash"] = GLOB.stats["cash"] + soldPrice
-            
-            
-            if GLOB.inventory[pickItem]["Qty"] > 1 then
-                GLOB.inventory[pickItem]["Qty"] = GLOB.inventory[pickItem]["Qty"] - 1 -- more than one in inventory, reduce quantity
-            else
-                GLOB.inventory[pickItem] = nil -- item removed from player inventory  
-            end
-
-            -- also remove item from display case
-            -- todo: optional flags to skip this if picking item a different way. it may not hurt anything to leave this in since it will only remove the item if it's on display and skip it otherwise
-            for k,v in pairs (GLOB.vending) do    
-                if v["ItemID"] == soldItem["ItemID"] and v["Mod"] == soldItem["Mod"] then
-                    GLOB.vending[k] = ""
-                end        
-            end 
-            
-            print("Sold "..soldName)
-        else
-            print("no vending item to sell") 
-       
-        end        
-        
-        -- refresh visual elements if shop will now be closed
-        if not scene:ResumeShop() then
-            composer.gotoScene("screens.Shop")
-        end
-    end 
-end   
-
-function scene:ChooseVendingItem()
-    local isOnDisplay = false
-    local keys = {}
-    local pickKey = 0
-    local count = 1
-    local newItem = {}
-    
-    -- inventory may have holes in numeric index, so first create a table of the numeric indexes that do exist
-    for k,v in pairs (GLOB.inventory) do
-        keys[count] = k -- the value of k is the actual numeric index value of the item
-        count = count + 1
-    end  
-    
-    while not isOnDisplay do    
-        pickKey = utilities:RNG(#keys) or 0   -- choose a random key
-        pickItem = keys[pickKey]  -- get the index value of that key
-        newItem = GLOB.inventory[pickItem] or {} -- now get the item at that index value  
-    
-        -- find the item in vending. if it's not there pick a different item until one is found
-        for k,v in pairs (GLOB.vending) do    
-            if v["ItemID"] == newItem["ItemID"] and v["Mod"] == newItem["Mod"] then
-                isOnDisplay = true
-                break
-            end        
-        end        
-    end   		
-
-    return newItem  
-end
-
--- either restart the timer or close the shop and nil out the timer + listener, then advance the time period 1 unit
 function scene:ResumeShop()
-    if GLOB.shopIsOpen and GLOB.currentShopIterations < GLOB.shopIterations then
+      if GLOB.shopIsOpen and GLOB.currentShopIterations < GLOB.shopIterations then
         timer.resume(GLOB.shopTimer)
         return true
     elseif GLOB.shopIsOpen then
         GLOB.shopIsOpen = false
         GLOB.shopTimer = nil
-        scene:AdvanceTime()	
+        scene:AdvanceTime()    
         return false
     end     
 end
@@ -288,14 +149,6 @@ function scene:create(event)
     merchLblGroup1.x = 200
     merchLblGroup1.y = 0     
     
-    merchBtnGroup2 = display.newGroup()
-    merchBtnGroup2.x = GLOB.width - merchWidth * 2
-    merchBtnGroup2.y = 75 
-    
-    merchLblGroup2 = display.newGroup()
-    merchLblGroup2.x = GLOB.width - merchWidth * 2
-    merchLblGroup2.y = 75   
-    
     local merchOptions = {
         label = "",
         emboss = false,
@@ -308,52 +161,20 @@ function scene:create(event)
         fillColor = { default={ 76/255, 233/255, 247/255, 1 }, over={ 237/255, 223/255, 26/255, 0.7 } },
         strokeColor = { default={ 107/255, 25/255, 46/255, 1 }, over={ 1, 1, 1, 1 } },
         strokeWidth = 4,
-        labelColor = { default={ 0, 0, 0, 1 }, over={ 0, 0, 0, 1 } },
-        onEvent = function(event)
-            if ( "ended" == event.phase ) then
-                GLOB.pickDisplay = true
-                GLOB.merchSlot = "1"
-                GLOB.vendingSlot = ""
-                composer.gotoScene("screens.Inventory")
-            end 
-        end                 
+        labelColor = { default={ 0, 0, 0, 1 }, over={ 0, 0, 0, 1 } },               
     }
 
     local merchButton1 = widget.newButton(merchOptions)   
     
     merchOptions["x"] = merchWidth * 2
-    merchOptions["onEvent"] = function(event)
-        if ( "ended" == event.phase ) then
-            GLOB.pickDisplay = true
-            GLOB.merchSlot = "2"
-            GLOB.vendingSlot = ""
-            composer.gotoScene("screens.Inventory")
-        end 
-    end   
     
     local merchButton2 = widget.newButton(merchOptions)
     
     merchOptions["x"] = merchWidth * 3
-    merchOptions["onEvent"] = function(event)
-        if ( "ended" == event.phase ) then
-            GLOB.pickDisplay = true
-            GLOB.merchSlot = "3"
-            GLOB.vendingSlot = ""
-            composer.gotoScene("screens.Inventory")
-        end 
-    end   
     
     local merchButton3 = widget.newButton(merchOptions)    
     
     merchOptions["x"] = merchWidth * 4
-    merchOptions["onEvent"] = function(event)
-        if ( "ended" == event.phase ) then
-            GLOB.pickDisplay = true
-            GLOB.merchSlot = "4"
-            GLOB.vendingSlot = ""
-            composer.gotoScene("screens.Inventory")
-        end 
-    end   
     
     local merchButton4 = widget.newButton(merchOptions)        
     
@@ -384,98 +205,16 @@ function scene:create(event)
     merchLabel4:setFillColor(0,0,0)      
     
     -- end first set of display cases
-    
-    -- start second set of display cases
 
-    merchOptions["x"] = merchWidth / 2
-    merchOptions["y"] = merchHeight
-    merchOptions["onEvent"] = function(event)
-        if ( "ended" == event.phase ) then
-            GLOB.pickDisplay = true
-            GLOB.merchSlot = "5"
-            GLOB.vendingSlot = ""
-            composer.gotoScene("screens.Inventory")
-        end 
-    end       
-    
-    local merchButton5 = widget.newButton(merchOptions)
-
-    merchOptions["y"] = merchHeight * 2
-    merchOptions["onEvent"] = function(event)
-        if ( "ended" == event.phase ) then
-            GLOB.pickDisplay = true
-            GLOB.merchSlot = "6"
-            GLOB.vendingSlot = ""
-            composer.gotoScene("screens.Inventory")
-        end 
-    end       
-    
-    local merchButton6 = widget.newButton(merchOptions)
-    
-    merchOptions["y"] = merchHeight * 3
-    merchOptions["onEvent"] = function(event)
-        if ( "ended" == event.phase ) then
-            GLOB.pickDisplay = true
-            GLOB.merchSlot = "7"
-            GLOB.vendingSlot = ""
-            composer.gotoScene("screens.Inventory")
-        end 
-    end       
-    
-    local merchButton7 = widget.newButton(merchOptions)
-    
-    merchOptions["y"] = merchHeight * 4
-    merchOptions["onEvent"] = function(event)
-        if ( "ended" == event.phase ) then
-            GLOB.pickDisplay = true
-            GLOB.merchSlot = "8"
-            GLOB.vendingSlot = ""
-            composer.gotoScene("screens.Inventory")
-        end 
-    end       
-    
-    local merchButton8 = widget.newButton(merchOptions)      
-    
-    labelOptions["x"] = merchWidth / 2 + 2
-    labelOptions["y"] = merchHeight + 5
-    merchLabel5 = display.newText(labelOptions) -- item description
-    merchLabel5:setFillColor(0,0,0)        
-    
-    labelOptions["y"] = merchHeight * 2 + 5
-    merchLabel6 = display.newText(labelOptions) -- item description
-    merchLabel6:setFillColor(0,0,0)     
-    
-    labelOptions["y"] = merchHeight * 3 + 5
-    merchLabel7 = display.newText(labelOptions) -- item description
-    merchLabel7:setFillColor(0,0,0)  
-    
-    labelOptions["y"] = merchHeight * 4 + 5
-    merchLabel8 = display.newText(labelOptions) -- item description
-    merchLabel8:setFillColor(0,0,0)       
-    
-    -- end second set of display cases
-    
     -- add merch buttons and labels to merch groups and merch groups to scene group
-    merchBtnGroup1:insert(merchButton1)
-    merchBtnGroup1:insert(merchButton2)
-    merchBtnGroup1:insert(merchButton3)
-    merchBtnGroup1:insert(merchButton4)
+    merchBtnGroup1:insert(merchButton1);
+    merchBtnGroup1:insert(merchButton2);
+    merchBtnGroup1:insert(merchButton3);
+    merchBtnGroup1:insert(merchButton4);
     merchLblGroup1:insert(merchLabel1)
     merchLblGroup1:insert(merchLabel2)
     merchLblGroup1:insert(merchLabel3)
     merchLblGroup1:insert(merchLabel4)
-    merchBtnGroup2:insert(merchButton5)
-    merchBtnGroup2:insert(merchButton6)
-    merchBtnGroup2:insert(merchButton7)
-    merchBtnGroup2:insert(merchButton8)
-    merchLblGroup2:insert(merchLabel5)
-    merchLblGroup2:insert(merchLabel6)
-    merchLblGroup2:insert(merchLabel7)
-    merchLblGroup2:insert(merchLabel8)
-    sceneGroup:insert(merchBtnGroup1)
-    sceneGroup:insert(merchBtnGroup2)
-    sceneGroup:insert(merchLblGroup1)
-    sceneGroup:insert(merchLblGroup2)
 
     --------------------
     -- END DISPLAY CASES
@@ -486,7 +225,7 @@ function scene:create(event)
     --------------------
     
     vendingBtnGroup = display.newGroup()
-    vendingBtnGroup.x = 400
+    vendingBtnGroup.x = 650
     vendingBtnGroup.y = 200 
     
     vendingLblGroup = display.newGroup()
@@ -632,18 +371,13 @@ function scene:create(event)
     vendingLblGroup:insert(vendingLabel4)
     vendingLblGroup:insert(vendingLabel5)
     vendingLblGroup:insert(vendingLabel6)
+    sceneGroup:insert(merchBtnGroup1)
     sceneGroup:insert(vendingBtnGroup)
     sceneGroup:insert(vendingLblGroup)  
     
     --------------------
     -- END VENDING MACHINE
     --------------------    
-    
-    -- hide vending until player reaches level 5
-    if GLOB.stats["level"] < 5 then
-        vendingBtnGroup.isVisible = false
-        vendingLblGroup.isVisible = false
-    end
     
     scene:UpdateMerch()    
     
@@ -668,42 +402,19 @@ function scene:create(event)
     
     -- options for inventory
     options["label"] = "Inventory"
-    options["x"] = 225
-    options["onEvent"] = function(event)
-        if ( "ended" == event.phase ) then
-            composer.gotoScene("screens.Inventory")
-        end 
-    end      
+    options["x"] = 225    
     
     inventoryButton = widget.newButton(options)    
     
     -- options for inventory
     options["label"] = "Crafting"
-    options["x"] = 350
-    options["onEvent"] = function(event)
-        if ( "ended" == event.phase ) then
-            composer.gotoScene("screens.Crafting")
-        end 
-    end      
+    options["x"] = 350     
     
     craftingButton = widget.newButton(options)           
     
     -- options for save button. the attached event will encode the save data into a string and then be written to a json file
     options["label"] = "Save"
     options["x"] = 475
-    options["onEvent"] = function(event)
-        if ( "ended" == event.phase ) then
-            local saveGame = {}
-            saveGame["inventory"] = GLOB.inventory
-            saveGame["stats"] = GLOB.stats
-            saveGame["merch"] = GLOB.merch
-            saveGame["vending"] = GLOB.vending
-            local saveStr = json.encode(saveGame)
-            if utilities:saveGame("shop.json", saveStr) then -- true is returned if successful
-                print("game saved")
-            end
-        end 
-    end      
     
     saveButton = widget.newButton(options)
     
@@ -715,7 +426,67 @@ function scene:create(event)
     options["onEvent"] = function(event)
         if ( "ended" == event.phase ) then
             --advance tutorial
-            --remove current image then display next?
+            tutorialStep = tutorialStep + 1
+            --displaycases
+            if(tutorialStep == 1)then
+                
+                local paint = {type = "image", filename = "images/tutorialTextDisplayCases.png" }              
+                tutorialDisplay.fill = paint
+                tutorialArrow.isVisible = true
+                local paint = {type = "image", filename = "images/tutorialArrowUp.png"}
+                tutorialArrow.fill = paint
+                tutorialArrow.x = merchBtnGroup1.x + 75
+                tutorialArrow.y = 145
+            --openshop
+            elseif(tutorialStep == 2)then
+             local paint = {type = "image", filename = "images/tutorialTextOpenShop.png" }              
+                tutorialDisplay.fill = paint
+                local paint = {type = "image", filename = "images/tutorialArrow.png"}
+                tutorialArrow.fill = paint
+                tutorialArrow.x = openShopButton.x
+                tutorialArrow.y = 500
+            --inventory
+            elseif(tutorialStep == 3)then
+             local paint = {type = "image", filename = "images/tutorialTextInventory.png" }              
+                tutorialDisplay.fill = paint
+                local paint = {type = "image", filename = "images/tutorialArrow.png"}
+                tutorialArrow.fill = paint
+                tutorialArrow.x = inventoryButton.x
+                tutorialArrow.y = 500
+             --crafting
+            elseif(tutorialStep == 4)then
+             local paint = {type = "image", filename = "images/tutorialTextCrafting.png" }              
+                tutorialDisplay.fill = paint
+                local paint = {type = "image", filename = "images/tutorialArrow.png"}
+                tutorialArrow.fill = paint
+                tutorialArrow.x = craftingButton.x
+                tutorialArrow.y = 500
+             --save
+            elseif(tutorialStep == 5)then
+             local paint = {type = "image", filename = "images/tutorialTextSave.png" }              
+                tutorialDisplay.fill = paint
+                local paint = {type = "image", filename = "images/tutorialArrow.png"}
+                tutorialArrow.fill = paint
+                tutorialArrow.x = saveButton.x
+                tutorialArrow.y = 500
+                 --inventory
+            elseif(tutorialStep == 6)then
+             local paint = {type = "image", filename = "images/tutorialTextVendingMachine.png" }              
+                tutorialDisplay.fill = paint
+                local paint = {type = "image", filename = "images/tutorialArrowRight.png"}
+                tutorialArrow.fill = paint
+                tutorialArrow.x = vendingBtnGroup.x - 42
+                tutorialArrow.y = 250
+                tutorialArrow.width = 119
+                tutorialArrow.height = 32
+            elseif(tutorialStep == 7)then
+                local paint = {type = "image", filename = "images/tutorialTextFinish.png" } 
+                nextButton:setLabel("Finish")
+                tutorialArrow.isVisible = false
+                tutorialDisplay.fill = paint
+            elseif(tutorialStep == 8)then
+                composer.gotoScene("screens.Start")
+            end
         end 
     end   
         
@@ -775,6 +546,23 @@ function scene:create(event)
     floorBG = background.new(0,0, 1600,960)
     floorBG.bg:setFillColor(206/255,169/255,74/255,0.8)
     
+    --the tutorial opening
+        --show the opening tutorial box
+    tutorialDisplay = display.newRect(300,display.contentHeight/2, 474, 172)
+    local paint
+    local myFile = "images/tutorialTextStart.png"
+            paint = {
+            type = "image",
+            filename = myFile}
+    tutorialDisplay.fill = paint
+    
+    --create the arrow to show what we're describing'
+    tutorialArrow = display.newRect(1, 500, 32, 119 )
+    tutorialArrow.isVisible = false;
+            
+    --add the tutorial pieces to the screen
+    sceneGroup:insert(tutorialDisplay)
+    sceneGroup:insert(tutorialArrow)
     
     -- add controls to group
     sceneGroup:insert(floorBG.bg)
@@ -809,53 +597,17 @@ function scene:show(event)
         -- enable buttons that may have been disabled after opening shope
         -- these are needed here because if there were no items to sell or there wasn't a transaction and the scene was loaded again, create was not called and the buttons persist being disabled
         if not GLOB.shopIsOpen then
-            openShopButton:setEnabled(true)
-            merchBtnGroup1[1]:setEnabled(true)
-            merchBtnGroup1[2]:setEnabled(true)
-            merchBtnGroup1[3]:setEnabled(true)
-            merchBtnGroup1[4]:setEnabled(true)
-            merchBtnGroup2[1]:setEnabled(true)
-            merchBtnGroup2[2]:setEnabled(true)
-            merchBtnGroup2[3]:setEnabled(true)
-            merchBtnGroup2[4]:setEnabled(true)
-            vendingBtnGroup[1]:setEnabled(true)
-            vendingBtnGroup[2]:setEnabled(true)
-            vendingBtnGroup[3]:setEnabled(true)
-            vendingBtnGroup[4]:setEnabled(true)
-            vendingBtnGroup[5]:setEnabled(true)
-            vendingBtnGroup[6]:setEnabled(true)            
-            inventoryButton:setEnabled(true)
-            craftingButton:setEnabled(true)
-            saveButton:setEnabled(true) 
             closedLabel.text = "Shop Closed" -- screen indicator
             closedLabel:setFillColor(255/255,0,0)
             floorBG.bg:setFillColor(0,0,0)
         else
-            openShopButton:setEnabled(false)
-            merchBtnGroup1[1]:setEnabled(false)
-            merchBtnGroup1[2]:setEnabled(false)
-            merchBtnGroup1[3]:setEnabled(false)
-            merchBtnGroup1[4]:setEnabled(false)
-            merchBtnGroup2[1]:setEnabled(false)
-            merchBtnGroup2[2]:setEnabled(false)
-            merchBtnGroup2[3]:setEnabled(false)
-            merchBtnGroup2[4]:setEnabled(false)
-            vendingBtnGroup[1]:setEnabled(false)
-            vendingBtnGroup[2]:setEnabled(false)
-            vendingBtnGroup[3]:setEnabled(false)
-            vendingBtnGroup[4]:setEnabled(false)
-            vendingBtnGroup[5]:setEnabled(false)
-            vendingBtnGroup[6]:setEnabled(false)            
-            inventoryButton:setEnabled(false)
-            craftingButton:setEnabled(false)
-            saveButton:setEnabled(false)   
             closedLabel.text = "Shop Open" -- screen indicator
             closedLabel:setFillColor(0,255/255,0)   
             floorBG.bg:setFillColor(206/255,169/255,74/255)
         end
         cashLabel.text = "Cash: "..GLOB.stats["cash"]
         scene:UpdateMerch()
-        print("shop scene started")
+        print("tutorial scene started")
     end
 end
 
