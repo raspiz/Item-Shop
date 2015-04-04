@@ -3,7 +3,6 @@ local GLOB = require "globals"
 local utilities = require "functions.Utilities"
 local general = require "functions.General"
 local widget = require "widget"
-local controls = require "controls.Controls"
 local background = require "controls.Background"
 local button = require "controls.Button"
 local scene = composer.newScene()
@@ -140,8 +139,7 @@ end
 
 -- check to see if player's offer is within customer's acceptable range
 function scene:MakeDeal()    
-    -- todo need to load in customer data, market hotness or coldness, and adjust price range accepted  
-    print("turns "..turns)
+    -- todo need to load in customer data, market hotness or coldness, and adjust price range accepted
     
     local sale = false
     local xpGain = 0
@@ -210,8 +208,6 @@ function scene:MakeDeal()
         if sale then -- a deal was made
             -- remove the item from inventory if selling, add it if buying. update cash
             if GLOB.transactionType == "sell" then
-                -- todo this should work it will need tested in case holes in table are a problem
-                -- i think i fixed the above situation. further testing needed
                 if GLOB.inventory[pickItem]["Qty"] > 1 then
                     GLOB.inventory[pickItem]["Qty"] = GLOB.inventory[pickItem]["Qty"] - 1 -- more than one in inventory, reduce quantity
                 else
@@ -263,7 +259,7 @@ function scene:MakeDeal()
                     transDetails = transDetails.." "..collName.."\n"
                 end
                                     
-                transDetails = transDetails.."for "..(-offer)
+                transDetails = transDetails.."for "..(-offer).." Gold"
             end
             
             outcomeText = GLOB.mood["sale"].."\n"..xpMessage.."\n"..transDetails

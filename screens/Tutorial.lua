@@ -1,6 +1,5 @@
 local composer = require ("composer")
 local GLOB = require "globals"
-local controls = require("controls.Controls")
 local background = require("controls.Background")
 local widget = require "widget"
 local utilities = require "functions.Utilities"

@@ -1,6 +1,5 @@
 local composer = require ("composer")
 local GLOB = require "globals"
-local controls = require("controls.Controls")
 local button = require("controls.Button")
 local widget = require "widget"
 local utilities = require "functions.Utilities"
@@ -19,15 +18,21 @@ function scene:create(event)
     -- Initialize the scene here.
     -- Example: add display objects to "sceneGroup", add touch listeners, etc.    
 
+    local logoImg = display.newImage( "images/logo.png" )
+    logoImg.x = display.contentWidth / 2
+    logoImg.y = 150
+
     -- options for the continue button
     local options = {
         label = "Continue",
         emboss = false,
         shape = "roundedRect",
         x = GLOB.middleX,
-        y = 150,
+        y = 300,
         width = 100,
         height = 50,
+        font = native.systemFont,
+        fontSize = 16,        
         cornerRadius = 2,
         fillColor = { default={ .1, 0, .9, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
         strokeColor = { default={ .3, .3, .3, 1 }, over={ 0.8, 0.8, 1, 1 } },
@@ -56,10 +61,11 @@ function scene:create(event)
     
     -- options for new game button
     options["label"] = "New Game"
-    options["y"] = 250
+    options["y"] = 375
     options["onEvent"] = function(event)
         if ( "ended" == event.phase ) then
             -- todo add default values to appropriate tables to setup a new game
+            GLOB.stats = {["cash"] = 1000, ["level"] = 1, ["xp"] = 0, ["tier"] = 1, ["day"] = 1, ["time"] = 1, ["missedRent"] = 0}
             composer.gotoScene("screens.Shop")
         end 
     end  
@@ -69,7 +75,7 @@ function scene:create(event)
     -- tutorial button
     -- launches into a gameplay tutorial
     options["label"] = "Tutorial"
-    options["y"] = 350
+    options["y"] = 450
     options["onEvent"] = function(event)
         if ( "ended" == event.phase ) then            
             composer.gotoScene("screens.Tutorial")
@@ -81,7 +87,7 @@ function scene:create(event)
     -- credits  button
     -- launches into a brief credits/info list
     options["label"] = "Credits"
-    options["y"] = 450
+    options["y"] = 525
     options["onEvent"] = function(event)
         if ( "ended" == event.phase ) then            
             composer.gotoScene("screens.Credits")
@@ -95,6 +101,7 @@ function scene:create(event)
     sceneGroup:insert(newGameButton)
     sceneGroup:insert(tutorialButton)
     sceneGroup:insert(creditsButton)
+    sceneGroup:insert(logoImg)
     
 end
 

@@ -23,7 +23,7 @@ function scene:create(event)
     local creditsAaron = display.newText( textOptions )
     creditsAaron:setFillColor( 0, 0, 1 )
 
-    textOptions["text"] = "Tutorial Scenario: Corbin Troup"
+    textOptions["text"] = "Tutorial Scenario & Graphics: Corbin Troup"
     textOptions["y"] = 350
     
     local creditsCorbin = display.newText( textOptions )

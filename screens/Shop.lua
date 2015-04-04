@@ -1,6 +1,5 @@
 local composer = require ("composer")
 local GLOB = require "globals"
-local controls = require("controls.Controls")
 local background = require("controls.Background")
 local widget = require "widget"
 local utilities = require "functions.Utilities"
@@ -10,11 +9,6 @@ local scene = composer.newScene()
 
 -- remove previous screen
 composer.removeScene( "screens.Barter")
---composer.removeScene("screens.Inventory")
---composer.removeHidden()
-
---todo:
--- need to look into cleaning up previous scenes
 
 -- local forward references here
 local merchLblGroup1
@@ -54,7 +48,6 @@ local statGroup
 local floorBG
 
 local pickItem
-
 
 -- All code outside of the listener functions will only be executed ONCE unless "composer.removeScene()" is called.
 
@@ -156,8 +149,7 @@ local OpenShop = function(event)
        
     -- for testing   
     --trans = 4
-    
-    -- todo: additional options could be put here, such as vending machine sale
+
     if trans == 1 then -- no customer, resume timer or close shop if timer is done
         if not scene:ResumeShop() then
             -- close the shop. when the final tick of the timer has no transaction, special conditions must be taken
@@ -278,7 +270,7 @@ function scene:ResumeShop()
     elseif GLOB.shopIsOpen then
         GLOB.shopIsOpen = false
         GLOB.shopTimer = nil
-        scene:AdvanceTime()	
+        scene:AdvanceTime() 
         return false
     end     
 end
@@ -298,16 +290,6 @@ function scene:AdvanceTime()
             GLOB.stats["cash"] = 0
             GLOB.stats["missedRent"] = GLOB.stats["missedRent"] + 1
             messageLabel.text = "Rent not paid in full"
-            
-            print(GLOB.stats["missedRent"])
-            
-            if GLOB.stats["missedRent"] >= 3 then
-                local options = {
-                    isModal = true,
-                    -- add any other parameters here
-                }  
-                composer.showOverlay("screens.GameOver", options)                
-            end
         else
             GLOB.stats["cash"] = GLOB.stats["cash"] - rent
             GLOB.stats["missedRent"] = 0
@@ -889,6 +871,14 @@ function scene:show(event)
             closedLabel.text = "Shop Closed" -- screen indicator
             closedLabel:setFillColor(255/255,0,0)
             floorBG.bg:setFillColor(0,0,0)
+            
+            if GLOB.stats["missedRent"] >= 3 then
+                local options = {
+                    isModal = true,
+                    -- add any other parameters here
+                }  
+                composer.showOverlay("screens.GameOver", options)                
+            end       
         else
             openShopButton:setEnabled(false)
             merchBtnGroup1[1]:setEnabled(false)

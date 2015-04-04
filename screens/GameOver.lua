@@ -4,7 +4,6 @@ local composer = require "composer"
 local GLOB = require "globals"
 local utilities = require "functions.Utilities"
 local widget = require "widget"
-local controls = require "controls.Controls"
 local background = require "controls.Background"
 local button = require "controls.Button"
 local scene = composer.newScene()
