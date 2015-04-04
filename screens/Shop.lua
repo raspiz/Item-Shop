@@ -61,33 +61,57 @@ local pickItem
 function scene:UpdateMerch()
     local displayItem = {}
     local paint
+    local red = 0
+    local green = 0
+    local blue = 0
     
     -- output text names to display boxes
     for i = 1, 8 do
         displayItem = GLOB.merch[tostring(i)]       
         
         if displayItem ~= "" then
-            local myFile = "images/"..displayItem["SubCat"]..".png"--"images/barbute.png"
+            local myFile = "images/"..displayItem["SubCat"]..".png"
 
             paint = {
             type = "image",
             filename = myFile
-            }    
+            }  
+            
+            if displayItem["Tier"] == 1 then
+                red = 255
+                green = 255
+                blue = 255
+            elseif displayItem["Tier"] == 2 then
+                red = 78
+                green = 206
+                blue = 95
+            elseif displayItem["Tier"] == 3 then
+                red = 155
+                green = 133
+                blue = 66
+            else
+                red = 155
+                green = 78
+                blue = 206
+            end
         else
             paint = {
             type = "image",
             filename = "images/noItem.png"
-            }                 
+            }      
+
+            red = 76
+            green = 233
+            blue = 247
         end 
         
         if i <= 4 then -- first 4 boxes
-            --merchLblGroup1[i].text = name 
             merchLblGroup1[i].fill = paint
-        
+            merchBtnGroup1[i]:setFillColor(red/255, green/255, blue/255)
         elseif i > 4 then -- second set of boxes (5-8)
             local index = i - 4 -- subtract 4 from i for numbers 5-8 since they are indexed in the group as 1-4
-            --merchLblGroup2[index].text = name
-            merchLblGroup2[index].fill = paint            
+            merchLblGroup2[index].fill = paint  
+            merchBtnGroup2[index]:setFillColor(red/255, green/255, blue/255) 
         end
     end 
     
@@ -96,7 +120,7 @@ function scene:UpdateMerch()
         displayItem = GLOB.vending[tostring(i)]       
         
         if displayItem ~= "" then
-            local myFile = "images/"..displayItem["SubCat"]..".png"--"images/barbute.png"
+            local myFile = "images/"..displayItem["SubCat"]..".png"
 
             paint = {
             type = "image",
@@ -354,7 +378,9 @@ function scene:create(event)
                 GLOB.merchSlot = "1"
                 GLOB.vendingSlot = ""
                 composer.gotoScene("screens.Inventory")
-            end 
+            elseif ("cancelled" == event.phase) then
+                scene:UpdateMerch()
+            end     
         end                 
     }
 
@@ -367,7 +393,9 @@ function scene:create(event)
             GLOB.merchSlot = "2"
             GLOB.vendingSlot = ""
             composer.gotoScene("screens.Inventory")
-        end 
+        elseif ("cancelled" == event.phase) then
+            scene:UpdateMerch()
+        end    
     end   
     
     local merchButton2 = widget.newButton(merchOptions)
@@ -379,7 +407,9 @@ function scene:create(event)
             GLOB.merchSlot = "3"
             GLOB.vendingSlot = ""
             composer.gotoScene("screens.Inventory")
-        end 
+        elseif ("cancelled" == event.phase) then
+            scene:UpdateMerch()
+        end          
     end   
     
     local merchButton3 = widget.newButton(merchOptions)    
@@ -391,7 +421,9 @@ function scene:create(event)
             GLOB.merchSlot = "4"
             GLOB.vendingSlot = ""
             composer.gotoScene("screens.Inventory")
-        end 
+        elseif ("cancelled" == event.phase) then
+            scene:UpdateMerch()
+        end           
     end   
     
     local merchButton4 = widget.newButton(merchOptions)        
@@ -407,7 +439,9 @@ function scene:create(event)
             GLOB.merchSlot = "5"
             GLOB.vendingSlot = ""
             composer.gotoScene("screens.Inventory")
-        end 
+        elseif ("cancelled" == event.phase) then
+            scene:UpdateMerch()
+        end           
     end       
     
     local merchButton5 = widget.newButton(merchOptions)
@@ -419,7 +453,9 @@ function scene:create(event)
             GLOB.merchSlot = "6"
             GLOB.vendingSlot = ""
             composer.gotoScene("screens.Inventory")
-        end 
+        elseif ("cancelled" == event.phase) then
+            scene:UpdateMerch()
+        end            
     end       
     
     local merchButton6 = widget.newButton(merchOptions)
@@ -431,7 +467,9 @@ function scene:create(event)
             GLOB.merchSlot = "7"
             GLOB.vendingSlot = ""
             composer.gotoScene("screens.Inventory")
-        end 
+        elseif ("cancelled" == event.phase) then
+            scene:UpdateMerch()
+        end           
     end       
     
     local merchButton7 = widget.newButton(merchOptions)
@@ -443,7 +481,9 @@ function scene:create(event)
             GLOB.merchSlot = "8"
             GLOB.vendingSlot = ""
             composer.gotoScene("screens.Inventory")
-        end 
+        elseif ("cancelled" == event.phase) then
+            scene:UpdateMerch()
+        end         
     end       
     
     local merchButton8 = widget.newButton(merchOptions)      
@@ -633,6 +673,8 @@ function scene:create(event)
         shape = "roundedRect",
         x = 100,
         y = GLOB.height - 50,
+        font = native.systemFont,
+        fontSize = 16,
         width = 100,
         height = 50,
         cornerRadius = 2,

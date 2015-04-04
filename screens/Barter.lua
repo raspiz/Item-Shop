@@ -527,7 +527,7 @@ function scene:create(event)
         text = "The item for "..setupText[1].." is:\n"..itemName.."\n Base price is "..itemPrice,
         x = GLOB.middleX,
         y = 100,
-        width = 350,
+        width = 400,
         height = 100,
         font = native.systemFont,
         fontSize = 20,
@@ -613,7 +613,7 @@ function scene:create(event)
     
     -- change value down buttons
     options["x"] = controlsMidX + 100
-    options["y"] = GLOB.middleY + 100
+    options["y"] = GLOB.middleY + 120
     options["label"] = "Down"
     options["id"] = "BtnOnesDown" 
     options["onPress"] = self.ChangeValue
@@ -630,9 +630,10 @@ function scene:create(event)
     
     -- labels for player offer
     textOptions["x"] = controlsMidX + 100
-    textOptions["y"] = GLOB.middleY + 50
+    textOptions["y"] = GLOB.middleY + 60
     textOptions["width"] = 100
-    textOptions["height"] = 50
+    textOptions["height"] = 60
+    textOptions["font"] = native.systemFont
     textOptions["fontSize"] = 48
     textOptions["text"] = "0"
     onesOutput = display.newText(textOptions)
@@ -652,7 +653,7 @@ function scene:create(event)
     
     -- percent markup of offer
     textOptions["x"] = GLOB.middleX
-    textOptions["y"] = GLOB.middleY + 150
+    textOptions["y"] = GLOB.middleY + 170
     textOptions["width"] = 200
     textOptions["height"] = 50
     textOptions["fontSize"] = 20
@@ -671,9 +672,9 @@ function scene:create(event)
     -- cash label
     textOptions["text"] = "Gold: "..GLOB.stats["cash"]
     textOptions["x"] = 100
-    textOptions["y"] = 10
+    textOptions["y"] = 20
     textOptions["width"] = 200
-    textOptions["height"] = 20
+    textOptions["height"] = 30
     textOptions["align"] = "left"
     
     local cashLabel = display.newText(textOptions) -- item description

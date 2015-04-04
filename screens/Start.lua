@@ -29,10 +29,10 @@ function scene:create(event)
         width = 100,
         height = 50,
         cornerRadius = 2,
-        fillColor = { default={ 1, 0, 0, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
-        strokeColor = { default={ 1, 0.4, 0, 1 }, over={ 0.8, 0.8, 1, 1 } },
+        fillColor = { default={ .1, 0, .9, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
+        strokeColor = { default={ .3, .3, .3, 1 }, over={ 0.8, 0.8, 1, 1 } },
         strokeWidth = 4,
-        labelColor = { default={ 0, 0, 0, 1 }, over={ 0, 0, 0, 1 } },
+        labelColor = { default={ .9, .9, .9, 1 }, over={ .9, .9, .9, 1 } },
         onEvent = function(event)
             if ( "ended" == event.phase ) then
                 -- load the json file in as a string
@@ -110,6 +110,7 @@ function scene:show(event)
         -- Insert code here to make the scene come alive.
         -- Example: start timers, begin animation, play audio, etc.
         composer.removeScene("screens.BattleScreen") 
+        composer.removeScene("screens.Tutorial") 
         print("shop scene started")
     end
 end
