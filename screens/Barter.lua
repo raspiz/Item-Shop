@@ -318,10 +318,11 @@ function scene:ChangeValue()
     -- determine which place is being changed. special cases for ones place and highest value place
     if btnID == "BtnOnes"..changeString then 
         if changeString == "Down" and onesOutput.text == "0" and hundredsOutput.text ~= "0" then
-            changeValue = -1 end 
+            changeValue = -1
         elseif changeString == "Down" and onesOutput.text == "0" then 
             if tensOutput.text == "0" then -- roll back to 9
                 changeValue = 9
+            end
         end
                 
 

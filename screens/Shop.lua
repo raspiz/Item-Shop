@@ -342,7 +342,7 @@ function scene:create(event)
     merchLblGroup1.y = 0     
     
     merchBtnGroup2 = display.newGroup()
-    merchBtnGroup2.x = GLOB.width - merchWidth * 2
+    merchBtnGroup2.x = GLOB.width - merchWidth * 3
     merchBtnGroup2.y = 75 
     
     merchLblGroup2 = display.newGroup()
@@ -486,7 +486,7 @@ function scene:create(event)
     merchImg3 = display.newRect(merchWidth * 3,merchY, 72, 72)
     merchImg4 = display.newRect(merchWidth * 4,merchY, 72, 72)
     
-    local xLoc = merchWidth / 2
+    local xLoc = merchWidth / 2 - merchWidth
     
     merchImg5 = display.newRect(xLoc,merchHeight + 1, 72, 72)
     merchImg6 = display.newRect(xLoc,merchHeight * 2 + 1, 72, 72)
