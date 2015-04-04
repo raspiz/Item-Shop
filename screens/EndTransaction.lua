@@ -51,7 +51,7 @@ function scene:create(event)
         shape = "roundedRect",
         id = "BtnOK",
         x = GLOB.middleX,
-        y = GLOB.middleY + 275,
+        y = GLOB.middleY + 200,
         width = 100,
         height = 50,
         cornerRadius = 2,

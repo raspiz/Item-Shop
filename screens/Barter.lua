@@ -21,7 +21,6 @@ local customerMood
 local customerResponse
 local outcomeText
 local submitButton
-local refuseButton
 
 -- item and customer data needed throughout
 -- todo add restrictions for what tier can be offered or anything else that might restrict the item picked(like if customer wants a specific type of item)
@@ -280,25 +279,11 @@ function scene:MakeDeal()
             scene:ShowOverlay()            
         else  -- bartering isn't over, update customer's mood output
             customerMood.text = GLOB.mood[turns] 
-        end 
-    else
-        submitButton:removeSelf()
-        submitButton = nil   
-        refuseButton:removeSelf()
-        refuseButton = nil        
-        outcomeText = GLOB.mood["nodeal"]
-        scene:ShowOverlay()   
+        end     
     end
 end
 
-function scene:NoDeal()
-    submitButton:removeSelf()
-    submitButton = nil     
-    refuseButton:removeSelf()
-    refuseButton = nil
-    outcomeText = GLOB.mood["nodeal"]
-    scene:ShowOverlay()  
-end
+
 
 -- change the player's offered value after pressing the up or down button
 -- special conditions are included for different places to deal with numbers rolling over
@@ -542,7 +527,7 @@ function scene:create(event)
         text = "The item for "..setupText[1].." is:\n"..itemName.."\n Base price is "..itemPrice,
         x = GLOB.middleX,
         y = 100,
-        width = 450,
+        width = 400,
         height = 100,
         font = native.systemFont,
         fontSize = 20,
@@ -645,7 +630,7 @@ function scene:create(event)
     
     -- labels for player offer
     textOptions["x"] = controlsMidX + 100
-    textOptions["y"] = GLOB.middleY + 55
+    textOptions["y"] = GLOB.middleY + 60
     textOptions["width"] = 100
     textOptions["height"] = 60
     textOptions["font"] = native.systemFont
@@ -684,14 +669,6 @@ function scene:create(event)
     options["onPress"] = nil  -- had to explicitely set to nil or else it would inherit the onPress function from up and down buttons above 
     submitButton = widget.newButton(options)
     
-    -- refuse customer
-    options["x"] = GLOB.middleX
-    options["y"] = GLOB.middleY + 275
-    options["label"] = "Refuse"
-    options["onRelease"] = self.NoDeal
-    options["onPress"] = nil  -- had to explicitely set to nil or else it would inherit the onPress function from up and down buttons above 
-    refuseButton = widget.newButton(options)    
-    
     -- cash label
     textOptions["text"] = "Gold: "..GLOB.stats["cash"]
     textOptions["x"] = 100
@@ -718,7 +695,6 @@ function scene:create(event)
     sceneGroup:insert(hundredsOutput)
     sceneGroup:insert(thousandsOutput)
     sceneGroup:insert(submitButton)
-    sceneGroup:insert(refuseButton)
     sceneGroup:insert(itemLabel)
     sceneGroup:insert(markupOutput)
     sceneGroup:insert(customerMood)

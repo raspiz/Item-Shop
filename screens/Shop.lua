@@ -186,7 +186,8 @@ local OpenShop = function(event)
         else        -- there's no items to sell. try to resume shop or close shop
             if not scene:ResumeShop() then
                 composer.gotoScene("screens.Shop")
-            end
+            end   
+            print("nothing to sell")
         end
     
     elseif trans == 4 then -- customer buys a vending item
@@ -231,6 +232,11 @@ local OpenShop = function(event)
                     GLOB.vending[k] = ""
                 end        
             end 
+            
+            print("Sold "..soldName)
+        else
+            print("no vending item to sell") 
+       
         end        
         
         -- refresh visual elements if shop will now be closed
@@ -287,33 +293,20 @@ end
 function scene:AdvanceTime()
     -- advance the time period and roll over to one when incrementing from 4
     GLOB.stats["time"] = GLOB.stats["time"] % 4 + 1
+    
     -- advance day if time period is now 1
     if GLOB.stats["time"] == 1 then
         GLOB.stats["day"] = GLOB.stats["day"] + 1
         -- charge rent each day
-        local rent = (GLOB.stats["level"] * 75)
-        
-        if GLOB.stats["cash"] <= rent then
-            rent = GLOB.stats["cash"]
+        local rent = (GLOB.stats["level"] * 100)
+        GLOB.stats["cash"] = GLOB.stats["cash"] - rent
+
+        if GLOB.stats["cash"] < 0 then
             GLOB.stats["cash"] = 0
-            GLOB.stats["missedRent"] = GLOB.stats["missedRent"] + 1
-            messageLabel.text = "Rent not paid in full"
-            
-            print(GLOB.stats["missedRent"])
-            
-            if GLOB.stats["missedRent"] >= 3 then
-                local options = {
-                    isModal = true,
-                    -- add any other parameters here
-                }  
-                composer.showOverlay("screens.GameOver", options)                
-            end
-        else
-            GLOB.stats["cash"] = GLOB.stats["cash"] - rent
-            GLOB.stats["missedRent"] = 0
-            messageLabel.text = rent.." rent deducted"
-        end        
+            rent = 0
+        end
         
+        messageLabel.text = rent.." rent deducted"
     else
        messageLabel.text = ""
     end
@@ -818,7 +811,7 @@ function scene:create(event)
     closedLabel = display.newText(textOptions) -- item description
     closedLabel:setFillColor(255/255,0,0)
     
-    textOptions["x"] = 100
+    textOptions["x"] = 103
     textOptions["y"] = textHeight / 2 + 100
     textOptions["text"] = ""
     messageLabel = display.newText(textOptions) -- item description
@@ -914,6 +907,7 @@ function scene:show(event)
         end
         cashLabel.text = "Gold: "..GLOB.stats["cash"]
         scene:UpdateMerch()
+        print("shop scene started")
     end
 end
 

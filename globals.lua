@@ -74,7 +74,7 @@ globals.mood = {
 -- these tables will be used during the game to keep track of data. this data will be used for saving and loading
 -- set with default values for new game
 globals.inventory = {}
-globals.stats = {["cash"] = 1000, ["level"] = 1, ["xp"] = 0, ["tier"] = 1, ["day"] = 1, ["time"] = 1, ["missedRent"] = 0}
+globals.stats = {["cash"] = 1000, ["level"] = 1, ["xp"] = 0, ["tier"] = 1, ["day"] = 1, ["time"] = 1}
 globals.merch = {["1"] = "", ["2"] = "", ["3"] = "", ["4"] = "", ["5"] = "", ["6"] = "", ["7"] = "", ["8"] = ""} -- table of items currently for sale by player
 globals.vending = {["1"] = "", ["2"] = "", ["3"] = "", ["4"] = "", ["5"] = "", ["6"] = ""}
 
@@ -82,7 +82,7 @@ globals.vending = {["1"] = "", ["2"] = "", ["3"] = "", ["4"] = "", ["5"] = "", [
 -- todo: this table isn't really necessary and could be removed eventually. just make a local table of the needed tables when saving
 -- inventory items will have additional columns that are not in items.json. these are mod and qty
 globals.saveGame = {
-    ["stats"] = {["cash"] = 0, ["level"] = 1, ["xp"] = 0, ["tier"] = 1, ["day"] = 1, ["time"] = 1, ["missedRent"] = 0},
+    ["stats"] = {["cash"] = 0, ["level"] = 1, ["xp"] = 0, ["tier"] = 1, ["day"] = 1, ["time"] = 1},
     ["inventory"] = {},
     ["merch"] = {["1"] = "", ["2"] = "", ["3"] = "", ["4"] = "", ["5"] = "", ["6"] = "", ["7"] = "", ["8"] = ""},
     ["vending"] = {["1"] = "", ["2"] = "", ["3"] = "", ["4"] = "", ["5"] = "", ["6"] = ""}
