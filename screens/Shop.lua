@@ -48,7 +48,7 @@ local statGroup
 local floorBG
 
 local pickItem
-
+local backgroundMusic
 -- All code outside of the listener functions will only be executed ONCE unless "composer.removeScene()" is called.
 
 function scene:UpdateMerch()
@@ -80,12 +80,12 @@ function scene:UpdateMerch()
                 blue = 95
             elseif displayItem["Tier"] == 3 then
                 red = 155
-                green = 133
-                blue = 66
-            else
-                red = 155
                 green = 78
                 blue = 206
+            else                
+                red = 155
+                green = 133
+                blue = 66  
             end
         else
             paint = {
@@ -322,7 +322,8 @@ end
 
 function scene:create(event)
     local sceneGroup = self.view
-    scene._globalSceneObj = sceneGroup -- a reference to the scene that can be used outside create
+    
+    backgroundMusic = audio.loadStream( "shopMusic.mp3" )
     
     local merchWidth = 75
     local merchHeight = 75
@@ -703,6 +704,15 @@ function scene:create(event)
             local minTrans = GLOB.levels[level]["minTrans"]
             local maxTrans = GLOB.levels[level]["maxTrans"]
             closedLabel.text = "Shop Open"
+            local moptions =
+            {
+                channel = 1,
+                loops = -1,
+                duration = 30000,
+                fadein = 2000,
+            }
+            audio.play(backgroundMusic, moptions)
+            audio.resume()
             closedLabel:setFillColor(0,255/255,0)
             floorBG.bg:setFillColor(206/255,169/255,74/255)
             GLOB.shopIterations = utilities:RNG(maxTrans, minTrans) --randomize based on player level
@@ -796,6 +806,7 @@ function scene:create(event)
     
     textOptions["x"] = textOptions["x"] - 85
     textOptions["y"] = textHeight / 2 + 75
+    audio.pause()
     textOptions["text"] = "Shop Closed"  
     closedLabel = display.newText(textOptions) -- item description
     closedLabel:setFillColor(255/255,0,0)
@@ -840,11 +851,11 @@ function scene:show(event)
     local phase = event.phase    
     
     if phase == "will" then
-        -- Called when the scene is still off screen (but is about to come on screen).
+        -- Called when the scene is still off screen (but is about to come on screen).        
     elseif phase == "did" then
         -- Called when the scene is now on screen.
         -- Insert code here to make the scene come alive.
-        -- Example: start timers, begin animation, play audio, etc.
+        -- Example: start timers, begin animation, play audio, etc.        
         scene:ResumeShop() -- try to resume the open shop. update text labels
         scene:UpdateTimeOutput()
         -- enable buttons that may have been disabled after opening shope
@@ -868,6 +879,7 @@ function scene:show(event)
             inventoryButton:setEnabled(true)
             craftingButton:setEnabled(true)
             saveButton:setEnabled(true) 
+            audio.pause()
             closedLabel.text = "Shop Closed" -- screen indicator
             closedLabel:setFillColor(255/255,0,0)
             floorBG.bg:setFillColor(0,0,0)
@@ -899,6 +911,15 @@ function scene:show(event)
             craftingButton:setEnabled(false)
             saveButton:setEnabled(false)   
             closedLabel.text = "Shop Open" -- screen indicator
+            local moptions =
+            {
+                channel = 1,
+                loops = -1,
+                duration = 30000,
+                fadein = 2000,
+            }
+            audio.play(backgroundMusic, moptions)
+            audio.resume()
             closedLabel:setFillColor(0,255/255,0)   
             floorBG.bg:setFillColor(206/255,169/255,74/255)
         end

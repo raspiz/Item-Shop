@@ -2306,10 +2306,10 @@ function scene:show(event)
     
 
     if phase == "will" then
-        --filter = "master"
-        --scene:AddItems("All") -- show all items by default when loading
-        
+        filter = "master"
+        scene:AddItems("All") -- show all items by default when loading        
         scene:SetMasterFilter("All")
+        masterTabBar:setSelected( 1 )
         -- Called when the scene is still off screen (but is about to come on screen).      
     elseif phase == "did" then        
         -- Called when the scene is now on screen.
