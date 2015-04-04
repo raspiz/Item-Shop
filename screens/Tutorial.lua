@@ -69,7 +69,7 @@ function scene:UpdateMerch()
         end 
         
         if i <= 4 then -- first 4 boxes
-            merchLblGroup1[i].text = name 
+            --merchLblGroup1[i].text = name 
         end
     end 
     
@@ -178,32 +178,7 @@ function scene:create(event)
     
     local merchButton4 = widget.newButton(merchOptions)        
     
-    local labelOptions = {
-        text = "+",
-        x = merchWidth + 2,
-        y = merchY + 5,
-        width = merchWidth - 5,
-        height = merchHeight,
-        font = native.systemFont,
-        fontSize = 12,
-        align = "center"    
-    }    
-    
-    merchLabel1 = display.newText(labelOptions) -- item description
-    merchLabel1:setFillColor(0,0,0)        
-    
-    labelOptions["x"] = merchWidth * 2 + 2
-    merchLabel2 = display.newText(labelOptions) -- item description
-    merchLabel2:setFillColor(0,0,0)     
-    
-    labelOptions["x"] = merchWidth * 3 + 2
-    merchLabel3 = display.newText(labelOptions) -- item description
-    merchLabel3:setFillColor(0,0,0)  
-    
-    labelOptions["x"] = merchWidth * 4 + 2
-    merchLabel4 = display.newText(labelOptions) -- item description
-    merchLabel4:setFillColor(0,0,0)      
-    
+
     -- end first set of display cases
 
     -- add merch buttons and labels to merch groups and merch groups to scene group
@@ -211,10 +186,7 @@ function scene:create(event)
     merchBtnGroup1:insert(merchButton2);
     merchBtnGroup1:insert(merchButton3);
     merchBtnGroup1:insert(merchButton4);
-    merchLblGroup1:insert(merchLabel1)
-    merchLblGroup1:insert(merchLabel2)
-    merchLblGroup1:insert(merchLabel3)
-    merchLblGroup1:insert(merchLabel4)
+
 
     --------------------
     -- END DISPLAY CASES
@@ -390,10 +362,10 @@ function scene:create(event)
         width = 100,
         height = 50,
         cornerRadius = 2,
-        fillColor = { default={ 1, 0, 0, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
-        strokeColor = { default={ 1, 0.4, 0, 1 }, over={ 0.8, 0.8, 1, 1 } },
+        fillColor = { default={ .1, 0, .9, 1 }, over={ 1, 0.1, 0.7, 0.4 } },
+        strokeColor = { default={ .3, .3, .3, 1 }, over={ 0.8, 0.8, 1, 1 } },
         strokeWidth = 4,
-        labelColor = { default={ 0, 0, 0, 1 }, over={ 0, 0, 0, 1 } }                 
+        labelColor = { default={ .9, .9, .9, 1 }, over={ .9, .9, .9, 1 } },              
     }    
     
     options["label"] = "Open Shop"
