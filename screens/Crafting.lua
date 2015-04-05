@@ -297,7 +297,7 @@ function scene:AddItems(id)
     end
     
     -- todo: fix up sort options. ideally by price but would need to figure up calculated total value for each one first. for now just sort by tier
-    table.sort(selectedTable, function (a,b) return (a.Tier < b.Tier) end)
+    table.sort(selectedTable, function (a,b) return (general:CalculateBasePrice(a) > general:CalculateBasePrice(b)) end)
 
     for k,v in pairs (selectedTable) do
         itemName = ""
@@ -345,7 +345,7 @@ function scene:AddItems(id)
             local craftingDelay = 2700
             
             --"crafting..." text
-            textOptions["x"] = 800
+            textOptions["x"] = 850
             textOptions["text"] = "Crafting..."
             textOptions["fontSize"] = 16
             textOptions["y"] = 150
@@ -356,12 +356,12 @@ function scene:AddItems(id)
             textOptions["text"] = self.item["Primary"].." "..self.item["Secondary"].." "..self.item["Name"].." "..(self.item["Mod"] or "")
             textOptions["y"] = 180
             textOptions["width"] = 300
-            textOptions["x"] = 720 - textOptions["width"]/2
+            textOptions["x"] = 770 - textOptions["width"]/2
             craftingItemLabel = display.newText(textOptions)
             craftingItemLabel:setFillColor(0,0,0)
             --empty label to display the result of crafting
             textOptions["text"] = ""
-            textOptions["x"] = 800
+            textOptions["x"] = 850
             textOptions["width"] = 600
             textOptions["y"] = 210
             resultLabel = display.newText(textOptions)
@@ -369,8 +369,8 @@ function scene:AddItems(id)
             
             --function to roll success/failure of crafting             
             local function displayResult()
-                local num = utilities:RNG(10,1)
-                if(num > 5) then
+                local num = utilities:RNG(100,1)
+                if(num  + GLOB.stats["level"] > 50) then
                 resultLabel["text"] = "SUCCESS"
                 result = "success"
                 resultLabel:setFillColor(0,1,0)

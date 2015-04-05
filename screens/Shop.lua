@@ -283,17 +283,17 @@ function scene:AdvanceTime()
     if GLOB.stats["time"] == 1 then
         GLOB.stats["day"] = GLOB.stats["day"] + 1
         -- charge rent each day
-        local rent = (GLOB.stats["level"] * 75)
+        GLOB.stats["rent"] = (GLOB.stats["level"] * 50)
         
-        if GLOB.stats["cash"] <= rent then
-            rent = GLOB.stats["cash"]
+        if GLOB.stats["cash"] <= GLOB.stats["rent"] then
+            GLOB.stats["rent"] = GLOB.stats["cash"]
             GLOB.stats["cash"] = 0
             GLOB.stats["missedRent"] = GLOB.stats["missedRent"] + 1
             messageLabel.text = "Rent not paid in full"
         else
-            GLOB.stats["cash"] = GLOB.stats["cash"] - rent
+            GLOB.stats["cash"] = GLOB.stats["cash"] - GLOB.stats["rent"]
             GLOB.stats["missedRent"] = 0
-            messageLabel.text = rent.." rent deducted"
+            messageLabel.text = GLOB.stats["rent"].." rent deducted"
         end        
         
     else
@@ -324,6 +324,16 @@ function scene:create(event)
     local sceneGroup = self.view
     
     backgroundMusic = audio.loadStream( "shopMusic.mp3" )
+    local moptions =
+    {
+        channel = 1,
+        loops = -1,
+        duration = 30000,
+        fadein = 2000,
+    }
+    audio.play(backgroundMusic, moptions)
+    audio.setVolume( 0.6 )
+    audio.pause()
     
     local merchWidth = 75
     local merchHeight = 75
@@ -704,14 +714,6 @@ function scene:create(event)
             local minTrans = GLOB.levels[level]["minTrans"]
             local maxTrans = GLOB.levels[level]["maxTrans"]
             closedLabel.text = "Shop Open"
-            local moptions =
-            {
-                channel = 1,
-                loops = -1,
-                duration = 30000,
-                fadein = 2000,
-            }
-            audio.play(backgroundMusic, moptions)
             audio.resume()
             closedLabel:setFillColor(0,255/255,0)
             floorBG.bg:setFillColor(206/255,169/255,74/255)
@@ -806,8 +808,8 @@ function scene:create(event)
     
     textOptions["x"] = textOptions["x"] - 85
     textOptions["y"] = textHeight / 2 + 75
-    audio.pause()
     textOptions["text"] = "Shop Closed"  
+
     closedLabel = display.newText(textOptions) -- item description
     closedLabel:setFillColor(255/255,0,0)
     
@@ -881,6 +883,11 @@ function scene:show(event)
             saveButton:setEnabled(true) 
             audio.pause()
             closedLabel.text = "Shop Closed" -- screen indicator
+            if GLOB.stats["time"] == 1 and GLOB.stats["day"] ~= 1 then
+                messageLabel.text = GLOB.stats["rent"].." rent deducted"
+            else
+                messageLabel.text = ""
+            end                
             closedLabel:setFillColor(255/255,0,0)
             floorBG.bg:setFillColor(0,0,0)
             
@@ -911,14 +918,6 @@ function scene:show(event)
             craftingButton:setEnabled(false)
             saveButton:setEnabled(false)   
             closedLabel.text = "Shop Open" -- screen indicator
-            local moptions =
-            {
-                channel = 1,
-                loops = -1,
-                duration = 30000,
-                fadein = 2000,
-            }
-            audio.play(backgroundMusic, moptions)
             audio.resume()
             closedLabel:setFillColor(0,255/255,0)   
             floorBG.bg:setFillColor(206/255,169/255,74/255)

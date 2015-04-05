@@ -266,11 +266,7 @@ function scene:AddItems(id)
             if general:GetPickDisplayStatus() then
                 itemLabel["item"] = item
 
-                -- this is still fucked. now it won't scroll and just invokes touch began event.
-                -- todo may need to just move inventory and crafting to separate screens
-                function itemLabel:tap(event) -- important note: I had to make this a touch listener because if I used tap, the tap from shop would propagate and invoke this event causing errors
-                    print(event.phase)
-                    --if (event.phase == "ended") then
+                function itemLabel:tap(event)
                         local num = ""
 
                         if general:GetMerchSlot() ~= "" then
@@ -283,7 +279,6 @@ function scene:AddItems(id)
 
                     general:SetPickDisplayStatus()
                     composer.gotoScene("screens.Shop")
-                    --end
                 end           
 
                 itemLabel:addEventListener("tap", itemLabel)
@@ -2209,7 +2204,7 @@ function scene:create(event)
     sortLabel:setFillColor(255/255,0,0)    
     
     bottomOptions["x"] = 375
-    bottomOptions["text"] = "Value▲"
+    bottomOptions["text"] = "Value▼"
     sortValueLabel = display.newText(bottomOptions) -- item description
     sortValueLabel:addEventListener("tap", function() 
         scene:SetSort("Value")    

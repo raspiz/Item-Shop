@@ -367,7 +367,16 @@ function scene:ChangeValue()
         
     
     scene:OutputOffer(totalOffer) 
-    markupOutput.text = utilities:Round(totalOffer / itemPrice * 100).."% of base price" -- display new markup %
+    
+    local prefix = ""
+    
+    if GLOB.transactionType == "buy" then
+        prefix = "Buying for "
+    else
+        prefix = "Selling for "
+    end
+    
+    markupOutput.text = prefix..utilities:Round(totalOffer / itemPrice * 100).."% of base price" -- display new markup %
 end
 
 function scene:OutputOffer(newOffer)
@@ -437,8 +446,16 @@ function scene:SetInitialOffer()
 
     
     scene:OutputOffer(initialOffer)
+    
+    local prefix = ""
 
-    markupOutput.text = utilities:Round(initialOffer / itemPrice * 100).."% of base price" -- display new markup %  
+    if GLOB.transactionType == "buy" then
+        prefix = "Buying for "
+    else
+        prefix = "Selling for "
+    end
+
+    markupOutput.text = prefix..utilities:Round(initialOffer / itemPrice * 100).."% of base price" -- display new markup %  
     customerMood.text = GLOB.mood[turns] -- output customer mood
 end
 
@@ -488,7 +505,7 @@ function scene:create(event)
             end
         end        
         
-        if itemCount < 10 then
+        if itemCount < 2 then
             collectionChance = 10 -- can use this line to test collections
         end    
         
@@ -665,25 +682,34 @@ function scene:create(event)
     
     -- percent markup of offer
     textOptions["x"] = GLOB.middleX
-    textOptions["y"] = GLOB.middleY + 170
-    textOptions["width"] = 200
+    textOptions["y"] = GLOB.middleY + 180
+    textOptions["width"] = 300
     textOptions["height"] = 50
     textOptions["fontSize"] = 20
-    textOptions["text"] = "% of base price"  
+    
+    local prefix = ""
+    
+    if GLOB.transactionType == "buy" then
+        prefix = "Buying for "
+    else
+        prefix = "Selling for "
+    end
+    
+    textOptions["text"] = prefix.."% of base price"  
     markupOutput = display.newText(textOptions)    
     markupOutput:setFillColor(0,0,0)     
       
     -- submit button
-    options["x"] = GLOB.middleX
-    options["y"] = GLOB.middleY + 200
+    options["x"] = GLOB.middleX - 75
+    options["y"] = GLOB.middleY + 250
     options["label"] = "Offer"
     options["onRelease"] = self.MakeDeal
     options["onPress"] = nil  -- had to explicitely set to nil or else it would inherit the onPress function from up and down buttons above 
     submitButton = widget.newButton(options)
     
     -- refuse customer
-    options["x"] = GLOB.middleX
-    options["y"] = GLOB.middleY + 275
+    options["x"] = GLOB.middleX + 75
+    options["y"] = GLOB.middleY + 250
     options["label"] = "Refuse"
     options["onRelease"] = self.NoDeal
     options["onPress"] = nil  -- had to explicitely set to nil or else it would inherit the onPress function from up and down buttons above 
