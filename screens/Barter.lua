@@ -63,6 +63,8 @@ function scene:ChooseSellItem()
         count = count + 1
     end  
     
+    local notFoundCount = 0
+    
     while not isOnDisplay do    
         pickKey = utilities:RNG(#keys) or 0   -- choose a random key
         pickItem = keys[pickKey]  -- get the index value of that key
@@ -74,9 +76,23 @@ function scene:ChooseSellItem()
                 isOnDisplay = true
                 break
             end        
-        end        
+        end 
+        
+        notFoundCount = notFoundCount + 1
+        
+        -- ran into a problem where sometimes this would hang and no item would get chosen.
+        -- this will force an item to be picked
+        if notFoundCount == 1000 then
+            for k,v in pairs (GLOB.merch) do 
+                newItem = v  
+                break
+            end
+            
+            isOnDisplay = true
+        end
     end    
     
+        
     return newItem
 end
 
