@@ -283,16 +283,29 @@ function scene:AdvanceTime()
     if GLOB.stats["time"] == 1 then
         GLOB.stats["day"] = GLOB.stats["day"] + 1
         -- charge rent each day
-        GLOB.stats["rent"] = (GLOB.stats["level"] * 50)
+        GLOB.stats["rent"] = (GLOB.stats["xp"])
         
         if GLOB.stats["cash"] <= GLOB.stats["rent"] then
-            GLOB.stats["rent"] = GLOB.stats["cash"]
-            GLOB.stats["cash"] = 0
+            GLOB.stats["rent"] = 0
             GLOB.stats["missedRent"] = GLOB.stats["missedRent"] + 1
             messageLabel.text = "Rent not paid in full"
         else
-            GLOB.stats["cash"] = GLOB.stats["cash"] - GLOB.stats["rent"]
-            GLOB.stats["missedRent"] = 0
+            if GLOB.stats["missedRent"] ~= 0 then
+                GLOB.stats["rent"] = GLOB.stats["rent"] * GLOB.stats["missedRent"]
+                
+                if GLOB.stats["cash"] <= GLOB.stats["rent"] then
+                    GLOB.stats["rent"] = 0
+                    GLOB.stats["missedRent"] = GLOB.stats["missedRent"] + 1
+                    messageLabel.text = "Rent not paid in full"  
+                else
+                    GLOB.stats["cash"] = GLOB.stats["cash"] - GLOB.stats["rent"]
+                    GLOB.stats["missedRent"] = 0                    
+                end
+            else
+                GLOB.stats["cash"] = GLOB.stats["cash"] - GLOB.stats["rent"]
+                GLOB.stats["missedRent"] = 0
+            end            
+            
             messageLabel.text = GLOB.stats["rent"].." rent deducted"
         end        
         
@@ -323,15 +336,8 @@ end
 function scene:create(event)
     local sceneGroup = self.view
     
-    backgroundMusic = audio.loadStream( "shopMusic.mp3" )
-    local moptions =
-    {
-        channel = 1,
-        loops = -1,
-        duration = 30000,
-        fadein = 2000,
-    }
-    audio.play(backgroundMusic, moptions)
+    backgroundMusic = audio.loadStream( "shopMusic.wav" )
+    audio.play(backgroundMusic,{ channel = 1, loops = -1, duration = 30000, fadein = 2000,})
     audio.setVolume( 0.6 )
     audio.pause()
     
@@ -884,7 +890,11 @@ function scene:show(event)
             audio.pause()
             closedLabel.text = "Shop Closed" -- screen indicator
             if GLOB.stats["time"] == 1 and GLOB.stats["day"] ~= 1 then
-                messageLabel.text = GLOB.stats["rent"].." rent deducted"
+                if GLOB.stats["rent"] < (GLOB.stats["xp"]) then
+                    messageLabel.text = "Rent not paid in full"
+                else
+                    messageLabel.text = GLOB.stats["rent"].." rent deducted"
+                end                
             else
                 messageLabel.text = ""
             end                

@@ -65,7 +65,10 @@ function scene:create(event)
     options["onEvent"] = function(event)
         if ( "ended" == event.phase ) then
             -- todo add default values to appropriate tables to setup a new game
-            GLOB.stats = {["cash"] = 1000, ["level"] = 1, ["xp"] = 0, ["tier"] = 1, ["day"] = 1, ["time"] = 1, ["missedRent"] = 0}
+            GLOB.inventory = {}
+            GLOB.stats = {["cash"] = 1000, ["level"] = 1, ["xp"] = 0, ["tier"] = 1, ["day"] = 1, ["time"] = 1, ["missedRent"] = 0, ["rent"] = 0}
+            GLOB.merch = {["1"] = "", ["2"] = "", ["3"] = "", ["4"] = "", ["5"] = "", ["6"] = "", ["7"] = "", ["8"] = ""} -- table of items currently for sale by player
+            GLOB.vending = {["1"] = "", ["2"] = "", ["3"] = "", ["4"] = "", ["5"] = "", ["6"] = ""}
             composer.gotoScene("screens.Shop")
         end 
     end  

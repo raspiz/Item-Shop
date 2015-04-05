@@ -82,7 +82,7 @@ function scene:ChooseSellItem()
         
         -- ran into a problem where sometimes this would hang and no item would get chosen.
         -- this will force an item to be picked
-        if notFoundCount == 1000 then
+        if notFoundCount == 500 then
             for k,v in pairs (GLOB.merch) do 
                 newItem = v  
                 break
@@ -190,12 +190,12 @@ function scene:MakeDeal()
                 customerResponse.text = GLOB.mood["goldilocks"]
                 turns = 0
                 sale = true 
-                xpGain = 15
+                xpGain = 10
             elseif offer < minPrice then
                 customerResponse.text = GLOB.mood["toolittle"]
                 turns = 0
                 sale = true
-                xpGain = 10
+                xpGain = 15
             end            
         else -- buying
             if offer <= walkPrice then -- customer offended by high offer
@@ -208,12 +208,12 @@ function scene:MakeDeal()
                 customerResponse.text = GLOB.mood["goldilocks"]
                 turns = 0
                 sale = true 
-                xpGain = 15
+                xpGain = 10
             elseif offer > maxPrice then
                 customerResponse.text = GLOB.mood["toolittle"]
                 turns = 0
                 sale = true
-                xpGain = 10
+                xpGain = 15
             end                
         end
 
