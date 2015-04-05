@@ -39,6 +39,8 @@ local rectHeight = 350
 local visibleScroll = 250 -- the visible area of the scrollview
 local filter = ""
 
+local craftingBG
+
 local craftables = {}
 local templates = {}
 
@@ -337,6 +339,7 @@ function scene:AddItems(id)
         itemLabel["item"] = item
 
         function itemLabel:tap(event)
+            craftingBG.bg:toFront()
             -- remove crafting components used in creation
             scene:RemoveResource(self.item["Primary"])
             scene:RemoveResource(self.item["Secondary"])
@@ -368,7 +371,7 @@ function scene:AddItems(id)
             local result
             
             --function to roll success/failure of crafting             
-            local function displayResult()
+            local function displayResult()                
                 local num = utilities:RNG(100,1)
                 if(num  + GLOB.stats["level"] > 50) then
                 resultLabel["text"] = "SUCCESS"
@@ -379,64 +382,63 @@ function scene:AddItems(id)
                 result = "failure"
                 resultLabel:setFillColor(1,0,0)  
                 end
+                
+                -- remove template if it's equipment
+                if self.item["MasterCat"] == "Equipment" then
+                    local tempName = "Tier "..self.item["Tier"].." "..self.item["Name"].." Template"
+
+                    -- remove item from merch if on display
+                    for k,v in pairs (GLOB.merch) do    
+                        if v["Name"] == tempName then
+                            GLOB.merch[k] = ""
+                            break
+                        end        
+                    end   
+
+                    -- remove item from inventory or decrement qty
+                    for k,v in pairs(GLOB.inventory) do
+                        if v["Name"] == tempName then            
+                            if v["Qty"] > 1 then
+                                v["Qty"] = v["Qty"] - 1
+                                break
+                            else
+                                GLOB.inventory[k] = nil
+                                break
+                            end
+                        end
+                    end 
+                end
+
+                local function generateItem()
+                    -- add a mod
+                    self.item["Mod"] = general:ChooseMod(self.item)
+
+                    -- see if the item exists already
+                    local incQty = false
+
+                    -- see if the item exists in inventory already. must match ItemID and Mod. if so increase Qty and break loop
+                    for k,v in pairs(GLOB.inventory) do
+                        if v["ItemID"] == self.item["ItemID"] and v["Mod"] == self.item["Mod"] then
+                            v["Qty"] = v["Qty"] + 1
+                            incQty = true
+                            break
+                        end                    
+                    end
+
+                    -- if it's a new item just add to inv
+                    if not incQty then
+                        self.item["Qty"] = 1
+                        GLOB.inventory[#GLOB.inventory + 1] = self.item -- add the item to the end of the player inventory table
+                    end 
+                end
+
+                if(result == "success")then
+                    generateItem()
+                end    
             end
             
             --half of delay spent "crafting..." other half seeing success/failure, so display result after half the delay
-            timer.performWithDelay(craftingDelay/2, displayResult)       
-
-
-            -- remove template if it's equipment
-            if self.item["MasterCat"] == "Equipment" then
-                local tempName = "Tier "..self.item["Tier"].." "..self.item["Name"].." Template"
-
-                -- remove item from merch if on display
-                for k,v in pairs (GLOB.merch) do    
-                    if v["Name"] == tempName then
-                        GLOB.merch[k] = ""
-                        break
-                    end        
-                end   
-
-                -- remove item from inventory or decrement qty
-                for k,v in pairs(GLOB.inventory) do
-                    if v["Name"] == tempName then            
-                        if v["Qty"] > 1 then
-                            v["Qty"] = v["Qty"] - 1
-                            break
-                        else
-                            GLOB.inventory[k] = nil
-                            break
-                        end
-                    end
-                end 
-            end
-            
-            local function generateItem()
-                -- add a mod
-                self.item["Mod"] = general:ChooseMod(self.item)
-
-                -- see if the item exists already
-                local incQty = false
-
-                -- see if the item exists in inventory already. must match ItemID and Mod. if so increase Qty and break loop
-                for k,v in pairs(GLOB.inventory) do
-                    if v["ItemID"] == self.item["ItemID"] and v["Mod"] == self.item["Mod"] then
-                        v["Qty"] = v["Qty"] + 1
-                        incQty = true
-                        break
-                    end                    
-                end
-
-                -- if it's a new item just add to inv
-                if not incQty then
-                    self.item["Qty"] = 1
-                    GLOB.inventory[#GLOB.inventory + 1] = self.item -- add the item to the end of the player inventory table
-                end 
-            end
-                
-                if(result == "success")then
-                    generateItem()
-                end
+            timer.performWithDelay(craftingDelay/2, displayResult) 
             
             --refresh the item list after crafting an item, remove crafting progress/result labels
             local function DisplayCrafting()
@@ -444,6 +446,7 @@ function scene:AddItems(id)
                craftingLabel:removeSelf()
                resultLabel:removeSelf()
                craftingItemLabel:removeSelf()
+               craftingBG.bg:toBack()
             end
             
             --delay item list refreshing
@@ -731,6 +734,13 @@ function scene:create(event)
     -- semi transparent background to block out the underlying parent screen
     local overlayBackground = background.new(0,0, 1600,960)
     overlayBackground.bg:setFillColor(0,0,0,0.8)
+   
+    craftingBG = background.new(0,0, 2100,1280)
+    craftingBG.bg:setFillColor(0,0,0,0.3)   
+    craftingBG.bg:addEventListener("tap", function() return true end)
+    craftingBG.bg:addEventListener("touch", function() return true end)    
+    craftingBG.bg:toBack()
+    sceneGroup:insert(craftingBG.bg)
    
     local invGroup = display.newGroup()
     invGroup.x = 175
